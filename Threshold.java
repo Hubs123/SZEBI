@@ -1,5 +1,5 @@
 public class Threshold {
-    private Integer thresholdId;
+    private final Integer thresholdId;
     private String thresholdType;
     private Float valueInfo;
     private Float valueWarning;
