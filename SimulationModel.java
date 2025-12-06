@@ -1,5 +1,3 @@
-public class SimulationModel {
-    public void tick(Integer deviceId) {
-
-    }
+interface SimulationModel {
+    void tick(Integer deviceId);
 }
