@@ -2,13 +2,13 @@ import java.util.List;
 
 public class DeviceGroup {
     private final Integer deviceGroupId;
-    private String name;
+    private String groupName;
     private List<Threshold> thresholds;
     private List<AutomaticReaction> reactions;
 
-    public DeviceGroup(Integer deviceGroupId, String name, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
+    public DeviceGroup(Integer deviceGroupId, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
         this.deviceGroupId = deviceGroupId;
-        this.name = name;
+        this.groupName = groupName;
         this.thresholds = thresholds;
         this.reactions = reactions;
     }
@@ -17,12 +17,12 @@ public class DeviceGroup {
         return deviceGroupId;
     }
 
-    public String getName() {
-        return name;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public List<Threshold> getThresholds() {

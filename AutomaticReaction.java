@@ -1,21 +1,24 @@
 public class AutomaticReaction {
     private final Integer reactionId;
-    private String name;
+    private String reactionName;
 
-    public AutomaticReaction(Integer reactionId, String name) {
+    public AutomaticReaction(Integer reactionId, String reactionName) {
         this.reactionId = reactionId;
-        this.name = name;
+        this.reactionName = reactionName;
     }
 
     public Integer getReactionId() {
         return reactionId;
     }
 
-    public String getName() {
-        return name;
+    public String getReactionName() {
+        return reactionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setReactionName(String reactionName) {
+        this.reactionName = reactionName;
     }
+
+//    metoda execute będzie dostosowana do potrzeb przy połączeniu z modułem sterowania
+//    public void executeReaction(Device device, String reactionName) {}
 }
