@@ -1,3 +1,5 @@
+package alerty;
+
 import java.util.List;
 
 public class AlertRepository {
@@ -43,5 +45,5 @@ public class AlertRepository {
     }
 
 //    DO ZROBIENIA
-//    public Boolean sendToDataBase(Alert alert) {}
+//    public Boolean sendToDataBase(alerty.Alert alert) {}
 }

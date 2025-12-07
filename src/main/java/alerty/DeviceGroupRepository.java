@@ -1,3 +1,5 @@
+package alerty;
+
 import java.util.List;
 
 public class DeviceGroupRepository {

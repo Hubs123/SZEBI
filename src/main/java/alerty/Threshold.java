@@ -1,3 +1,5 @@
+package alerty;
+
 public class Threshold {
     private final Integer thresholdId;
     private String thresholdType;

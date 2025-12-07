@@ -1,3 +1,5 @@
+package alerty;
+
 import java.util.Date;
 import java.util.List;
 
@@ -67,7 +69,6 @@ public class Alert {
         List<Threshold> thresholds = dg.getThresholds();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAlertThresholdType())) {
-                Threshold currentThreshold = threshold;
                 if (anomalyValue<=threshold.getValueInfo()) {
                     setPriority(Priority.Information);
                 }
@@ -83,7 +84,7 @@ public class Alert {
     }
 
     public String createMessage() {
-        return "New alert with id: " + getAlertId().toString() + "\nPriority level: " +
+        return "New alert with id: " + getAlertId().toString() + "\nalerty.Priority level: " +
                 getPriority().toString() + "\nReported at: " + getAlertDate().toString() +
                 "\nComing from the device with id:" + getDeviceId().toString() +
                 "\nThe value of the anomaly equals:" + getDeviceValue().toString();

@@ -1,3 +1,5 @@
+package alerty;
+
 public class AutomaticReaction {
     private final Integer reactionId;
     private String reactionName;
@@ -20,5 +22,5 @@ public class AutomaticReaction {
     }
 
 //    metoda execute będzie dostosowana do potrzeb przy połączeniu z modułem sterowania
-//    public void executeReaction(Device device, String reactionName) {}
+//    public void executeReaction(alerty.Device device, String reactionName) {}
 }

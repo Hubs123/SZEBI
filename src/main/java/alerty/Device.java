@@ -1,3 +1,5 @@
+package alerty;
+
 public class Device {
     private final Integer deviceId;
     private final Integer deviceGroupId;
