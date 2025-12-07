@@ -12,6 +12,13 @@
 <div class="main">
     <div class="chat">
         <h1>SZEBI Chat</h1>
+        <div class="chat-header-buttons">
+            <button class="addUser" onclick="addUsers()">Add Users</button>
+            <button class="removeUser" onclick="removeUsers()">Remove Users</button>
+        </div>
+        <div id="userListContainer" style="display:none; margin-top: 1vh;">
+            <ul id="userList"></ul>
+        </div>
         <div id="messages"></div>
         <div class="buttons">
             <input id="msgInput" placeholder="Send a message...">
@@ -34,6 +41,16 @@
     <input id="searchUser" placeholder="Type a name...">
     <div id="userResults"></div>
     <button onclick="createChat()">Finish</button>
+    <button onclick="closeNewChatPanel()">Cancel</button>
+</div>
+
+<div id="addUserPanel" class="panel" style="display:none;">
+    <p>Enter username:</p>
+    <input id="newUserNamePanel" placeholder="Type username...">
+    <div style="margin-top: 1vh;">
+        <button id="confirmAddUserPanel">Add</button>
+        <button onclick="closeAddUserPanel()">Cancel</button>
+    </div>
 </div>
 
 <script src="script.js"></script>

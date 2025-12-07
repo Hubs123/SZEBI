@@ -79,7 +79,7 @@ async function loadChatHistory() {
     chats.forEach(chat => {
         const div = document.createElement("div");
         const deleteButton = document.createElement("button");
-        deleteButton.textContent = "🗑️";
+        deleteButton.textContent = "❌";
         deleteButton.className = "deleteChatButton";
         deleteButton.onclick = async (e) => {
             e.stopPropagation();
@@ -121,6 +121,11 @@ function addChat() {
     document.getElementById("panel").style.display = "block";
 }
 
+function closeNewChatPanel() {
+    document.getElementById('panel').style.display = 'none';
+}
+
+
 async function createChat() {
     const name = document.getElementById("nameChat").value.trim();
     if (!name) return alert("Chat name cannot be empty");
@@ -159,5 +164,76 @@ searchInput.oninput = async () => {
         resultsBox.appendChild(div);
     });
 };
+
+function addUsers() {
+    document.getElementById('addUserPanel').style.display = 'block';
+}
+
+function closeAddUserPanel() {
+    document.getElementById('addUserPanel').style.display = 'none';
+}
+
+document.getElementById('confirmAddUserPanel').addEventListener('click', async () => {
+    const username = document.getElementById('newUserNamePanel').value.trim();
+    if (!username) return alert('Enter a username');
+
+    const response = await fetch(`/api/chat/${activeChatId}/addUser`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: username })
+    });
+
+    if (response.ok) {
+        alert('User added');
+        document.getElementById('newUserNamePanel').value = '';
+        closeAddUserPanel();
+    } else {
+        alert('Error adding user');
+    }
+});
+
+function removeUsers() {
+    const addContainer = document.getElementById('addUserContainer');
+    if (addContainer) addContainer.style.display = 'none';
+
+    const container = document.getElementById('userListContainer');
+    container.style.display = 'block';
+
+    usersList();
+}
+
+async function usersList() {
+    const userList = document.getElementById('userList');
+
+    const response = await fetch(`/api/chat/${activeChatId}/users`);
+    const users = await response.json();
+
+    userList.innerHTML = '';
+
+    users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user.name + ' ';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '❌';
+        removeBtn.onclick = () => deleteUserFromChat(user.id);
+
+        li.appendChild(removeBtn);
+        userList.appendChild(li);
+    });
+}
+
+async function deleteUserFromChat(userId) {
+    const response = await fetch(`/chat/${activeChatId}/users/${userId}`, {
+        method: "DELETE"
+    });
+
+    if (response.ok) {
+        alert('User removed');
+        await usersList();
+    } else {
+        alert('Error removing user');
+    }
+}
 
 loadChatHistory();

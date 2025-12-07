@@ -61,6 +61,27 @@ public class ChatRestController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{chatId}/users")
+    public List<User> getUsers(@PathVariable Long chatId) {
+        return chatManager.getUsersInChat(chatManager.getChat(chatId).orElseThrow(() -> new RuntimeException("Chat not found")));
+    }
+
+    @DeleteMapping("/chat/{chatId}/users/{userId}")
+    public ResponseEntity<Void> deleteUserFromChat(@PathVariable Long chatId,
+                                                   @PathVariable Long userId) {
+        Chat chat = chatManager.getChat(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+        chat.removeUser(chatManager.getUser(userId));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{activeChatId}/addUser")
+    public ResponseEntity<Void> addUserToChat(@PathVariable Long activeChatId,
+                                              @RequestBody String username) {
+        chatManager.dbAddUserToChat(chatManager.getChat(activeChatId).orElseThrow(() -> new RuntimeException("Chat not found")), chatManager.getUserByUsername(username));
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/all")
     public List<Chat> getAllChats() {
         User user = chatManager.getUser(1L);

@@ -3,6 +3,7 @@ package com.example.iocommunication;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,10 @@ public class ChatManager {
         return chatRepository.findById(id);
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
     public User getUser(Long id) {
         return userRepository.findById(id).orElse(null);
     }
@@ -84,6 +89,10 @@ public class ChatManager {
 
     public List<User> searchUsersByPrefix(String prefix) {
         return userRepository.findByFirstNameStartingWith(prefix);
+    }
+
+    public List<User> getUsersInChat(Chat chat) {
+        return chat.getAllUsers();
     }
 
     @Transactional
