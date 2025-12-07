@@ -1,3 +1,5 @@
+package com.projekt.sterowanie;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,11 +43,25 @@ public class Device {
     }
 
     public Boolean applyCommand(Map<String, Float> m) {
-        //TODO: przypomnieć sobie jaki był zamysł tej metody
-        return null;
+        boolean result = true;
+        for (Map.Entry<String, Float> entry : m.entrySet()) {
+            String key = entry.getKey();
+            Float value = entry.getValue();
+            try { states.replace(key, value); }
+            catch (Exception e) { result = false; }
+        }
+        return result;
     }
 
     public void tick() {
-        //TODO: tej też
+        // TODO: zrobić tak, żeby enum DeviceType zawierał w sobie odpowiednie implementacje SimulationModel
+        try {
+            String className = "com.projekt.sterowanie." + type.name();
+            Class<?> simModel = Class.forName(className);
+            SimulationModel instance = (SimulationModel) simModel.getDeclaredConstructor().newInstance();
+            instance.tick(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

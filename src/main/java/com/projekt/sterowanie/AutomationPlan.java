@@ -1,3 +1,5 @@
+package com.projekt.sterowanie;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +24,7 @@ public class AutomationPlan {
     }
 
     public List<AutomationRule> getRules() {
-        return Collections.unmodifiableList(new ArrayList<>(rules));
+        return List.copyOf(rules);
     }
 
     public Boolean addRule(AutomationRule rule) {

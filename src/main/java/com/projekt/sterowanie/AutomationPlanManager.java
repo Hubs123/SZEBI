@@ -1,21 +1,18 @@
+package com.projekt.sterowanie;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AutomationPlanManager {
-    private AutomationPlanRepository planRepo;
+    private AutomationPlanRepository planRepo = new AutomationPlanRepository();
     private List<String> protectedStates = new ArrayList<>();
 
-    public AutomationPlanManager(AutomationPlanRepository planRepo, List<String> protectedStates) {
-        this.planRepo = planRepo;
-        this.protectedStates = protectedStates;
-    }
-
     public List<String> getProtectedStates() {
-        return new ArrayList<>(protectedStates);
+        return List.copyOf(protectedStates);
     }
 
     public Integer createPlan(Integer id, String name, List<AutomationRule> rules) {
-        if (rules != null) return null;
+        if (rules == null) return null;
         AutomationPlan plan = new AutomationPlan(id, name, rules);
         boolean added = planRepo.add(plan);
         return added ? plan.getId() : null;

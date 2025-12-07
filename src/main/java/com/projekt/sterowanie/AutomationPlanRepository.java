@@ -1,13 +1,10 @@
+package com.projekt.sterowanie;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class AutomationPlanRepository {
     private List<AutomationPlan> plans = new ArrayList<>();
-
-    public AutomationPlanRepository(List<AutomationPlan> plans) {
-        this.plans = plans;
-    }
 
     public Boolean save(AutomationPlan plan) {
         //TODO: zapis do bazy

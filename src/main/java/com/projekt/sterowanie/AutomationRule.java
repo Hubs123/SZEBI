@@ -1,3 +1,5 @@
+package com.projekt.sterowanie;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +21,7 @@ public class AutomationRule {
     }
 
     public Map<String, Float> getStates() {
-        return Collections.unmodifiableMap(new HashMap<>(states));
+        return Map.copyOf(states);
     }
 
     public String getTimeWindow() {

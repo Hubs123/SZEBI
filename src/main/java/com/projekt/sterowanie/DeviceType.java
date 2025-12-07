@@ -1,3 +1,5 @@
+package com.projekt.sterowanie;
+
 public enum DeviceType {
     BOMBA,
     DETONATOR
