@@ -5,6 +5,7 @@ public class DeviceGroup {
     private String groupName;
     private List<Threshold> thresholds;
     private List<AutomaticReaction> reactions;
+    private List<Device> devices;
 
     public DeviceGroup(Integer deviceGroupId, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
         this.deviceGroupId = deviceGroupId;
@@ -36,6 +37,8 @@ public class DeviceGroup {
     public List<AutomaticReaction> getReactions() {
         return reactions;
     }
+
+    public List<Device> getDevices() { return devices; }
 
     public void setReactions(List<AutomaticReaction> reactions) {
         this.reactions = reactions;
