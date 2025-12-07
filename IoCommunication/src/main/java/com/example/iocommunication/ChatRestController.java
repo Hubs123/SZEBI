@@ -55,6 +55,12 @@ public class ChatRestController {
         return chat;
     }
 
+    @DeleteMapping("/{chatId}")
+    public ResponseEntity<Void> deleteChat(@PathVariable Long chatId) {
+        chatManager.dbDeleteChat(chatManager.getChat(chatId).orElseThrow(() -> new RuntimeException("Chat not found")));
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/all")
     public List<Chat> getAllChats() {
         User user = chatManager.getUser(1L);

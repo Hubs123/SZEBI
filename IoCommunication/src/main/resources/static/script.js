@@ -78,6 +78,22 @@ async function loadChatHistory() {
 
     chats.forEach(chat => {
         const div = document.createElement("div");
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "🗑️";
+        deleteButton.className = "deleteChatButton";
+        deleteButton.onclick = async (e) => {
+            e.stopPropagation();
+            if (!confirm(`Usunąć czat "${chat.chatName}"?`)) return;
+            const res = await fetch(`/api/chat/${chat.id}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) {
+                return alert("Błąd przy usuwaniu czatu");
+            }
+            if (activeChatId === chat.id) activeChatId = null;
+            await loadChatHistory();
+        };
+
         div.textContent = chat.chatName;
         div.className = "chatItem";
         div.onclick = () => {
@@ -86,6 +102,7 @@ async function loadChatHistory() {
             div.classList.add("active");
             loadMessages(chat.id);
         };
+        div.appendChild(deleteButton);
         history.appendChild(div);
     });
 
