@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<button class="addChat" onclick="addChat()">New Chat</button>
+
+<div class="main">
+    <div class="chat">
+        <h1>SZEBI Chat</h1>
+        <div id="messages"></div>
+        <div class="buttons">
+            <input id="msgInput" placeholder="Send a message...">
+            <button onclick="sendMsg()">Send</button>
+            <button onclick="sendFile()">File</button>
+            <input type="file" id="fileInput" style="display:none" accept=".jpg,.png,.jpeg">
+        </div>
+    </div>
+
+    <div class="history">
+        <h1>HISTORY</h1>
+        <div id="chatHistory"></div>
+    </div>
+</div>
+
+<div id="panel" class="panel">
+    <p>Chat name:</p>
+    <input id="nameChat" placeholder="Enter the name">
+    <p>Select participants</p>
+    <input id="searchUser" placeholder="Type a name...">
+    <div id="userResults"></div>
+    <button onclick="createChat()">Finish</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

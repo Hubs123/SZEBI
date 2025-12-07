@@ -1,0 +1,146 @@
+let selectedUsers = [];
+let activeChatId = null;
+//to do zmiany ale nie mam pomysl jak to zrobic, bo trzebabyloby zrobic modul logowania itd, a to chyba odgornie do apki
+//musi byc
+const userId = 1;
+
+function addMessageToBox(senderName, content, attachments = []) {
+    const msgBox = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.textContent = `${senderName}: ${content}`;
+
+    attachments.forEach(f => {
+        const img = document.createElement("img");
+        img.src = `/api/chat/files/${f.id}`;
+        div.appendChild(img);
+    });
+
+    msgBox.appendChild(div);
+    msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+async function sendMessage(content = "", file = null) {
+    if (!activeChatId) return;
+
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("content", content);
+
+    if (file) formData.append("file", file);
+
+    const res = await fetch(`/api/chat/${activeChatId}/send`, {
+        method: "POST",
+        body: formData
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        return alert("Błąd podczas wysyłania wiadomości: " + text);
+    }
+
+    const msg = await res.json();
+    addMessageToBox(`${msg.sender.firstName} ${msg.sender.lastName}`, msg.content, msg.attachments || []);
+}
+
+function sendMsg() {
+    const input = document.getElementById("msgInput");
+    if (!input.value.trim()) return;
+    sendMessage(input.value.trim());
+    input.value = "";
+}
+
+function sendFile() {
+    const fileInput = document.getElementById("fileInput");
+    fileInput.click();
+
+    fileInput.onchange = () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        sendMessage("", file);
+    };
+}
+
+async function loadMessages(chatId) {
+    const res = await fetch(`/api/chat/${chatId}/messages`);
+    const messages = await res.json();
+    const msgBox = document.getElementById("messages");
+    msgBox.innerHTML = "";
+    messages.forEach(msg => {
+        addMessageToBox(`${msg.sender.firstName} ${msg.sender.lastName}`, msg.content, msg.attachments || []);
+    });
+}
+
+async function loadChatHistory() {
+    const res = await fetch(`/api/chat/all?userId=${userId}`);
+    const chats = await res.json();
+    const history = document.getElementById("chatHistory");
+    history.innerHTML = "";
+
+    chats.forEach(chat => {
+        const div = document.createElement("div");
+        div.textContent = chat.chatName;
+        div.className = "chatItem";
+        div.onclick = () => {
+            activeChatId = chat.id;
+            document.querySelectorAll(".chatItem").forEach(e => e.classList.remove("active"));
+            div.classList.add("active");
+            loadMessages(chat.id);
+        };
+        history.appendChild(div);
+    });
+
+    if (chats.length > 0 && !activeChatId) {
+        const firstChat = chats[0];
+        activeChatId = firstChat.id;
+
+        const firstChatDiv = history.querySelector(".chatItem");
+        if (firstChatDiv) firstChatDiv.classList.add("active");
+
+        loadMessages(activeChatId);
+    }
+}
+
+function addChat() {
+    document.getElementById("panel").style.display = "block";
+}
+
+async function createChat() {
+    const name = document.getElementById("nameChat").value.trim();
+    if (!name) return alert("Chat name cannot be empty");
+
+    const res = await fetch("/api/chat/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatName: name, creatorId: userId, participants: selectedUsers })
+    });
+
+    if (!res.ok) return alert(await res.text());
+    selectedUsers = [];
+    document.getElementById("panel").style.display = "none";
+    document.getElementById("nameChat").value = "";
+    await loadChatHistory();
+}
+
+const searchInput = document.getElementById("searchUser");
+const resultsBox = document.getElementById("userResults");
+
+searchInput.oninput = async () => {
+    const prefix = searchInput.value.trim();
+    if (!prefix) { resultsBox.innerHTML = ""; return; }
+
+    const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
+    const users = await res.json();
+    resultsBox.innerHTML = "";
+    users.forEach(u => {
+        const div = document.createElement("div");
+        div.textContent = `${u.firstName} ${u.lastName}`;
+        div.onclick = () => {
+            if (!selectedUsers.includes(u.id)) selectedUsers.push(u.id);
+            searchInput.value = "";
+            resultsBox.innerHTML = "";
+        };
+        resultsBox.appendChild(div);
+    });
+};
+
+loadChatHistory();
