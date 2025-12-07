@@ -212,7 +212,7 @@ async function usersList() {
 
     users.forEach(user => {
         const li = document.createElement('li');
-        li.textContent = user.name + ' ';
+        li.textContent = user.username + ' ';
 
         const removeBtn = document.createElement('button');
         removeBtn.textContent = '❌';
