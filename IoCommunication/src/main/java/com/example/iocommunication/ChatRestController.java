@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -26,8 +24,9 @@ public class ChatRestController {
     }
 
     @GetMapping("/{userId}/role")
-    public String checkUserRole (@PathVariable Long userId) {
-        return chatManager.getUser(userId).getRole();
+    public Map<String, String> checkUserRole (@PathVariable Long userId) {
+        String role = chatManager.getUser(userId).getRole();
+        return Collections.singletonMap("role", role);
     }
 
     @GetMapping("/files/{fileId}")
@@ -71,12 +70,13 @@ public class ChatRestController {
         return chatManager.getUsersInChat(chatManager.getChat(chatId).orElseThrow(() -> new RuntimeException("Chat not found")));
     }
 
-    @DeleteMapping("/chat/{chatId}/users/{userId}")
+    @DeleteMapping("/{chatId}/users/{userId}")
     public ResponseEntity<Void> deleteUserFromChat(@PathVariable Long chatId,
                                                    @PathVariable Long userId) {
         Chat chat = chatManager.getChat(chatId)
                 .orElseThrow(() -> new RuntimeException("Chat not found"));
-        chat.removeUser(chatManager.getUser(userId));
+        User user = chatManager.getUser(userId);
+        chatManager.dbRemoveUserFromChat(chat, user);
         return ResponseEntity.noContent().build();
     }
 

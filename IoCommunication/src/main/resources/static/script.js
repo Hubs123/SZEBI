@@ -83,7 +83,7 @@ async function loadChatHistory() {
         deleteButton.className = "deleteChatButton";
         deleteButton.onclick = async (e) => {
             e.stopPropagation();
-            // if (checkUsersRole(userId) === "ADMIN") {
+            if (await checkUsersRole(userId) === "ADMIN") {
                 if (!confirm(`Do you want to delete "${chat.chatName}"?`)) return;
                 const res = await fetch(`/api/chat/${chat.id}`, {
                     method: "DELETE"
@@ -93,7 +93,7 @@ async function loadChatHistory() {
                 }
                 if (activeChatId === chat.id) activeChatId = null;
                 await loadChatHistory();
-            // } alert("You don't have permission");
+            } alert("You don't have permission");
         };
 
         div.textContent = chat.chatName;
@@ -119,10 +119,12 @@ async function loadChatHistory() {
     }
 }
 
-function addChat() {
-    // if (checkUsersRole(userId) === "ADMIN") {
+async function addChat() {
+    if (await checkUsersRole(userId) === "ADMIN") {
         document.getElementById("panel").style.display = "block";
-    // } alert("You don't have permission");
+    }else {
+        alert("You don't have permission");
+    }
 }
 
 function closeNewChatPanel() {
@@ -169,10 +171,13 @@ async function createChat() {
 //     });
 // };
 
-function addUsers() {
-    // if (checkUsersRole(userId) === "ADMIN") {
+async function addUsers() {
+    let result = await checkUsersRole(userId)
+    if (result.toString() === "ADMIN") {
         document.getElementById('addUserPanel').style.display = 'block';
-    // } alert("You don't have permission");
+    } else {
+        alert("You don't have permission");
+    }
 }
 
 function closeAddUserPanel() {
@@ -198,8 +203,8 @@ document.getElementById('confirmAddUserPanel').addEventListener('click', async (
     }
 });
 
-function removeUsers() {
-    // if (checkUsersRole(userId) === "ADMIN") {
+async function removeUsers() {
+    if (await checkUsersRole(userId) === "ADMIN") {
         const addContainer = document.getElementById('addUserContainer');
         if (addContainer) addContainer.style.display = 'none';
 
@@ -207,7 +212,10 @@ function removeUsers() {
         container.style.display = 'block';
 
         usersList();
-    // } alert("You don't have permission");
+    }else{
+        alert("You don't have permission");
+    }
+
 }
 
 async function usersList() {
@@ -215,6 +223,7 @@ async function usersList() {
 
     const response = await fetch(`/api/chat/${activeChatId}/users`);
     const users = await response.json();
+    console.log(users)
 
     userList.innerHTML = '';
 
@@ -232,10 +241,9 @@ async function usersList() {
 }
 
 async function deleteUserFromChat(userId) {
-    const response = await fetch(`/chat/${activeChatId}/users/${userId}`, {
+    const response = await fetch(`/api/chat/${activeChatId}/users/${userId}`, {
         method: "DELETE"
     });
-
     if (response.ok) {
         alert('User removed');
         await usersList();
@@ -288,15 +296,16 @@ enableUserSearch(
     (user) => {
         document.getElementById("newUserNamePanel").value =
             `${user.firstName} ${user.lastName}`;
-
         selectedAddUserId = user.id;
     }
 );
 
 async function checkUsersRole(userId) {
-    const userRole = await fetch(`/${userId}/role`)
-    return await userRole.json();
+    console.log(userId)
+    const userRole = await fetch(`/api/chat/${userId}/role`);
+    let result = await userRole.json();
+    console.log(result);
+    console.log(result['role']);
+    return result['role']
 }
-
-
 loadChatHistory();

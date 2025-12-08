@@ -15,36 +15,56 @@ public class DataInitializer {
     public CommandLineRunner initData(UserRepository userRepository,
                                       ChatRepository chatRepository) {
         return args -> {
-            if (userRepository.count() == 0) {
-                User testUser = new User();
-                testUser.setFirstName("Piotr");
-                testUser.setLastName("Nowak");
-                testUser.setUsername("piotr.nowak");
-                testUser.setRole("USER");
-                testUser.setLastLogin(new Date());
-                userRepository.save(testUser);
+            if (userRepository.count() == 0){
+                User oldPiotr = userRepository.findByUsername("piotr.nowak");
+                if (oldPiotr != null) {
+                    userRepository.delete(oldPiotr);
+                    System.out.println("Usunięto starego użytkownika: piotr.nowak");
+                }
 
-                System.out.println("Dodano testowego użytkownika: Piotr Nowak");
+                if (userRepository.count() == 0) {
+                    User adminPiotr = new User();
+                    adminPiotr.setFirstName("Piotr");
+                    adminPiotr.setLastName("Nowak");
+                    adminPiotr.setUsername("piotr.nowak");
+                    adminPiotr.setRole("ADMIN");
+                    adminPiotr.setLastLogin(new Date());
+                    userRepository.save(adminPiotr);
 
-                Chat sampleChat = new Chat();
-                sampleChat.setChatName("Czat testowy");
-                List<User> participants = new ArrayList<>();
-                participants.add(testUser);
-                sampleChat.addUser(userRepository.findByUsername("piotr.nowak"));
-                chatRepository.save(sampleChat);
+                    System.out.println("Dodano użytkownika ADMIN: Piotr Nowak");
 
-                System.out.println("Dodano przykładowy czat: " + sampleChat.getChatName());
+                    User userAnna = new User();
+                    userAnna.setFirstName("Anna");
+                    userAnna.setLastName("Nowak");
+                    userAnna.setUsername("anna.nowak");
+                    userAnna.setRole("USER");
+                    userAnna.setLastLogin(new Date());
+                    userRepository.save(userAnna);
 
-                Message welcomeMsg = new Message();
-                welcomeMsg.setSender(testUser);
-                welcomeMsg.setContent("Witaj w czacie testowym!");
-                welcomeMsg.setDateCreated(new Date());
-                List<Message> messages = new ArrayList<>();
-                messages.add(welcomeMsg);
-                sampleChat.setMessages(messages);
-                chatRepository.save(sampleChat);
+                    System.out.println("Dodano użytkownika USER: Anna Nowak");
 
-                System.out.println("Dodano przykładową wiadomość do czatu testowego.");
+                    Chat sampleChat = new Chat();
+                    sampleChat.setChatName("Czat testowy");
+
+                    sampleChat.addUser(adminPiotr);
+                    sampleChat.addUser(userAnna);
+
+                    chatRepository.save(sampleChat);
+
+                    System.out.println("Dodano przykładowy czat: " + sampleChat.getChatName());
+                    Message welcomeMsg = new Message();
+                    welcomeMsg.setSender(adminPiotr);
+                    welcomeMsg.setContent("Witaj w czacie testowym!");
+                    welcomeMsg.setDateCreated(new Date());
+
+                    List<Message> messages = new ArrayList<>();
+                    messages.add(welcomeMsg);
+
+                    sampleChat.setMessages(messages);
+                    chatRepository.save(sampleChat);
+
+                    System.out.println("Dodano przykładową wiadomość do czatu testowego.");
+                }
             }
         };
     }
