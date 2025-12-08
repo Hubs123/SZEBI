@@ -83,15 +83,17 @@ async function loadChatHistory() {
         deleteButton.className = "deleteChatButton";
         deleteButton.onclick = async (e) => {
             e.stopPropagation();
-            if (!confirm(`Usunąć czat "${chat.chatName}"?`)) return;
-            const res = await fetch(`/api/chat/${chat.id}`, {
-                method: "DELETE"
-            });
-            if (!res.ok) {
-                return alert("Błąd przy usuwaniu czatu");
-            }
-            if (activeChatId === chat.id) activeChatId = null;
-            await loadChatHistory();
+            // if (checkUsersRole(userId) === "ADMIN") {
+                if (!confirm(`Do you want to delete "${chat.chatName}"?`)) return;
+                const res = await fetch(`/api/chat/${chat.id}`, {
+                    method: "DELETE"
+                });
+                if (!res.ok) {
+                    return alert("Error while deleting chat");
+                }
+                if (activeChatId === chat.id) activeChatId = null;
+                await loadChatHistory();
+            // } alert("You don't have permission");
         };
 
         div.textContent = chat.chatName;
@@ -118,7 +120,9 @@ async function loadChatHistory() {
 }
 
 function addChat() {
-    document.getElementById("panel").style.display = "block";
+    // if (checkUsersRole(userId) === "ADMIN") {
+        document.getElementById("panel").style.display = "block";
+    // } alert("You don't have permission");
 }
 
 function closeNewChatPanel() {
@@ -166,7 +170,9 @@ async function createChat() {
 // };
 
 function addUsers() {
-    document.getElementById('addUserPanel').style.display = 'block';
+    // if (checkUsersRole(userId) === "ADMIN") {
+        document.getElementById('addUserPanel').style.display = 'block';
+    // } alert("You don't have permission");
 }
 
 function closeAddUserPanel() {
@@ -193,13 +199,15 @@ document.getElementById('confirmAddUserPanel').addEventListener('click', async (
 });
 
 function removeUsers() {
-    const addContainer = document.getElementById('addUserContainer');
-    if (addContainer) addContainer.style.display = 'none';
+    // if (checkUsersRole(userId) === "ADMIN") {
+        const addContainer = document.getElementById('addUserContainer');
+        if (addContainer) addContainer.style.display = 'none';
 
-    const container = document.getElementById('userListContainer');
-    container.style.display = 'block';
+        const container = document.getElementById('userListContainer');
+        container.style.display = 'block';
 
-    usersList();
+        usersList();
+    // } alert("You don't have permission");
 }
 
 async function usersList() {
@@ -281,10 +289,14 @@ enableUserSearch(
         document.getElementById("newUserNamePanel").value =
             `${user.firstName} ${user.lastName}`;
 
-        // możesz od razu zapisać user.id, jeśli chcesz
         selectedAddUserId = user.id;
     }
 );
+
+async function checkUsersRole(userId) {
+    const userRole = await fetch(`/${userId}/role`)
+    return await userRole.json();
+}
 
 
 loadChatHistory();

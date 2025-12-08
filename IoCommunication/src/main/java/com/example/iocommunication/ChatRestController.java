@@ -25,6 +25,11 @@ public class ChatRestController {
         return chatManager.searchUsersByPrefix(prefix);
     }
 
+    @GetMapping("/{userId}/role")
+    public String checkUserRole (@PathVariable Long userId) {
+        return chatManager.getUser(userId).getRole();
+    }
+
     @GetMapping("/files/{fileId}")
     public ResponseEntity<byte[]> getFile(@PathVariable Long fileId) {
         File file = chatManager.getFile(fileId);
