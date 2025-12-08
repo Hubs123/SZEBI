@@ -1,4 +1,4 @@
-package alerts;
+package com.projekt.alerts;
 
 public class Threshold {
     private final Integer thresholdId;

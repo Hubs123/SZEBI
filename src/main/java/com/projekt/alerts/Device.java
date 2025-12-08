@@ -1,4 +1,4 @@
-package alerts;
+package com.projekt.alerts;
 
 public class Device {
     private final Integer deviceId;

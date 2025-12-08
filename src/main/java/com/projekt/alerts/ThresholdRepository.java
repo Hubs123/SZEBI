@@ -1,4 +1,4 @@
-package alerts;
+package com.projekt.alerts;
 
 import java.util.List;
 

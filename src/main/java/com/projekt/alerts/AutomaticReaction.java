@@ -1,4 +1,4 @@
-package alerts;
+package com.projekt.alerts;
 
 public class AutomaticReaction {
     private final Integer reactionId;
