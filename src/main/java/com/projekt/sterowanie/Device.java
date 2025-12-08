@@ -21,7 +21,10 @@ public class Device {
     public Integer getId() {
         return id;
     }
-    void setId(int id) { this.id = id; }
+
+    void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -40,7 +43,7 @@ public class Device {
     }
 
     public Map<String, Float> getStates() {
-        return Collections.unmodifiableMap(new HashMap<>(states));
+        return states;
     }
 
     public Boolean applyCommand(Map<String, Float> m) {

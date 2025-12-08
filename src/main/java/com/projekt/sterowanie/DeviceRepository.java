@@ -12,7 +12,6 @@ import java.util.List;
 public class DeviceRepository {
     private List<Device> devices = new ArrayList<>();
 
-    // stany zapisywane do bazy nie są aktualne - z map<string, float> istotny więc tylko string
     public Boolean save(Device device) {
         PreparedStatement ps = null;
         ResultSet rs = null;

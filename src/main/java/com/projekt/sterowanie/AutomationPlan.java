@@ -10,6 +10,7 @@ public class AutomationPlan {
     private List<AutomationRule> rules = new ArrayList<>();
 
     public AutomationPlan(String name, List<AutomationRule> rules) {
+        this.id = null;
         this.name = name;
         if (rules != null) this.rules.addAll(rules);
     }
@@ -17,7 +18,10 @@ public class AutomationPlan {
     public Integer getId() {
         return id;
     }
-    void setId(int id) { this.id = id; }
+
+    void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

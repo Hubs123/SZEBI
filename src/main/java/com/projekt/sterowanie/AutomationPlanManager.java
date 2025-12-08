@@ -6,13 +6,8 @@ import java.util.Map;
 
 public class AutomationPlanManager {
     private final AutomationPlanRepository planRepo = new AutomationPlanRepository();
-    private final List<AutomationRule> protectedStates = new ArrayList<>();
     private AutomationPlan currentPlan = null;
     private Boolean isCurrentPlanPrio = false;
-
-    public List<AutomationRule> getProtectedStates() {
-        return List.copyOf(protectedStates);
-    }
 
     public Integer createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
@@ -23,6 +18,14 @@ public class AutomationPlanManager {
 
     public Boolean removePlan(Integer planId) {
         return planRepo.delete(planId);
+    }
+
+    public Boolean getCurrentPlanPrio() {
+        return isCurrentPlanPrio;
+    }
+
+    public AutomationPlan getCurrentPlan() {
+        return currentPlan;
     }
 
     public Boolean activatePlan(Integer planId) {
@@ -81,14 +84,11 @@ public class AutomationPlanManager {
             }
             // tymczasowy plan utworzony na bazie obecnych stanów i modyfikacji od modułu optymalizacji
         }
-        if (currentPlan.getRules().size() != offsets.size()) {
-            return false;
-        }
         boolean commandApplied = true;
-        for (int i = 0; i < currentPlan.getRules().size(); i++) {
-            AutomationRule rule = currentPlan.getRules().get(i);
-            Map<String, Float> newStates = rule.getStates();
-            offsets.get(i).getStates().forEach((key, value) ->
+        for (int i = 0; i < offsets.size(); i++) {
+            Map<String, Float> oldStates = devices.get(i).getStates();
+            Map<String, Float> newStates = offsets.get(i).getStates();
+            oldStates.forEach((key, value) ->
                     newStates.merge(key, value, Float::sum)
             );
             if (!devices.get(i).applyCommand(newStates)) {
