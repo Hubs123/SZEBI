@@ -143,27 +143,27 @@ async function createChat() {
     await loadChatHistory();
 }
 
-const searchInput = document.getElementById("searchUser");
-const resultsBox = document.getElementById("userResults");
-
-searchInput.oninput = async () => {
-    const prefix = searchInput.value.trim();
-    if (!prefix) { resultsBox.innerHTML = ""; return; }
-
-    const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
-    const users = await res.json();
-    resultsBox.innerHTML = "";
-    users.forEach(u => {
-        const div = document.createElement("div");
-        div.textContent = `${u.firstName} ${u.lastName}`;
-        div.onclick = () => {
-            if (!selectedUsers.includes(u.id)) selectedUsers.push(u.id);
-            searchInput.value = "";
-            resultsBox.innerHTML = "";
-        };
-        resultsBox.appendChild(div);
-    });
-};
+// const searchInput = document.getElementById("searchUser");
+// const resultsBox = document.getElementById("userResults");
+//
+// searchInput.oninput = async () => {
+//     const prefix = searchInput.value.trim();
+//     if (!prefix) { resultsBox.innerHTML = ""; return; }
+//
+//     const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
+//     const users = await res.json();
+//     resultsBox.innerHTML = "";
+//     users.forEach(u => {
+//         const div = document.createElement("div");
+//         div.textContent = `${u.firstName} ${u.lastName}`;
+//         div.onclick = () => {
+//             if (!selectedUsers.includes(u.id)) selectedUsers.push(u.id);
+//             searchInput.value = "";
+//             resultsBox.innerHTML = "";
+//         };
+//         resultsBox.appendChild(div);
+//     });
+// };
 
 function addUsers() {
     document.getElementById('addUserPanel').style.display = 'block';
@@ -235,5 +235,56 @@ async function deleteUserFromChat(userId) {
         alert('Error removing user');
     }
 }
+
+function enableUserSearch(inputElement, resultsElement, onSelect) {
+
+    inputElement.oninput = async () => {
+        const prefix = inputElement.value.trim();
+        if (!prefix) {
+            resultsElement.innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
+        const users = await res.json();
+
+        resultsElement.innerHTML = "";
+
+        users.forEach(user => {
+            const div = document.createElement("div");
+            div.textContent = `${user.firstName} ${user.lastName}`;
+            div.className = "autocomplete-item";
+
+            div.onclick = () => {
+                onSelect(user);
+                resultsElement.innerHTML = "";
+            };
+
+            resultsElement.appendChild(div);
+        });
+    };
+}
+
+enableUserSearch(
+    document.getElementById("searchUser"),
+    document.getElementById("userResults"),
+    (user) => {
+        if (!selectedUsers.includes(user.id)) selectedUsers.push(user.id);
+        document.getElementById("searchUser").value = "";
+    }
+);
+
+enableUserSearch(
+    document.getElementById("newUserNamePanel"),
+    document.getElementById("addUserResults"),
+    (user) => {
+        document.getElementById("newUserNamePanel").value =
+            `${user.firstName} ${user.lastName}`;
+
+        // możesz od razu zapisać user.id, jeśli chcesz
+        selectedAddUserId = user.id;
+    }
+);
+
 
 loadChatHistory();
