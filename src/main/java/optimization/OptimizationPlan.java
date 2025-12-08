@@ -1,3 +1,5 @@
+package optimization;
+
 import java.util.List;
 
 public class OptimizationPlan {
