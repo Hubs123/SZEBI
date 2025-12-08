@@ -7,7 +7,6 @@ import java.util.Map;
 public class AutomationRule {
     private Integer deviceId;
     private Map<String, Float> states = new HashMap<>();
-    //TODO: pomyśleć, jak sensowniej zapisywać time window
     private String timeWindow;
 
     public AutomationRule(Integer deviceId, Map<String, Float> states, String timeWindow) {

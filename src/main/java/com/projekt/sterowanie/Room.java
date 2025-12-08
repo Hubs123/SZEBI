@@ -1,6 +1,5 @@
 package com.projekt.sterowanie;
 
-import java.sql.SQLException;
 import java.util.*;
 
 public class Room {
@@ -8,34 +7,21 @@ public class Room {
     private String name;
     private Set<Integer> deviceIds = new HashSet<>();
 
-    public Room(Integer id, String name) throws SQLException {
-        this.id = id;
+    public Room(String name) {
+        this.id = null;
         this.name = name;
     }
 
     public Integer getId() {
         return id;
     }
+    void setId(Integer id) { this.id = id; }
 
     public String getName() {
         return name;
     }
 
-    public Set<Integer> listDevices() {
-//        List<Device> devices = new ArrayList<>();
-//        PreparedStatement ps = Db.conn.prepareStatement(
-//                "select * from devices where room_id = ?");
-//        ps.setInt(1, id);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            int deviceId = rs.getInt("id");
-//            String deviceName = rs.getString("name");
-//            DeviceType deviceType = DeviceType.valueOf(rs.getString("type"));
-//            int roomId = rs.getInt("room_id");
-//            Device device = new Device(deviceId, deviceName, deviceType, roomId);
-//            devices.add(device);
-//        }
-//        return devices;
+    public Set<Integer> listDeviceIds() {
         return Collections.unmodifiableSet(deviceIds);
     }
 

@@ -11,8 +11,8 @@ public class Device {
     private Integer roomId = null;
     private Map<String, Float> states = new HashMap<>();
 
-    public Device(Integer id, String name, DeviceType type, Integer roomId) {
-        this.id = id;
+    public Device(String name, DeviceType type, Integer roomId) {
+        this.id = null;
         this.name = name;
         this.type = type;
         this.roomId = roomId;
@@ -21,6 +21,7 @@ public class Device {
     public Integer getId() {
         return id;
     }
+    void setId(int id) { this.id = id; }
 
     public String getName() {
         return name;
@@ -54,14 +55,7 @@ public class Device {
     }
 
     public void tick() {
-        // TODO: zrobić tak, żeby enum DeviceType zawierał w sobie odpowiednie implementacje SimulationModel
-        try {
-            String className = "com.projekt.sterowanie." + type.name();
-            Class<?> simModel = Class.forName(className);
-            SimulationModel instance = (SimulationModel) simModel.getDeclaredConstructor().newInstance();
-            instance.tick(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SimulationModel model = type.newModelInstance();
+        model.tick(this);
     }
 }

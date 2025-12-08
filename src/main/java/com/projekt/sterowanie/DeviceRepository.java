@@ -1,5 +1,10 @@
 package com.projekt.sterowanie;
 
+import com.projekt.db.Db;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,9 +12,49 @@ import java.util.List;
 public class DeviceRepository {
     private List<Device> devices = new ArrayList<>();
 
+    // stany zapisywane do bazy nie są aktualne - z map<string, float> istotny więc tylko string
     public Boolean save(Device device) {
-        //TODO: zapis do bazy
-        return null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            // wstawia nowy rekord
+            if (device.getId() == null) {
+                String sql = "INSERT INTO devices (name, type, room_id) "
+                        + "VALUES (?, ?, ?) RETURNING id";
+                ps = Db.conn.prepareStatement(sql);
+                ps.setString(1, device.getName());
+                ps.setString(2, device.getType().toString());
+                if (device.getRoomId() != null)
+                    ps.setInt(3, device.getRoomId());
+                else
+                    ps.setNull(3, java.sql.Types.INTEGER);
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    device.setId(rs.getInt("id"));
+                }
+                return true;
+            } else {
+                // update istniejący rekord
+                String sql = "UPDATE devices "
+                        + "SET name = ?, type = ?, room_id = ? "
+                        + "WHERE id = ?";
+                ps = Db.conn.prepareStatement(sql);
+                ps.setString(1, device.getName());
+                ps.setString(2, device.getType().toString());
+                if (device.getRoomId() != null)
+                    ps.setInt(3, device.getRoomId());
+                else
+                    ps.setNull(3, java.sql.Types.INTEGER);
+                ps.setInt(4, device.getId());
+                return ps.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+        }
     }
 
     public Boolean add(Device device) {

@@ -2,18 +2,21 @@ package com.projekt.sterowanie;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AutomationPlanManager {
-    private AutomationPlanRepository planRepo = new AutomationPlanRepository();
-    private List<String> protectedStates = new ArrayList<>();
+    private final AutomationPlanRepository planRepo = new AutomationPlanRepository();
+    private final List<AutomationRule> protectedStates = new ArrayList<>();
+    private AutomationPlan currentPlan = null;
+    private Boolean isCurrentPlanPrio = false;
 
-    public List<String> getProtectedStates() {
+    public List<AutomationRule> getProtectedStates() {
         return List.copyOf(protectedStates);
     }
 
-    public Integer createPlan(Integer id, String name, List<AutomationRule> rules) {
+    public Integer createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
-        AutomationPlan plan = new AutomationPlan(id, name, rules);
+        AutomationPlan plan = new AutomationPlan(name, rules);
         boolean added = planRepo.add(plan);
         return added ? plan.getId() : null;
     }
@@ -23,12 +26,81 @@ public class AutomationPlanManager {
     }
 
     public Boolean activatePlan(Integer planId) {
-        //TODO
-        return null;
+        AutomationPlan plan = planRepo.findById(planId);
+        if (plan == null) return false;
+        List<AutomationRule> rules = plan.getRules();
+        List<Device> devices = new ArrayList<>();
+        for (AutomationRule rule : rules) {
+            devices.add(DeviceManager.deviceRepo.findById(rule.getDeviceId()));
+        }
+        boolean commandApplied = true;
+        for (int i = 0; i < devices.size(); i++) {
+            if (!devices.get(i).applyCommand(rules.get(i).getStates())) {
+                commandApplied = false;
+                // podobnie jak w device manager
+            }
+        }
+        if (commandApplied) {
+            currentPlan = plan;
+        }
+        else {
+            currentPlan = null;
+            // na razie bez rollbacku
+        }
+        return commandApplied;
+        // time window na razie nie zaimplementowany - bardzo skomplikowane
+
     }
 
-    public Boolean applyModifications(Integer planId, List<AutomationRule> newRules, Integer priority) {
-        //TODO
-        return null;
+    public Boolean applyModifications(List<AutomationRule> offsets, Integer priority) {
+        List<Device> devices = new ArrayList<>();
+        for (AutomationRule rule : offsets) {
+            devices.add(DeviceManager.deviceRepo.findById(rule.getDeviceId()));
+        }
+        if (currentPlan == null || currentPlan.getName().equals("temp")) {
+            List<AutomationRule> rules = new ArrayList<>();
+            for (int i = 0; i < devices.size(); i++) {
+                Device device = devices.get(i);
+                Map<String, Float> newStates = device.getStates();
+                offsets.get(i).getStates().forEach((key, value) ->
+                        newStates.merge(key, value, Float::sum)
+                ); // dodanie wszystkich wartości offsetów stanów
+                AutomationRule rule = new AutomationRule(device.getId(), newStates, offsets.get(i).getTimeWindow());
+                rules.add(rule);
+            }
+            AutomationPlan tempPlan = new AutomationPlan("temp", rules);
+            boolean commandApplied = true;
+            for (int i = 0; i < devices.size(); i++) {
+                if(!devices.get(i).applyCommand(rules.get(i).getStates())) {
+                    commandApplied = false;
+                }
+            }
+            if (commandApplied) {
+                currentPlan = tempPlan;
+                return true;
+            }
+            // tymczasowy plan utworzony na bazie obecnych stanów i modyfikacji od modułu optymalizacji
+        }
+        if (currentPlan.getRules().size() != offsets.size()) {
+            return false;
+        }
+        boolean commandApplied = true;
+        for (int i = 0; i < currentPlan.getRules().size(); i++) {
+            AutomationRule rule = currentPlan.getRules().get(i);
+            Map<String, Float> newStates = rule.getStates();
+            offsets.get(i).getStates().forEach((key, value) ->
+                    newStates.merge(key, value, Float::sum)
+            );
+            if (!devices.get(i).applyCommand(newStates)) {
+                commandApplied = false;
+            }
+        }
+        // priority 0 - zwykłe, 1 - priorytetowe
+        isCurrentPlanPrio = priority > 0;
+        return commandApplied;
+    }
+
+    public Boolean saveToDatabase(AutomationPlan plan) {
+        return planRepo.save(plan);
     }
 }

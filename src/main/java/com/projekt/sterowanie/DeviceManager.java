@@ -5,19 +5,27 @@ import java.util.List;
 import java.util.Map;
 
 public class DeviceManager {
-    private final DeviceRepository deviceRepo = new DeviceRepository();
+    // automation plan musi mieć dostęp do deviceRepo, stąd static
+    static final DeviceRepository deviceRepo = new DeviceRepository();
     private final RoomRepository roomRepo = new RoomRepository();
 
-    //TODO: chyba dodać tu też metode do zapisu do bazy wykorzystującą save() z repo
-
-    public Integer registerDevice(Integer id, String name, DeviceType type, Integer roomId) {
-        Device d = new Device(id, name, type, roomId);
+    public Integer registerDevice(String name, DeviceType type, Integer roomId) {
+        Device d = new Device(name, type, roomId);
         Boolean added = deviceRepo.add(d);
         return added ? d.getId() : null;
     }
 
     public Boolean removeDevice(Integer deviceId) {
         return deviceRepo.delete(deviceId);
+    }
+
+    public Boolean saveDeviceToDatabase(Device device) {
+        return deviceRepo.save(device);
+    }
+
+    // warto zastanowić się nad zmianą nazwy DeviceManager na np DeviceRoomManager
+    public Boolean saveRoomToDatabase(Room room) {
+        return roomRepo.save(room);
     }
 
     public Map<String, Float> getStates(Integer deviceId) {
@@ -27,7 +35,6 @@ public class DeviceManager {
     }
 
     public boolean sendCommand(Integer deviceId, Map<String, Float> m) {
-        //TODO: dostosować po zrobieniu applyCommand()
         Device d = deviceRepo.findById(deviceId);
         if (d == null) return false;
         return d.applyCommand(m);
@@ -76,5 +83,4 @@ public class DeviceManager {
         }
         return result;
     }
-
 }
