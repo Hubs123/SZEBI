@@ -1,4 +1,4 @@
-package alerty;
+package alerts;
 
 import java.util.Date;
 import java.util.List;

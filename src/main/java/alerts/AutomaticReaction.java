@@ -1,4 +1,4 @@
-package alerty;
+package alerts;
 
 public class AutomaticReaction {
     private final Integer reactionId;

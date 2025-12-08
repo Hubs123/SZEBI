@@ -1,4 +1,4 @@
-package alerty;
+package alerts;
 
 public class Threshold {
     private final Integer thresholdId;

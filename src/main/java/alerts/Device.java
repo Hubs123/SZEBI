@@ -1,4 +1,4 @@
-package alerty;
+package alerts;
 
 public class Device {
     private final Integer deviceId;

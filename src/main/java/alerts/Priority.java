@@ -1,4 +1,4 @@
-package alerty;
+package alerts;
 
 public enum Priority {
     Information,
