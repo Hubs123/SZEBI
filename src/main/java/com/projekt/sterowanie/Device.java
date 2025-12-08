@@ -7,15 +7,22 @@ import java.util.Map;
 public class Device {
     private Integer id;
     private String name;
+    private Integer deviceGroupId;
     private DeviceType type;
     private Integer roomId = null;
     private Map<String, Float> states = new HashMap<>();
 
-    public Device(String name, DeviceType type, Integer roomId) {
+    public Device(String name, DeviceType type, Integer deviceGroupId, Integer roomId) {
         this.id = null;
         this.name = name;
+        this.deviceGroupId = deviceGroupId;
         this.type = type;
         this.roomId = roomId;
+        switch (type) {
+            case noSimulation: default:
+                states.put("power", 1.0f);
+                break;
+        }
     }
 
     public Integer getId() {
@@ -24,6 +31,10 @@ public class Device {
 
     void setId(int id) {
         this.id = id;
+    }
+
+    public Integer getDeviceGroupId() {
+        return deviceGroupId;
     }
 
     public String getName() {

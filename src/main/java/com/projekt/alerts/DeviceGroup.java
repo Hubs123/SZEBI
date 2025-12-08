@@ -1,6 +1,7 @@
 package com.projekt.alerts;
 
 import java.util.List;
+import com.projekt.sterowanie.Device;
 
 public class DeviceGroup {
     private final Integer deviceGroupId;

@@ -2,6 +2,7 @@ package com.projekt.alerts;
 
 import java.util.Date;
 import java.util.List;
+import com.projekt.sterowanie.Device;
 
 public class Alert {
     private final Integer alertId;
@@ -32,7 +33,7 @@ public class Alert {
 
     public Device getDevice() {
         for (Device device : deviceGroup.getDevices()) {
-            if (deviceId.equals(device.getDeviceId())) {
+            if (deviceId.equals(device.getId())) {
                 return device;
             }
         }

@@ -58,7 +58,6 @@ public class DeviceRepository {
 
     public Boolean add(Device device) {
         if (device == null) return false;
-        if (device.getId() == null) return false;
         return devices.add(device);
     }
 

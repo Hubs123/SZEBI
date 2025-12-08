@@ -21,12 +21,15 @@ public class AlertRepository {
         return null;
     }
 
+    // docelowo createAlert, tworzy obiekt Alert i go dodaje
     public Boolean addAlert(Alert alert) {
         try {
             alerts.add(alert);}
         catch (Exception e) {
             return false;
         }
+        // find się zrobił w konstruktorze który tu będzie
+        // teraz można wywołać helper wywołujący reakcję jeśli wyszło emergency
         return true;
     }
 

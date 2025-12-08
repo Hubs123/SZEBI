@@ -1,18 +1,25 @@
 package com.projekt.sterowanie;
 
+import com.projekt.alerts.DeviceGroupRepository;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class DeviceManager {
     // automation plan musi mieć dostęp do deviceRepo, stąd static
-    static final DeviceRepository deviceRepo = new DeviceRepository();
     private final RoomRepository roomRepo = new RoomRepository();
 
-    public Integer registerDevice(String name, DeviceType type, Integer roomId) {
-        Device d = new Device(name, type, roomId);
+    static public final DeviceRepository deviceRepo = new DeviceRepository();
+    static public final DeviceGroupRepository groupRepo = new DeviceGroupRepository();
+
+    public Device registerDevice(String name, DeviceType type, Integer deviceGroupId, Integer roomId) {
+        Device d = new Device(name, type, deviceGroupId, roomId);
         Boolean added = deviceRepo.add(d);
-        return added ? d.getId() : null;
+        if (added) {
+            return d;
+        }
+        return null;
     }
 
     public Boolean removeDevice(Integer deviceId) {

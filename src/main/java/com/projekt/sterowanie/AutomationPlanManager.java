@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class AutomationPlanManager {
     private final AutomationPlanRepository planRepo = new AutomationPlanRepository();
-    private AutomationPlan currentPlan = null;
-    private Boolean isCurrentPlanPrio = false;
+    private static AutomationPlan currentPlan = null;
+    private static Boolean isCurrentPlanPrio = false;
 
     public Integer createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
@@ -55,7 +55,7 @@ public class AutomationPlanManager {
 
     }
 
-    public Boolean applyModifications(List<AutomationRule> offsets, Integer priority) {
+    static public Boolean applyModifications(List<AutomationRule> offsets, Integer priority) {
         List<Device> devices = new ArrayList<>();
         for (AutomationRule rule : offsets) {
             devices.add(DeviceManager.deviceRepo.findById(rule.getDeviceId()));
