@@ -5,9 +5,6 @@ import java.util.List;
 public class AutomaticReactionRepository {
     private List<AutomaticReaction> reactions;
 
-    public AutomaticReactionRepository() {
-    }
-
     public List<AutomaticReaction> getAllReactions() {
         return reactions;
     }

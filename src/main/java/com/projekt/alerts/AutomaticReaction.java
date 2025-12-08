@@ -2,11 +2,8 @@ package com.projekt.alerts;
 
 import com.projekt.sterowanie.AutomationPlanManager;
 import com.projekt.sterowanie.AutomationRule;
-import com.projekt.sterowanie.Device;
 import com.projekt.sterowanie.DeviceManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

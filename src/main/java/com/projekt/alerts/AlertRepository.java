@@ -5,9 +5,6 @@ import java.util.List;
 public class AlertRepository {
     private List<Alert> alerts;
 
-    public AlertRepository() {
-    }
-
     public List<Alert> getAllAlerts() {
         return alerts;
     }

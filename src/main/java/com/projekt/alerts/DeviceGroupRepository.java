@@ -5,9 +5,6 @@ import java.util.List;
 public class DeviceGroupRepository {
     private List<DeviceGroup> groups;
 
-    public DeviceGroupRepository() {
-    }
-
     public List<DeviceGroup> getAllGroups() {
         return groups;
     }

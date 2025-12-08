@@ -5,9 +5,6 @@ import java.util.List;
 public class ThresholdRepository {
     private List<Threshold> thresholds;
 
-    public ThresholdRepository() {
-    }
-
     public List<Threshold> getAllThresholds() {
         return thresholds;
     }
