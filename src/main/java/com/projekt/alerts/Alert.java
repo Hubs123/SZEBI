@@ -10,7 +10,7 @@ public class Alert {
     private final String anomalyType;
     private final DeviceGroup deviceGroup;
     private final Integer deviceId;
-    private Priority priority=null;
+    private Priority priority;
 
     public Alert(Date alertDate, Float anomalyValue, String anomalyType, DeviceGroup deviceGroup,Integer deviceId) {
         this.id = null;
@@ -19,7 +19,7 @@ public class Alert {
         this.anomalyType = anomalyType;
         this.deviceGroup = deviceGroup;
         this.deviceId = deviceId;
-        findPriorityLevel();
+        this.priority = Priority.Information;
     }
 
     public Integer getId() {

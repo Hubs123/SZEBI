@@ -24,15 +24,12 @@ public class AlertRepository {
         return null;
     }
 
-    // docelowo createAlert, tworzy obiekt Alert i go dodaje
     public Boolean add(Alert alert) {
         try {
             alerts.add(alert);}
         catch (Exception e) {
             return false;
         }
-        // find się zrobił w konstruktorze który tu będzie
-        // teraz można wywołać helper wywołujący reakcję jeśli wyszło emergency
         return true;
     }
 
@@ -50,12 +47,11 @@ public class AlertRepository {
         return false;
     }
 
-//    DO ZROBIENIA
-    public Boolean saveAlertToDB(Alert alert) {
+    public Boolean saveToDB(Alert alert) {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            if (alert.getId() != null) {
+            if (alert.getId() == null) {
                 String sql = "INSERT INTO alerts (date, anomaly_value, anomaly_type, device_id)" + "VALUES (?, ?, ?, ?) RETURNING id";
                 ps = Db.conn.prepareStatement(sql);
                 ps.setDate(1, (Date) alert.getAlertDate());
