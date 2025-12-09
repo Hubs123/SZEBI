@@ -25,4 +25,16 @@ public class OptimizationPlan {
     public void setId(int size) {
         this.id = size;
     }
+
+    public void setCostSavings(Double costSavings) {
+        this.costSavings = costSavings;
+    }
+
+    public void setCo2Savings(Double co2Savings) {
+        this.co2Savings = co2Savings;
+    }
+
+    public void setRules(List<AutomationRule> rules) {
+        this.rules = rules;
+    }
 }

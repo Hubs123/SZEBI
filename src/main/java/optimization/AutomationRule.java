@@ -18,4 +18,10 @@ public class AutomationRule {
     public String getTimeWindow() {
         return timeWindow;
     }
+
+    public AutomationRule(Integer deviceId, Map<String, Float> states, String timeWindow) {
+        this.deviceId = deviceId;
+        this.states = states;
+        this.timeWindow = timeWindow;
+    }
 }

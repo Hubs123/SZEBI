@@ -9,13 +9,15 @@ public class OptimizationData {
     private List<Float> forecastSold;
     private List<Float> forecastStored;
     private List<Float> forecastGenerated;
+    private List<Float> forecastTemperature;
 
     public boolean loadForecast(
             Date timestamp,
             List<Float> forecastConsumed,
             List<Float> forecastSold,
             List<Float> forecastStored,
-            List<Float> forecastGenerated
+            List<Float> forecastGenerated,
+            List<Float> forecastTemperature
     ) {
         try {
             this.timestamp = timestamp;
@@ -23,6 +25,7 @@ public class OptimizationData {
             this.forecastSold = forecastSold;
             this.forecastStored = forecastStored;
             this.forecastGenerated = forecastGenerated;
+            this.forecastTemperature = forecastTemperature;
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,5 +51,9 @@ public class OptimizationData {
 
     public List<Float> getForecastGenerated() {
         return forecastGenerated;
+    }
+
+    public List<Float> getForecastTemperature() {
+        return forecastTemperature;
     }
 }
