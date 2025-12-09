@@ -114,12 +114,12 @@ if __name__ == "__main__":
         try:
             test_func()
             passed += 1
-        except requests.exceptions.ConnectionError:
+    except requests.exceptions.ConnectionError:
             print(f"{name}: SKIPPED (API nie działa)\n")
         except AssertionError as e:
             print(f"{name}: FAILED - {e}\n")
             failed += 1
-        except Exception as e:
+    except Exception as e:
             print(f"{name}: ERROR - {e}\n")
             failed += 1
 
