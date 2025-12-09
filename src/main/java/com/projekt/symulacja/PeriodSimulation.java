@@ -71,7 +71,7 @@ public class PeriodSimulation {
         
         // Obliczanie energii zmagazynowanej, grid consumption i grid feed-in
         Double energyStored = 0.0;
-        Double gridConsumption = baseGridConsumption; // Zawsze minimum 15% zużycia
+        Double gridConsumption = baseGridConsumption; //0.5; //baseGridConsumption; // Zawsze minimum 15% zużycia
         Double gridFeedIn = 0.0;
         Double finalBatteryLevel;
         
