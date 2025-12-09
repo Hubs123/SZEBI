@@ -66,10 +66,25 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>springboot/src/main/java</sourceDirectory>
+        <testSourceDirectory>springboot/src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>springboot/src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>springboot/src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>pl.szebi.EnergyAnalysisApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>

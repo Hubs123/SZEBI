@@ -55,7 +55,7 @@ sleep 2
 
 # 2. Spring Boot
 echo "2. Uruchamianie Spring Boot (port 8080)..."
-launch_terminal "Spring Boot Gateway" "mvn spring-boot:run -Dmaven.test.skip=true" "$SPRINGBOOT_DIR"
+launch_terminal "Spring Boot Gateway" "mvn spring-boot:run \"-Dmaven.test.skip=true\"" "$SPRINGBOOT_DIR"
 sleep 2
 
 # 3. React
@@ -75,4 +75,23 @@ echo "  🌐 Frontend:    http://localhost:3000"
 echo ""
 echo "Aby zatrzymać, zamknij terminale lub użyj Ctrl+C w każdym z nich."
 echo "=========================================="
+
+Wymagane:
+  - Python 3.8+
+  - Java 17+
+  - Maven 3.6+
+  - Node.js 16+
+
+Naciśnij Enter aby kontynuować lub Ctrl+C aby anulować...
+
+Uruchamianie komponentów...
+
+1. Uruchamianie FastAPI (port 8000)...
+Uruchom w osobnym terminalu:
+  cd /c/Users/User/PycharmProjects/SZEBI
+  python3 -m src.app.main
+2. Uruchamianie Spring Boot (port 8080)...
+Uruchom w osobnym terminalu:
+  cd /c/Users/User/PycharmProjects/SZEBI
+  mvn spring-boot:run -Dmaven.test.skip=true
 
