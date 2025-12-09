@@ -4,11 +4,14 @@ import com.projekt.db.Db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Klasa odpowiedzialna za zapis i odczyt danych symulacji z bazy danych.
@@ -34,8 +37,9 @@ public class DataRepository {
                 String sql = "INSERT INTO simulation_records " +
                         "(simulation_date, period_number, period_start, period_end, " +
                         "sunlight_intensity, pv_production, " +
-                        "energy_stored, battery_level, panel_power, battery_capacity) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+                        "energy_stored, battery_level, grid_consumption, grid_feed_in, " +
+                        "panel_power, battery_capacity) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
                 
                 ps = Db.conn.prepareStatement(sql);
                 ps.setDate(1, java.sql.Date.valueOf(record.getSimulationDate()));
@@ -46,8 +50,10 @@ public class DataRepository {
                 ps.setDouble(6, record.getPvProduction());
                 ps.setDouble(7, record.getEnergyStored());
                 ps.setDouble(8, record.getBatteryLevel());
-                ps.setDouble(9, record.getPanelPower());
-                ps.setDouble(10, record.getBatteryCapacity());
+                ps.setDouble(9, record.getGridConsumption());
+                ps.setDouble(10, record.getGridFeedIn());
+                ps.setDouble(11, record.getPanelPower());
+                ps.setDouble(12, record.getBatteryCapacity());
                 
                 rs = ps.executeQuery();
                 if (rs.next()) {
@@ -59,7 +65,7 @@ public class DataRepository {
                 String sql = "UPDATE simulation_records SET " +
                         "simulation_date = ?, period_number = ?, period_start = ?, period_end = ?, " +
                         "sunlight_intensity = ?, pv_production = ?, " +
-                        "energy_stored = ?, battery_level = ?, " +
+                        "energy_stored = ?, battery_level = ?, grid_consumption = ?, grid_feed_in = ?, " +
                         "panel_power = ?, battery_capacity = ? " +
                         "WHERE id = ?";
                 
@@ -72,9 +78,11 @@ public class DataRepository {
                 ps.setDouble(6, record.getPvProduction());
                 ps.setDouble(7, record.getEnergyStored());
                 ps.setDouble(8, record.getBatteryLevel());
-                ps.setDouble(9, record.getPanelPower());
-                ps.setDouble(10, record.getBatteryCapacity());
-                ps.setInt(11, record.getId());
+                ps.setDouble(9, record.getGridConsumption());
+                ps.setDouble(10, record.getGridFeedIn());
+                ps.setDouble(11, record.getPanelPower());
+                ps.setDouble(12, record.getBatteryCapacity());
+                ps.setInt(13, record.getId());
                 
                 return ps.executeUpdate() > 0;
             }
@@ -209,6 +217,13 @@ public class DataRepository {
     private SimulationRecord mapResultSetToRecord(ResultSet rs) throws SQLException {
         SimulationRecord record = new SimulationRecord();
         
+        // Pobierz dostępne kolumny
+        ResultSetMetaData metaData = rs.getMetaData();
+        Set<String> columns = new HashSet<>();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            columns.add(metaData.getColumnName(i).toLowerCase());
+        }
+        
         record.setId(rs.getInt("id"));
         record.setSimulationDate(rs.getDate("simulation_date").toLocalDate());
         record.setPeriodNumber(rs.getInt("period_number"));
@@ -227,6 +242,20 @@ public class DataRepository {
         record.setPvProduction(rs.getDouble("pv_production"));
         record.setEnergyStored(rs.getDouble("energy_stored"));
         record.setBatteryLevel(rs.getDouble("battery_level"));
+        
+        // Grid consumption i feed-in - mogą nie istnieć w starych tabelach
+        if (columns.contains("grid_consumption")) {
+            record.setGridConsumption(rs.getDouble("grid_consumption"));
+        } else {
+            record.setGridConsumption(0.0); // Domyślnie 0 jeśli kolumna nie istnieje
+        }
+        
+        if (columns.contains("grid_feed_in")) {
+            record.setGridFeedIn(rs.getDouble("grid_feed_in"));
+        } else {
+            record.setGridFeedIn(0.0); // Domyślnie 0 jeśli kolumna nie istnieje
+        }
+        
         record.setPanelPower(rs.getDouble("panel_power"));
         record.setBatteryCapacity(rs.getDouble("battery_capacity"));
         

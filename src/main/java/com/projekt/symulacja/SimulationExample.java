@@ -48,11 +48,14 @@ public class SimulationExample {
                 for (SimulationRecord record : retrievedRecords) {
                     System.out.println(String.format(
                         "Okres %d: Produkcja PV: %.2f kWh, " +
-                        "Zmagazynowane: %.2f kWh, Poziom akumulatora: %.2f kWh",
+                        "Zmagazynowane: %.2f kWh, Poziom akumulatora: %.2f kWh, " +
+                        "Grid consumption: %.2f kWh, Grid feed-in: %.2f kWh",
                         record.getPeriodNumber(),
                         record.getPvProduction(),
                         record.getEnergyStored(),
-                        record.getBatteryLevel()
+                        record.getBatteryLevel(),
+                        record.getGridConsumption(),
+                        record.getGridFeedIn()
                     ));
                 }
             }
