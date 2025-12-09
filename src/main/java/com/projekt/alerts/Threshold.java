@@ -5,12 +5,14 @@ public class Threshold {
     private String thresholdType;
     private Float valueWarning;
     private Float valueEmergency;
+    private Integer reactionId;
 
     public Threshold(Integer id, String thresholdType, Float valueWarning, Float valueEmergency) {
         this.id = id;
         this.thresholdType = thresholdType;
         this.valueWarning = valueWarning;
         this.valueEmergency = valueEmergency;
+        this.reactionId = null;
     }
 
     public Integer getId() {
@@ -44,5 +46,13 @@ public class Threshold {
     public void setValues(Float valueWarning, Float valueEmergency) {
         this.valueWarning = valueWarning;
         this.valueEmergency = valueEmergency;
+    }
+
+    public Integer getReactionId() {
+        return reactionId;
+    }
+
+    public void setReactionId(Integer reactionId) {
+        this.reactionId = reactionId;
     }
 }

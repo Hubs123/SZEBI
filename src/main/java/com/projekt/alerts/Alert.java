@@ -59,10 +59,11 @@ public class Alert {
     }
 
     public void findPriorityLevel() {
-        DeviceGroup dg = getDeviceGroup();
-        List<Threshold> thresholds = dg.getThresholds();
+        List<Threshold> thresholds = deviceGroup.getThresholds();
         for (Threshold threshold : thresholds) {
+            System.out.println("hhh");
             if (threshold.getThresholdType().equals(getAnomalyType())) {
+                System.out.println("kkk");
                 if(threshold.getValueWarning()>threshold.getValueEmergency()) {
                     if (this.anomalyValue <= threshold.getValueEmergency()) {
                         setPriority(Priority.Emergency);
@@ -90,11 +91,20 @@ public class Alert {
     }
 
     public void checkAutomaticReaction() {
+        List<Threshold> thresholds = deviceGroup.getThresholds();
         List<AutomaticReaction> reactions = deviceGroup.getReactions();
-        for (AutomaticReaction reaction : reactions) {
-            if (reaction.)
-
+        for (Threshold threshold : thresholds) {
+            if (threshold.getThresholdType().equals(getAnomalyType())) {
+                if (threshold.getReactionId() != null) {
+                    for (AutomaticReaction reaction : reactions) {
+                        if (reaction.getId().equals(threshold.getReactionId())) {
+                            reaction.executeReaction(deviceId);
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
         }
-        
     }
 }

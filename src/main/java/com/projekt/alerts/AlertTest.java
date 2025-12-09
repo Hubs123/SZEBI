@@ -4,6 +4,8 @@ import com.projekt.sterowanie.Device;
 import com.projekt.sterowanie.DeviceManager;
 import com.projekt.sterowanie.DeviceType;
 
+import java.util.Date;
+
 public class AlertTest {
     public static void main(String[] args) {
         DeviceManager manager = new DeviceManager();
@@ -16,19 +18,24 @@ public class AlertTest {
         if (deviceId == null) {
             System.out.println("The device id is null");
         }
-        AutomaticReaction testReaction = new AutomaticReaction(1, "turnOff");
-        testReaction.executeReaction(deviceId);
-        // sukces jeśli żarówka wyłączona
+
+        AlertManager alertManager = new AlertManager();
+        DeviceGroup deviceGroup = new DeviceGroup(1, "light", null, null);
+        Threshold threshold = new Threshold(1, "battery", 20F, 5F);
+        AutomaticReaction reaction = new AutomaticReaction(1, "turnOff");
+        deviceGroup.addReaction(reaction);
+        threshold.setReactionId(reaction.getId());
+        if(deviceGroup.addThreshold(threshold)) {
+            System.out.println("Added threshold");
+        }
+        Date today = new Date();
+        System.out.println(today);
+        alertManager.createAlert(today, 4F, "battery", deviceGroup, device.getId());
         if (manager.getStates(deviceId).get("power") == 0.0f) {
             System.out.println("It slayed");
         }
         else {
             System.out.println("It flopped");
         }
-
-        AlertManager alertManager = new AlertManager();
-        DeviceGroup deviceGroup = new DeviceGroup(1, "light", null, null);
-        Threshold threshold = new Threshold(1, "battery", 20F, 5F);
-
     }
 }
