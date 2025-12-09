@@ -28,5 +28,6 @@ replay_pid*
 
 # plik .env
 .env
+
 #DS_Store
 .DS_Store
