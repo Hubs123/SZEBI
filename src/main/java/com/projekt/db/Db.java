@@ -1,8 +1,6 @@
 package com.projekt.db;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Db {
 
@@ -24,5 +22,26 @@ public class Db {
         }
 
         return DriverManager.getConnection(FINAL_URL);
+    }
+
+    public static void main(String[] args) {
+        try (Connection conn = getConnection()) {
+            System.out.println("polaczono z baza danych");
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("select * from devices");
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    System.out.print(meta.getColumnName(i) + "\t");
+                }
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            System.err.println("nie polaczono z baza danych");
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

@@ -1,24 +1,25 @@
 package com.projekt.optimization;
 
-import com.projekt.db.Db;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
+// Uwaga: Klasa została zmodyfikowana, aby usunąć bezpośrednią zależność od bazy danych (Db.java)
+// i umożliwić wstrzykiwanie/używanie mockowych reguł na potrzeby testów i symulacji.
 public abstract class OptimizationStrategy {
-    public abstract boolean calculate(OptimizationPlan plan, OptimizationData data);
 
-    List<AutomationRule> parseRules(String json) {
+    // Abstrakcyjna metoda obliczająca plan optymalizacji
+    public abstract boolean calculate(OptimizationPlan plan, OptimizationData data, List<AutomationRule> currentRules);
+
+    // Będzie używane do konwertowania JSON z bazy danych na obiekty
+    public List<AutomationRule> parseRules(String json) {
+
         List<AutomationRule> list = new ArrayList<>();
         json = json.trim();
-        if (json.length() <= 2) return list;  // pusta lista ("[]")
+        if (json.length() <= 2) return list;
+        // Uproszczone parsowanie (jak w oryginale)
         String[] ruleBlocks = json.substring(1, json.length() - 1).split("\\},\\{");
         for (String block : ruleBlocks) {
             String clean = block.replace("{", "").replace("}", "");
             String[] fields = clean.split(",");
-            // przy błędnym odczycie (-1 nie nadpisane) rule nie zostanie potem zastosowany dla żadnego urządzenia
             int deviceId = -1;
             Map<String, Float> states = new HashMap<>();
             String timeWindow = "placeholder";
@@ -43,55 +44,57 @@ public abstract class OptimizationStrategy {
         return list;
     }
 
-    List<AutomationRule> getRulesFromDatabase() {
-        List<AutomationRule> rulesList = new ArrayList<>();
-        String sql = "SELECT rules::text AS rules_text FROM automation_plan";
-
-        try (PreparedStatement statement = Db.getConnection().prepareStatement(sql);
-             ResultSet rs = statement.executeQuery()) {
-
-            while (rs.next()) {
-                String rulesJson = rs.getString("rules_text");
-                rulesList = parseRules(rulesJson);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+    /**
+     * Parsuje okno czasowe w formacie "HH:00-HH:00" do pary godzin (Start, Koniec).
+     */
+    public List<Integer> parseOffTimeWindow(String window) {
+        if (window == null || !window.matches("\\d{2}:00-\\d{2}:00")) {
+            return Arrays.asList(-1, -1); // Niepoprawny format
         }
-
-        return rulesList;
-    }
-
-    List<Integer> parseOffTimeWindow(String window) {
-        // window ma format "HH:00-HH:00"
         List<Integer> result = new ArrayList<>();
         String[] parts = window.split("-");
-        int startHour = Integer.parseInt(parts[0].split(":")[0]);
-        int endHour = Integer.parseInt(parts[1].split(":")[0]);
-        result.add(startHour);
-        result.add(endHour);
-        return result;
+        try {
+            int startHour = Integer.parseInt(parts[0].split(":")[0]);
+            int endHour = Integer.parseInt(parts[1].split(":")[0]);
+            result.add(startHour);
+            result.add(endHour);
+            return result;
+        } catch (NumberFormatException e) {
+            return Arrays.asList(-1, -1);
+        }
     }
 
+    /**
+     * Znajduje jedno-godzinne okno z maksymalną wartością w danych (np. maksymalne zużycie/generacja).
+     */
     String findMaxWindow(List<Float> data) {
+        if (data == null || data.isEmpty()) return "00:00-01:00";
+
         Float maxConsumption = Collections.max(data);
         int maxIndex = data.indexOf(maxConsumption);
 
         int peakStartHour = maxIndex;
-        //szukamy godzinnego okna
+        // Godzinne okno: od godziny rozpoczęcia do następnej pełnej godziny
         int peakEndHour = (maxIndex + 1) % 24;
 
-        return String.format("%02d:00-%02d:00", peakStartHour, peakEndHour);
+        // Jeśli peakEndHour to 0, wyświetlamy 24 dla 23:00-24:00
+        return String.format("%02d:00-%02d:00", peakStartHour, peakEndHour == 0 ? 24 : peakEndHour);
     }
 
+    /**
+     * Znajduje jedno-godzinne okno z minimalną wartością w danych (np. minimalne zużycie/generacja).
+     */
     String findMinWindow(List<Float> data) {
+        if (data == null || data.isEmpty()) return "00:00-01:00";
+
         Float minConsumption = Collections.min(data);
         int minIndex = data.indexOf(minConsumption);
 
         int offPeakStartHour = minIndex;
-        //szukamy godzinnego okna
+        // Godzinne okno: od godziny rozpoczęcia do następnej pełnej godziny
         int offPeakEndHour = (minIndex + 1) % 24;
 
-        return String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour);
+        // Jeśli offPeakEndHour to 0, wyświetlamy 24 dla 23:00-24:00
+        return String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour == 0 ? 24 : offPeakEndHour);
     }
 }

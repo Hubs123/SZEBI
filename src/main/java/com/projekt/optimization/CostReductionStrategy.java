@@ -1,10 +1,13 @@
 package com.projekt.optimization;
 
+import com.projekt.sterowanie.AutomationPlanManager;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CostReductionStrategy extends OptimizationStrategy {
     @Override
-    public boolean calculate(OptimizationPlan plan, OptimizationData data) {
+    public boolean calculate(OptimizationPlan plan, OptimizationData data, List<AutomationRule> currentRules) {
         if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().size() < 24
                 || data.getForecastGenerated() == null || data.getForecastGenerated().size() < 24) {
             return false;
@@ -24,32 +27,34 @@ public class CostReductionStrategy extends OptimizationStrategy {
         float minCost = Float.parseFloat(lowestCostInfo.get("minCost"));
 
         double costSavings = 0.0;
-        //Zapisane zoptymalizowane nastawy urządzeń
         List<AutomationRule> calculatedRules = new ArrayList<>();
-        //Nastawy pobrane z bazy
-        List<AutomationRule> rules = getRulesFromDatabase();
+
+        // Klonowanie reguł, aby nie modyfikować oryginalnej listy (ważne w symulacjach)
+        List<AutomationRule> rules = currentRules.stream()
+                .map(AutomationRule::clone)
+                .collect(Collectors.toList());
 
         // Parsowanie nowego okna czasowego (jedno godzinne)
         List<Integer> newWindow = parseOffTimeWindow(lowestCostWindow);
-        if (newWindow == null) return false;
+        if (newWindow.get(0) == -1) return false;
 
         //generowanie regul dla urządzeń
         for (AutomationRule rule : rules) {
             Map<String, Float> states = rule.getStates();
-            if (states.get("power") == null) {
+            Float power = states.get("power");
+            if (power == null) {
                 return false;
             }
-            if (states.get("power") == 0.0f) {
-                calculatedRules.add(rule);
+            // Pomijamy urządzenia wyłączone
+            if (power == 0.0f) {
                 continue;
             }
 
             // Optymalizacja dla uruchomionych urządzeń (zakładamy, że power == 1.0f oznacza działanie)
-            if (states.get("power") == 1.0f) {
+            if (power >= 1.0f) {
                 List<Integer> timeWindowOld = parseOffTimeWindow(rule.getTimeWindow());
 
-                if (timeWindowOld == null || timeWindowOld.size() < 2) {
-                    calculatedRules.add(rule);
+                if (timeWindowOld.get(0) == -1) {
                     continue;
                 }
 
@@ -58,21 +63,17 @@ public class CostReductionStrategy extends OptimizationStrategy {
                     continue;
                 }
 
-                // Założenia:
-                // 1. Urządzenie działa przez 1 godzinę.
-                // 2. Koszt = (Consumed - Generated) + moc urządzenia.
-
                 // Obliczamy koszt dla starego okna
-                // Wartość bilansu dla starej godziny (jeśli to jedno godzinne okno)
+                // Wartość bilansu dla starej godziny
                 int oldStartHour = timeWindowOld.get(0);
 
                 // Zabezpieczenie indeksu
                 if (oldStartHour < 0 || oldStartHour >= consumed.size()) {
-                    calculatedRules.add(rule);
                     continue;
                 }
 
                 // Koszt (bilans) starego i nowego przedziału
+                // CostBefore = (Consumed(oldStartHour) - Generated(oldStartHour))
                 Float costBeforeOptimization = consumed.get(oldStartHour) - generated.get(oldStartHour);
                 Float costAfterOptimization = minCost;
 
@@ -90,22 +91,26 @@ public class CostReductionStrategy extends OptimizationStrategy {
 
         //zapisanie wyniku
         plan.setRules(calculatedRules);
-        plan.setCostSavings(costSavings);
+
+        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+        for (AutomationRule rule : calculatedRules) {
+            rulesSterowanie.add(rule.convertAutomationRule(rule));
+        }
+        AutomationPlanManager.applyModifications(rulesSterowanie,0);
         return true;
     }
 
-    /**
-     * Znajduje jedno-godzinne okno czasowe o najniższym koszcie energetycznym.
-     * Cost = Consumed - Generated. Im niższa wartość, tym lepiej (mniej kupujemy/więcej sprzedajemy).
-     */
+    //Znajduje jedno-godzinne okno czasowe o najniższym koszcie energetycznym.
     private Map<String, String> findLowestCostWindow(List<Float> consumed, List<Float> generated) {
-        if (consumed.size() != 24 || generated.size() != 24) {
+        if (consumed == null || generated == null || consumed.size() != 24 || generated.size() != 24) {
             return null;
         }
 
-        // minCost to Net Load dla danej godziny
+        // minCost to Net Load (Bilans) dla danej godziny
         int minIndex = 0;
+        // Obliczenie bilansu dla godziny 0
         float minCost = consumed.get(0) - generated.get(0);
+
         // Iteracja przez wszystkie 24 godziny
         for (int i = 1; i < consumed.size(); i++) {
             // TUTAJ NASTĘPUJE OBLICZENIE KOSZTU (BILANSU)

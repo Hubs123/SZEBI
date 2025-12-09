@@ -3,8 +3,8 @@ package com.projekt.optimization;
 import java.util.Map;
 
 public class AutomationRule {
-    private Integer deviceId;
-    private Map<String, Float> states;
+    private final Integer deviceId;
+    private final Map<String, Float> states;
     private String timeWindow;
 
     public Integer getDeviceId() {
@@ -27,5 +27,14 @@ public class AutomationRule {
 
     public void setTimeWindow(String timeWindow) {
         this.timeWindow = timeWindow;
+    }
+
+    // Dodanie metody clone() dla bezpiecznego tworzenia kopii na potrzeby strategii
+    public AutomationRule clone() {
+        return new AutomationRule(this.deviceId, this.states, this.timeWindow);
+    }
+
+    public com.projekt.sterowanie.AutomationRule convertAutomationRule(AutomationRule rule) {
+        return new com.projekt.sterowanie.AutomationRule(rule.getDeviceId(), rule.getStates(), rule.getTimeWindow());
     }
 }
