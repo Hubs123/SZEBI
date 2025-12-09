@@ -24,4 +24,8 @@ public class AutomationRule {
         this.states = states;
         this.timeWindow = timeWindow;
     }
+
+    public void setTimeWindow(String timeWindow) {
+        this.timeWindow = timeWindow;
+    }
 }
