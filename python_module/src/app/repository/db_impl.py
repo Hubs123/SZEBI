@@ -9,6 +9,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor, Json
 from dotenv import load_dotenv
+import httpx
 
 from app.analysis.models import Measurement, EnergyStats
 from app.prediction.models import Prediction
@@ -16,6 +17,9 @@ from app.reporting.reporting_service import Report
 
 # Załaduj zmienne środowiskowe z .env
 load_dotenv()
+
+# URL Spring Boot backendu
+SPRINGBOOT_URL = os.getenv("SPRINGBOOT_URL", "http://localhost:8080")
 
 
 def get_db_connection():
@@ -126,6 +130,40 @@ class DbMeasurementRepository:
             ]
         except psycopg2.Error as e:
             raise RuntimeError(f"Błąd pobierania pomiarów z bazy danych: {e}") from e
+
+    def get_simulation_results(self) -> List[Measurement]:
+        """
+        Pobiera wyniki ostatniej symulacji z SimulationManager.
+        Wyniki pobierane są z Spring Boot endpoint /api/data/simulation/results.
+
+        @return lista pomiarów zawierająca dane z ostatniej symulacji
+        """
+        try:
+            with httpx.Client() as client:
+                response = client.get(
+                    f"{SPRINGBOOT_URL}/api/data/simulation/results",
+                    timeout=10.0
+                )
+                response.raise_for_status()
+                data = response.json()
+
+            # Konwertuj wyniki symulacji na obiekty Measurement
+            measurements = []
+            for record in data:
+                measurement = Measurement(
+                    id=record.get("id"),
+                    timestamp=datetime.fromisoformat(record.get("periodStart")),
+                    power_output=record.get("pvProduction", 0.0),
+                    grid_feed_in=record.get("gridFeedIn", 0.0),
+                    grid_consumption=record.get("gridConsumption", 0.0),
+                )
+                measurements.append(measurement)
+
+            return measurements
+        except httpx.HTTPError as e:
+            raise RuntimeError(f"Błąd pobierania wyników symulacji z Spring Boot: {e}") from e
+        except Exception as e:
+            raise RuntimeError(f"Błąd podczas konwersji wyników symulacji: {e}") from e
 
 
 class DbEnergyStatsRepository:

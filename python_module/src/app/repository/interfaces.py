@@ -28,6 +28,9 @@ class MeasurementRepository(Protocol):
     def get_all_for_sensor(self, sensor_id: int) -> List[Measurement]:  # pragma: no cover - interfejs
         ...
 
+    def get_simulation_results(self) -> List[Measurement]:  # pragma: no cover - interfejs - pobiera wyniki z SimulationManager
+        ...
+
 
 class EnergyStatsRepository(Protocol):
     def save(self, stats: EnergyStats) -> EnergyStats:  # pragma: no cover - interfejs

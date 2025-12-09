@@ -31,15 +31,26 @@ const Dashboard = () => {
 
   const loadData = async () => {
     try {
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - 7); // Ostatnie 7 dni
-      
-      const response = await dataApi.getMeasurements(
-        sensorId,
-        start.toISOString(),
-        end.toISOString()
-      );
+      let response;
+
+      // Spróbuj pobrać wyniki symulacji najpierw
+      try {
+        response = await dataApi.getSimulationResults();
+        console.log('Dane załadowane z symulacji');
+      } catch (simErr) {
+        console.warn('Nie udało się pobrać wyników symulacji, powracam do pomiarów z bazy:', simErr);
+        // Fallback na pomiary z bazy danych
+        const end = new Date();
+        const start = new Date();
+        start.setDate(start.getDate() - 7); // Ostatnie 7 dni
+
+        response = await dataApi.getMeasurements(
+          sensorId,
+          start.toISOString(),
+          end.toISOString()
+        );
+      }
+
       setMeasurements(response.data || []);
     } catch (err) {
       console.error('Błąd ładowania danych:', err);

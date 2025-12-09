@@ -2,8 +2,13 @@ from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from app.repository.interfaces import get_measurement_repo
+import httpx
+import os
 
 router = APIRouter(prefix="/data", tags=["data"])
+
+# URL Spring Boot backendu
+SPRINGBOOT_URL = os.getenv("SPRINGBOOT_URL", "http://localhost:8080")
 
 
 @router.get("/measurements")
@@ -61,4 +66,33 @@ def get_measurements(
             status_code=500,
             detail={"code": "INTERNAL_ERROR", "message": f"Internal server error: {str(e)}"}
         )
+
+
+@router.get("/simulation/results")
+def get_simulation_results():
+    """
+    Pobiera wyniki ostatniej symulacji z SimulationManager.
+    Tablica zawiera 6 rekordów (po jednym na każdy okres).
+
+    Wyniki pobierane są z Spring Boot endpoint /api/data/simulation/results,
+    który z kolei pobiera je z SimulationManager.getSimulationResults().
+    """
+    try:
+        # Wywołaj Spring Boot endpoint
+        with httpx.Client() as client:
+            response = client.get(f"{SPRINGBOOT_URL}/api/data/simulation/results", timeout=10.0)
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPError as e:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "SPRINGBOOT_UNAVAILABLE", "message": f"Spring Boot service is not available: {str(e)}"}
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "INTERNAL_ERROR", "message": f"Internal server error: {str(e)}"}
+        )
+
+
 
