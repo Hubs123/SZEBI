@@ -1,4 +1,4 @@
-package optimization;
+package com.projekt.optimization;
 
 import java.util.Date;
 import java.util.List;
@@ -16,8 +16,7 @@ public class OptimizationData {
             List<Float> forecastConsumed,
             List<Float> forecastSold,
             List<Float> forecastStored,
-            List<Float> forecastGenerated,
-            List<Float> forecastTemperature
+            List<Float> forecastGenerated
     ) {
         try {
             this.timestamp = timestamp;

@@ -1,4 +1,4 @@
-package optimization;
+package com.projekt.optimization;
 
 import java.util.List;
 

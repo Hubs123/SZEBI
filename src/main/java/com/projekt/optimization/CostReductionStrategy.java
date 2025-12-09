@@ -1,4 +1,4 @@
-package optimization;
+package com.projekt.optimization;
 
 public class CostReductionStrategy extends OptimizationStrategy {
     @Override

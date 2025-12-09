@@ -1,4 +1,4 @@
-package optimization;
+package com.projekt.optimization;
 
 public abstract class OptimizationStrategy {
     public abstract boolean calculate(OptimizationPlan plan, OptimizationData data);
