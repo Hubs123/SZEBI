@@ -83,4 +83,8 @@ public class Alert {
                 "\nComing from the device with id:" + getDeviceId().toString() +
                 "\nThe value of the anomaly equals:" + getAnomalyValue().toString();
     }
+
+    public void checkAutomaticReaction() {
+
+    }
 }

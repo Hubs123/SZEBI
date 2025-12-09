@@ -15,7 +15,11 @@ public class AlertManager {
             throw new RuntimeException(e);
         }
         if(a.getPriority() == Priority.Emergency) {
-            // executeReaction
+            try {
+                a.checkAutomaticReaction();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         Boolean added = alertRepo.add(a);
         if (added) {
