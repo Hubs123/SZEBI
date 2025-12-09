@@ -18,7 +18,8 @@ public class Db {
 
     private static Connection getConnection() throws SQLException {
         if (URL_BASE == null || USER == null || PASSWORD == null) {
-            throw new IllegalStateException();
+
+            throw new IllegalStateException("Brak konfiguracji bazy danych w zmiennych środowiskowych");
         }
         return DriverManager.getConnection(FINAL_URL);
     }
@@ -28,7 +29,9 @@ public class Db {
         try {
             conn = getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+            throw new RuntimeException("Nie można połączyć się z bazą danych", e);
         }
     }
 }
+
