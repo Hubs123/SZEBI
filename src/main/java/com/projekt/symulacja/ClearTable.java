@@ -10,8 +10,8 @@ import java.sql.Statement;
  * Klasa do usunięcia i ponownego utworzenia tabeli simulation_records
  * z aktualnymi kolumnami (włącznie z grid_consumption i grid_feed_in).
  */
-public class RecreateSimulationTable {
-    
+public class ClearTable {
+
     public static void main(String[] args) {
         try {
             // Użycie istniejącego połączenia z klasy Db
