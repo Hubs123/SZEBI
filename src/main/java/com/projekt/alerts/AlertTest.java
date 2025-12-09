@@ -23,19 +23,28 @@ public class AlertTest {
         DeviceGroup deviceGroup = new DeviceGroup(1, "light", null, null);
         Threshold threshold = new Threshold(1, "battery", 20F, 5F);
         AutomaticReaction reaction = new AutomaticReaction(1, "turnOff");
-        deviceGroup.addReaction(reaction);
+        if(deviceGroup.addReaction(reaction)) {
+            System.out.println("Reaction added");
+        } else {
+            System.out.println("Reaction not added");
+        }
         threshold.setReactionId(reaction.getId());
         if(deviceGroup.addThreshold(threshold)) {
-            System.out.println("Added threshold");
-        }
+            System.out.println("Threshold added");
+        } else {System.out.println("Threshold not added");}
         Date today = new Date();
-        System.out.println(today);
-        alertManager.createAlert(today, 4F, "battery", deviceGroup, device.getId());
+        Alert alert = alertManager.createAlert(today, 4F, "battery", deviceGroup, device.getId());
         if (manager.getStates(deviceId).get("power") == 0.0f) {
             System.out.println("It slayed");
         }
         else {
             System.out.println("It flopped");
+        }
+
+        if(alertManager.saveAlertToDataBase(alert)) {
+            System.out.println("Alert saved");
+        } else {
+            System.out.println("Alert not saved");
         }
     }
 }

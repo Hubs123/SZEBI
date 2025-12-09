@@ -14,7 +14,6 @@ public class AlertManager {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Alert created");
         if(a.getPriority() == Priority.Emergency) {
             try {
                 a.checkAutomaticReaction();

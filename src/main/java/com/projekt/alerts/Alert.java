@@ -61,22 +61,20 @@ public class Alert {
     public void findPriorityLevel() {
         List<Threshold> thresholds = deviceGroup.getThresholds();
         for (Threshold threshold : thresholds) {
-            System.out.println("hhh");
             if (threshold.getThresholdType().equals(getAnomalyType())) {
-                System.out.println("kkk");
                 if(threshold.getValueWarning()>threshold.getValueEmergency()) {
                     if (this.anomalyValue <= threshold.getValueEmergency()) {
                         setPriority(Priority.Emergency);
                     } else if (this.anomalyValue <= threshold.getValueWarning()) {
                         setPriority(Priority.Warning);
-                    } // TO DO Add exception
+                    }
                 }
                 else if(threshold.getValueWarning()<threshold.getValueEmergency()) {
                     if (this.anomalyValue > threshold.getValueWarning()) {
                         setPriority(Priority.Warning);
                     } else if (this.anomalyValue > threshold.getValueEmergency()) {
                         setPriority(Priority.Emergency);
-                    } // TO DO Add exception
+                    }
                 }
                 break;
             }

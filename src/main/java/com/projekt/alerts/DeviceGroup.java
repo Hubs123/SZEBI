@@ -1,5 +1,6 @@
 package com.projekt.alerts;
 
+import java.util.ArrayList;
 import java.util.List;
 import com.projekt.sterowanie.Device;
 import com.projekt.sterowanie.DeviceRepository;
@@ -10,13 +11,12 @@ public class DeviceGroup {
     private List<Threshold> thresholds;
     private List<AutomaticReaction> reactions;
     private List<Device> devices;
-    private AutomaticReaction automaticReaction;
 
     public DeviceGroup(Integer id, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
         this.id = id;
         this.groupName = groupName;
-        this.thresholds = thresholds;
-        this.reactions = reactions;
+        this.thresholds = (thresholds != null) ? thresholds : new ArrayList<>();
+        this.reactions = (reactions != null) ? reactions : new ArrayList<>();
     }
 
     public Integer getId() {

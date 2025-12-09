@@ -1,9 +1,10 @@
 package com.projekt.alerts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceGroupRepository {
-    private List<DeviceGroup> groups;
+    private List<DeviceGroup> groups = new ArrayList<>();
 
     public List<DeviceGroup> getAll() {
         return groups;
