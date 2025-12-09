@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public class AlertManager {
-    static public AlertRepository alertRepo = new AlertRepository();
+    static public final AlertRepository alertRepo = new AlertRepository();
 
     public Alert createAlert(Date date, Float anomalyValue, String anomalyType, DeviceGroup deviceGroup, Integer deviceId) {
         Alert a = new Alert(date, anomalyValue, anomalyType, deviceGroup, deviceId);

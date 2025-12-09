@@ -63,15 +63,20 @@ public class Alert {
         List<Threshold> thresholds = dg.getThresholds();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAnomalyType())) {
-                if (this.anomalyValue<=threshold.getValueInfo()) {
-                    setPriority(Priority.Information);
+                if(threshold.getValueWarning()>threshold.getValueEmergency()) {
+                    if (this.anomalyValue <= threshold.getValueEmergency()) {
+                        setPriority(Priority.Emergency);
+                    } else if (this.anomalyValue <= threshold.getValueWarning()) {
+                        setPriority(Priority.Warning);
+                    } // TO DO Add exception
                 }
-                else if (this.anomalyValue<=threshold.getValueWarning()) {
-                    setPriority(Priority.Warning);
+                else if(threshold.getValueWarning()<threshold.getValueEmergency()) {
+                    if (this.anomalyValue > threshold.getValueWarning()) {
+                        setPriority(Priority.Warning);
+                    } else if (this.anomalyValue > threshold.getValueEmergency()) {
+                        setPriority(Priority.Emergency);
+                    } // TO DO Add exception
                 }
-                else if (this.anomalyValue<=threshold.getValueEmergency()) {
-                    setPriority(Priority.Emergency);
-                } // TO DO Add exception
                 break;
             }
         }
@@ -85,6 +90,11 @@ public class Alert {
     }
 
     public void checkAutomaticReaction() {
+        List<AutomaticReaction> reactions = deviceGroup.getReactions();
+        for (AutomaticReaction reaction : reactions) {
+            if (reaction.)
 
+        }
+        
     }
 }

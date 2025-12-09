@@ -2,6 +2,7 @@ package com.projekt.alerts;
 
 import java.util.List;
 import com.projekt.sterowanie.Device;
+import com.projekt.sterowanie.DeviceRepository;
 
 public class DeviceGroup {
     private final Integer id;
@@ -9,6 +10,7 @@ public class DeviceGroup {
     private List<Threshold> thresholds;
     private List<AutomaticReaction> reactions;
     private List<Device> devices;
+    private AutomaticReaction automaticReaction;
 
     public DeviceGroup(Integer id, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
         this.id = id;
@@ -49,5 +51,41 @@ public class DeviceGroup {
 
     public void setDevices(List<Device> devices) {
         this.devices = devices;
+    }
+
+    public Boolean addThreshold(Threshold threshold) {
+        try {
+            thresholds.add(threshold);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+    public Boolean removeThreshold(Threshold threshold) {
+        try {
+            thresholds.remove(threshold);
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+        public Boolean addReaction(AutomaticReaction reaction) {
+        try {
+            reactions.add(reaction);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+    public Boolean removeReaction(AutomaticReaction reaction) {
+        try {
+            reactions.remove(reaction);
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }
