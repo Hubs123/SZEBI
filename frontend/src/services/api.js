@@ -39,6 +39,7 @@ export const dataApi = {
     if (end) params.end = end;
     return api.get('/data/measurements', { params });
   },
+  getSimulationResults: () => api.get('/data/simulation/results'),
 };
 
 export default api;

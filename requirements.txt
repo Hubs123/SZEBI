@@ -3,4 +3,4 @@ python-dotenv
 fastapi
 uvicorn
 pandas
-
+httpx
