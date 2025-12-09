@@ -21,6 +21,8 @@ public class SimulationRecord {
     private Double pvProduction; // energia wyprodukowana przez panele PV (kWh)
     private Double energyStored; // energia zmagazynowana w akumulatorze (kWh)
     private Double batteryLevel; // poziom naładowania akumulatora po okresie (kWh)
+    private Double gridConsumption; // energia pobrana z sieci (kWh)
+    private Double gridFeedIn; // energia oddana do sieci (kWh)
     
     // Parametry systemu użyte w symulacji
     private Double panelPower; // moc paneli (kW)
@@ -33,7 +35,8 @@ public class SimulationRecord {
                            LocalDateTime periodStart, LocalDateTime periodEnd,
                            Double sunlightIntensity,
                            Double pvProduction, Double energyStored,
-                           Double batteryLevel, Double panelPower, Double batteryCapacity) {
+                           Double batteryLevel, Double gridConsumption, Double gridFeedIn,
+                           Double panelPower, Double batteryCapacity) {
         this.simulationDate = simulationDate;
         this.periodNumber = periodNumber;
         this.periodStart = periodStart;
@@ -42,6 +45,8 @@ public class SimulationRecord {
         this.pvProduction = pvProduction;
         this.energyStored = energyStored;
         this.batteryLevel = batteryLevel;
+        this.gridConsumption = gridConsumption;
+        this.gridFeedIn = gridFeedIn;
         this.panelPower = panelPower;
         this.batteryCapacity = batteryCapacity;
     }
@@ -133,5 +138,21 @@ public class SimulationRecord {
 
     public void setBatteryCapacity(Double batteryCapacity) {
         this.batteryCapacity = batteryCapacity;
+    }
+
+    public Double getGridConsumption() {
+        return gridConsumption;
+    }
+
+    public void setGridConsumption(Double gridConsumption) {
+        this.gridConsumption = gridConsumption;
+    }
+
+    public Double getGridFeedIn() {
+        return gridFeedIn;
+    }
+
+    public void setGridFeedIn(Double gridFeedIn) {
+        this.gridFeedIn = gridFeedIn;
     }
 }
