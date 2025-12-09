@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
-from src.app.api.schemas import ReportResponse
-from src.app.repository.interfaces import get_report_repo
+from app.api.schemas import ReportResponse
+from app.repository.interfaces import get_report_repo
 
 
 router = APIRouter(prefix="/reports", tags=["reports"])

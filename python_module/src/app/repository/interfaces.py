@@ -7,11 +7,11 @@ implementacje oparte o bazę danych PostgreSQL.
 from typing import Protocol, List, Optional
 from datetime import datetime
 
-from src.app.analysis.models import Measurement, EnergyStats
-from src.app.prediction.models import Prediction
-from src.app.reporting.reporting_service import ReportRepository, PlotGenerator
+from app.analysis.models import Measurement, EnergyStats
+from app.prediction.models import Prediction
+from app.reporting.reporting_service import ReportRepository, PlotGenerator
 
-from src.app.repository.db_impl import (
+from app.repository.db_impl import (
     DbMeasurementRepository,
     DbEnergyStatsRepository,
     DbPredictionRepository,

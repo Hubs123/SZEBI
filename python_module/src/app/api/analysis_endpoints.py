@@ -1,9 +1,9 @@
 
 from fastapi import APIRouter, HTTPException
 
-from src.app.analysis.data_manager import DataManager, InvalidTimeRangeError
-from src.app.analysis.energy_analyzer import EnergyAnalyzer, NoDataError
-from src.app.analysis.models import TimeRange, EnergyStats
+from app.analysis.data_manager import DataManager, InvalidTimeRangeError
+from app.analysis.energy_analyzer import EnergyAnalyzer, NoDataError
+from app.analysis.models import TimeRange, EnergyStats
 from .schemas import AnalysisRequest, AnalysisResponse, EnergyStatsSchema
 
 
@@ -26,13 +26,13 @@ def _energy_stats_to_schema(stats: EnergyStats) -> EnergyStatsSchema:
 @router.post("", response_model=AnalysisResponse)
 def run_analysis(request: AnalysisRequest):
     # Placeholdery repozytoriów/serwisów - jak dostaniemy od symulatorow to uzupelnimy
-    from src.app.repository.interfaces import (
+    from app.repository.interfaces import (
         get_measurement_repo,
         get_energy_stats_repo,
         get_report_repo,
         get_plot_generator,
     )
-    from src.app.reporting.reporting_service import Reporting
+    from app.reporting.reporting_service import Reporting
     import traceback
 
     try:

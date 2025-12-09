@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
-from src.app.repository.interfaces import get_measurement_repo
-from src.app.analysis.models import Measurement
-
+from app.repository.interfaces import get_measurement_repo
 
 router = APIRouter(prefix="/data", tags=["data"])
 

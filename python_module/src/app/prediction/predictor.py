@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Optional, List
 
-from src.app.analysis.data_manager import MeasurementRepositoryProtocol
-from src.app.analysis.models import Measurement
+from app.analysis.data_manager import MeasurementRepositoryProtocol
+from app.analysis.models import Measurement
 
 from .models import Prediction, PredictionModelType, PredictionConfig
 

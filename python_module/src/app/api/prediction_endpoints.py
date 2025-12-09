@@ -2,9 +2,9 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 
-from src.app.api.schemas import PredictionRequest, PredictionApiResponse, PredictionSchema
-from src.app.prediction.models import PredictionModelType
-from src.app.prediction.predictor import (
+from app.api.schemas import PredictionRequest, PredictionApiResponse, PredictionSchema
+from app.prediction.models import PredictionModelType
+from app.prediction.predictor import (
     Predictor,
     ModelNotSelectedError,
     NoHistoryDataError,
@@ -27,14 +27,14 @@ def _prediction_to_schema(prediction) -> PredictionSchema:
 
 @router.post("", response_model=PredictionApiResponse)
 def run_prediction(request: PredictionRequest):
-    from src.app.repository.interfaces import (
+    from app.repository.interfaces import (
         get_measurement_repo,
         get_prediction_repo,
         get_energy_stats_repo,
         get_report_repo,
         get_plot_generator,
     )
-    from src.app.reporting.reporting_service import Reporting
+    from app.reporting.reporting_service import Reporting
     import traceback
 
     try:
@@ -69,7 +69,7 @@ def run_prediction(request: PredictionRequest):
         prediction = predictor.buildPredictionEntity(sensor_id=request.sensorId, predicted_value=predicted_value)
 
         # opcjonalnie: pobierz stats z ostatniego okresu dla raportu
-        from src.app.analysis.energy_analyzer import EnergyAnalyzer, TimeRange
+        from app.analysis.energy_analyzer import EnergyAnalyzer, TimeRange
 
         analyzer = EnergyAnalyzer(sensor_id=request.sensorId, measurement_repo=measurement_repo)
         # zakres historii np. ostatnie N dni

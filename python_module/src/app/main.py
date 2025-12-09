@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 
-from src.app.api.analysis_endpoints import router as analysis_router
-from src.app.api.prediction_endpoints import router as prediction_router
-from src.app.api.reporting_endpoints import router as reporting_router
-from src.app.api.health_endpoints import router as health_router
-from src.app.api.data_endpoints import router as data_router
+from app.api.analysis_endpoints import router as analysis_router
+from app.api.prediction_endpoints import router as prediction_router
+from app.api.reporting_endpoints import router as reporting_router
+from app.api.health_endpoints import router as health_router
+from app.api.data_endpoints import router as data_router
 
 
 app = FastAPI(title="SZEBI Analysis & Prediction API")

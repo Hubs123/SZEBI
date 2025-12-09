@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor, Json
 from dotenv import load_dotenv
 
-from src.app.analysis.models import Measurement, EnergyStats
-from src.app.prediction.models import Prediction
-from src.app.reporting.reporting_service import Report
+from app.analysis.models import Measurement, EnergyStats
+from app.prediction.models import Prediction
+from app.reporting.reporting_service import Report
 
 # Załaduj zmienne środowiskowe z .env
 load_dotenv()

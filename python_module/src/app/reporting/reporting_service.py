@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Dict
 
-from src.app.analysis.models import EnergyStats
-from src.app.prediction.models import Prediction
+from app.analysis.models import EnergyStats
+from app.prediction.models import Prediction
 
 
 @dataclass
