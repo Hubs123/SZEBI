@@ -33,16 +33,6 @@ public class Db {
         }
     }
 
-
-
-    public static Connection getConnection() throws SQLException {
-        if (URL_BASE == null || USER == null || PASSWORD == null) {
-            throw new IllegalStateException();
-        }
-
-        return DriverManager.getConnection(FINAL_URL);
-    }
-
     public static void main(String[] args) {
         try (Connection conn = getConnection()) {
             System.out.println("polaczono z baza danych");
