@@ -8,28 +8,28 @@ import java.util.List;
 import java.util.Map;
 
 public class AutomaticReaction {
-    private final Integer reactionId;
-    private String reactionName;
+    private final Integer id;
+    private String name;
 
-    public AutomaticReaction(Integer reactionId, String reactionName) {
-        this.reactionId = reactionId;
-        this.reactionName = reactionName;
+    public AutomaticReaction(Integer id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    public Integer getReactionId() {
-        return reactionId;
+    public Integer getId() {
+        return id;
     }
 
-    public String getReactionName() {
-        return reactionName;
+    public String getName() {
+        return name;
     }
 
-    public void setReactionName(String reactionName) {
-        this.reactionName = reactionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void executeReaction(Integer deviceId) {
-        switch (reactionName) {
+        switch (name) {
             case "turnOff":
                 if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == 0.0f) {
                     break;

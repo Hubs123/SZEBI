@@ -4,21 +4,21 @@ import java.util.List;
 import com.projekt.sterowanie.Device;
 
 public class DeviceGroup {
-    private final Integer deviceGroupId;
+    private final Integer id;
     private String groupName;
     private List<Threshold> thresholds;
     private List<AutomaticReaction> reactions;
     private List<Device> devices;
 
-    public DeviceGroup(Integer deviceGroupId, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
-        this.deviceGroupId = deviceGroupId;
+    public DeviceGroup(Integer id, String groupName, List<Threshold> thresholds, List<AutomaticReaction> reactions) {
+        this.id = id;
         this.groupName = groupName;
         this.thresholds = thresholds;
         this.reactions = reactions;
     }
 
-    public Integer getDeviceGroupId() {
-        return deviceGroupId;
+    public Integer getId() {
+        return id;
     }
 
     public String getGroupName() {
@@ -45,5 +45,9 @@ public class DeviceGroup {
 
     public void setReactions(List<AutomaticReaction> reactions) {
         this.reactions = reactions;
+    }
+
+    public void setDevices(List<Device> devices) {
+        this.devices = devices;
     }
 }

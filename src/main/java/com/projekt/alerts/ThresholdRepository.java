@@ -5,20 +5,20 @@ import java.util.List;
 public class ThresholdRepository {
     private List<Threshold> thresholds;
 
-    public List<Threshold> getAllThresholds() {
+    public List<Threshold> getAll() {
         return thresholds;
     }
 
-    public Threshold getThresholdById(int id) {
+    public Threshold getById(int id) {
         for (Threshold t : thresholds) {
-            if (t.getThresholdId() == id) {
+            if (t.getId() == id) {
                 return t;
             }
         }
         return null;
     }
 
-    public Boolean addThreshold(Threshold threshold) {
+    public Boolean add(Threshold threshold) {
         try {
         thresholds.add(threshold);}
         catch (Exception e) {
@@ -27,9 +27,9 @@ public class ThresholdRepository {
         return true;
     }
 
-    public Boolean deleteThreshold(int id) {
+    public Boolean delete(int id) {
         for (Threshold t : thresholds) {
-            if (t.getThresholdId() == id) {
+            if (t.getId() == id) {
                 try {thresholds.remove(t);}
                 catch (Exception e) {
                     return false;

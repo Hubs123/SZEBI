@@ -1,22 +1,22 @@
 package com.projekt.alerts;
 
 public class Threshold {
-    private final Integer thresholdId;
+    private final Integer id;
     private String thresholdType;
     private Float valueInfo;
     private Float valueWarning;
     private Float valueEmergency;
 
-    public Threshold(Integer thresholdId, String thresholdType, Float valueInfo, Float valueWarning, Float valueEmergency) {
-        this.thresholdId = thresholdId;
+    public Threshold(Integer id, String thresholdType, Float valueInfo, Float valueWarning, Float valueEmergency) {
+        this.id = id;
         this.thresholdType = thresholdType;
         this.valueInfo = valueInfo;
         this.valueWarning = valueWarning;
         this.valueEmergency = valueEmergency;
     }
 
-    public Integer getThresholdId() {
-        return thresholdId;
+    public Integer getId() {
+        return id;
     }
 
     public String getThresholdType() {

@@ -5,7 +5,7 @@ import com.projekt.sterowanie.Device;
 import com.projekt.sterowanie.DeviceManager;
 import com.projekt.sterowanie.DeviceType;
 
-public class test {
+public class SterowanieAlertyTest {
     public static void main(String[] args) {
         DeviceManager manager = new DeviceManager();
         // domyślnie żarówka (typ noSimulation) jest włączona - power -> 1.0

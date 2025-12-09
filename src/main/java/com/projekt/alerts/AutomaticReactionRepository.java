@@ -5,20 +5,20 @@ import java.util.List;
 public class AutomaticReactionRepository {
     private List<AutomaticReaction> reactions;
 
-    public List<AutomaticReaction> getAllReactions() {
+    public List<AutomaticReaction> getAll() {
         return reactions;
     }
 
-    public AutomaticReaction getReactionById(int id) {
+    public AutomaticReaction getById(int id) {
         for (AutomaticReaction r : reactions) {
-            if (r.getReactionId() == id) {
+            if (r.getId() == id) {
                 return r;
             }
         }
         return null;
     }
 
-    public Boolean addReaction(AutomaticReaction reaction) {
+    public Boolean add(AutomaticReaction reaction) {
         try {
             reactions.add(reaction);}
         catch (Exception e) {
@@ -27,9 +27,9 @@ public class AutomaticReactionRepository {
         return true;
     }
 
-    public Boolean deleteReaction(int id) {
+    public Boolean delete(int id) {
         for (AutomaticReaction r : reactions) {
-            if (r.getReactionId() == id) {
+            if (r.getId() == id) {
                 try {
                     reactions.remove(r);}
                 catch (Exception e) {
