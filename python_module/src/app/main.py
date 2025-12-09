@@ -16,9 +16,9 @@ app.include_router(health_router)
 app.include_router(data_router)
 
 
-# Umożliwia uruchomienie: python -m src.app.main
+# Umożliwia uruchomienie: python -m app.main (z katalogu python_module/src)
 if __name__ == "__main__":  # pragma: no cover
     import uvicorn
 
-    uvicorn.run("src.app.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
 

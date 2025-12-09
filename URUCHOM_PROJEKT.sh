@@ -56,7 +56,8 @@ echo ""
 
 # 1. FastAPI
 echo "1. Uruchamianie FastAPI (port 8000)..."
-launch_terminal "FastAPI Backend" "python3 -m src.app.main" "$SZEBI_DIR"
+FASTAPI_DIR="$SZEBI_DIR/python_module/src"
+launch_terminal "FastAPI Backend" "python3 -m app.main" "$FASTAPI_DIR"
 sleep 2
 
 # 2. Spring Boot
