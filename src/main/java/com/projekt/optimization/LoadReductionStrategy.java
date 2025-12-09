@@ -13,13 +13,8 @@ public class LoadReductionStrategy extends OptimizationStrategy {
         List<Float> consumed = data.getForecastConsumed();
 
         //okna czasowe dotyczace przedzialow zuzycia
-        String peakLoadWindow = findPeakLoadWindow(consumed);
-        String offPeakLoadWindow = findOffPeakLoadWindow(consumed);
-        
-        if (peakLoadWindow == null || offPeakLoadWindow == null) {
-             return false;
-        }
-        
+        String offPeakLoadWindow = findMinWindow(consumed);
+
         List<AutomationRule> calculatedRules = new ArrayList<>();
 
         List<AutomationRule> rules = getRulesFromDatabase();
@@ -53,27 +48,4 @@ public class LoadReductionStrategy extends OptimizationStrategy {
         plan.setRules(calculatedRules);
         return true; 
     }
-
-    private String findPeakLoadWindow(List<Float> consumed) {
-        Float maxConsumption = Collections.max(consumed);
-        int maxIndex = consumed.indexOf(maxConsumption);
-        
-        int peakStartHour = maxIndex;
-        //godzinę max + dwie kolejne
-        int peakEndHour = (maxIndex + 2) % 24; 
-        
-        return String.format("%02d:00-%02d:00", peakStartHour, peakEndHour);
-    }
-    
-    private String findOffPeakLoadWindow(List<Float> consumed) {
-        Float minConsumption = Collections.min(consumed);
-        int minIndex = consumed.indexOf(minConsumption);
-        
-        int offPeakStartHour = minIndex;
-        //godzinę min + pięć kolejnych
-        int offPeakEndHour = (minIndex + 5) % 24; 
-        
-        return String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour);
-    }
-
 }

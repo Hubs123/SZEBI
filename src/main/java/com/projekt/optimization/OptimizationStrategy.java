@@ -5,10 +5,7 @@ import com.projekt.db.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class OptimizationStrategy {
     public abstract boolean calculate(OptimizationPlan plan, OptimizationData data);
@@ -74,5 +71,27 @@ public abstract class OptimizationStrategy {
         result.add(startHour);
         result.add(endHour);
         return result;
+    }
+
+    String findMaxWindow(List<Float> data) {
+        Float maxConsumption = Collections.max(data);
+        int maxIndex = data.indexOf(maxConsumption);
+
+        int peakStartHour = maxIndex;
+        //szukamy godzinnego okna
+        int peakEndHour = (maxIndex + 1) % 24;
+
+        return String.format("%02d:00-%02d:00", peakStartHour, peakEndHour);
+    }
+
+    String findMinWindow(List<Float> data) {
+        Float minConsumption = Collections.min(data);
+        int minIndex = data.indexOf(minConsumption);
+
+        int offPeakStartHour = minIndex;
+        //szukamy godzinnego okna
+        int offPeakEndHour = (minIndex + 1) % 24;
+
+        return String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour);
     }
 }

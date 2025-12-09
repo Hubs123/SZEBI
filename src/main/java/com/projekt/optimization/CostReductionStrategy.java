@@ -3,10 +3,6 @@ package com.projekt.optimization;
 import java.util.*;
 
 public class CostReductionStrategy extends OptimizationStrategy {
-
-    // Uproszczone założenie dla mocy urządzenia, używane do obliczenia oszczędności
-    private static final float DEFAULT_DEVICE_POWER = 1.0f;
-
     @Override
     public boolean calculate(OptimizationPlan plan, OptimizationData data) {
         if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().size() < 24
@@ -17,7 +13,7 @@ public class CostReductionStrategy extends OptimizationStrategy {
         List<Float> consumed = data.getForecastConsumed();
         List<Float> generated = data.getForecastGenerated();
 
-        // 1. Znalezienie najtańszego JEDNOGODZINNEGO okna czasowego (Net Load)
+        // 1. Znalezienie najtańszego okna czasowego
         Map<String, String> lowestCostInfo = findLowestCostWindow(consumed, generated);
 
         if (lowestCostInfo == null || !lowestCostInfo.containsKey("timeWindow") || !lowestCostInfo.containsKey("minCost")) {
@@ -25,11 +21,12 @@ public class CostReductionStrategy extends OptimizationStrategy {
         }
 
         String lowestCostWindow = lowestCostInfo.get("timeWindow");
-        Float minNetLoad = Float.parseFloat(lowestCostInfo.get("minCost"));
+        float minCost = Float.parseFloat(lowestCostInfo.get("minCost"));
 
+        double costSavings = 0.0;
+        //Zapisane zoptymalizowane nastawy urządzeń
         List<AutomationRule> calculatedRules = new ArrayList<>();
-
-        Double costSavings = 0.0;
+        //Nastawy pobrane z bazy
         List<AutomationRule> rules = getRulesFromDatabase();
 
         // Parsowanie nowego okna czasowego (jedno godzinne)
@@ -40,11 +37,10 @@ public class CostReductionStrategy extends OptimizationStrategy {
         for (AutomationRule rule : rules) {
             Map<String, Float> states = rule.getStates();
             if (states.get("power") == null) {
-                // Ta reguła powinna prowadzić do błędu lub pominięcia, ale trzymamy się struktury
                 return false;
             }
             if (states.get("power") == 0.0f) {
-                calculatedRules.add(rule); // Zachowaj wyłączone urządzenia
+                calculatedRules.add(rule);
                 continue;
             }
 
@@ -54,18 +50,17 @@ public class CostReductionStrategy extends OptimizationStrategy {
 
                 if (timeWindowOld == null || timeWindowOld.size() < 2) {
                     calculatedRules.add(rule);
-                    continue; // Pomiń, jeśli nie da się sparsować
+                    continue;
                 }
 
                 // Sprawdzamy, czy urządzenie jest już w najlepszym oknie
-                if (timeWindowOld.get(0) == newWindow.get(0)) {
-                    calculatedRules.add(rule);
+                if (timeWindowOld.get(0).equals(newWindow.get(0))) {
                     continue;
                 }
 
                 // Założenia:
                 // 1. Urządzenie działa przez 1 godzinę.
-                // 2. Koszt = Net Load (Consumed - Generated) + moc urządzenia.
+                // 2. Koszt = (Consumed - Generated) + moc urządzenia.
 
                 // Obliczamy koszt dla starego okna
                 // Wartość bilansu dla starej godziny (jeśli to jedno godzinne okno)
@@ -77,27 +72,19 @@ public class CostReductionStrategy extends OptimizationStrategy {
                     continue;
                 }
 
-                Float oldNetLoad = consumed.get(oldStartHour) - generated.get(oldStartHour);
-
-                // Koszt (bilans) starego i nowego przedziału + moc urządzenia (1.0f)
-                Float costBeforeOptimization = oldNetLoad + DEFAULT_DEVICE_POWER;
-                Float costAfterOptimization = minNetLoad + DEFAULT_DEVICE_POWER;
+                // Koszt (bilans) starego i nowego przedziału
+                Float costBeforeOptimization = consumed.get(oldStartHour) - generated.get(oldStartHour);
+                Float costAfterOptimization = minCost;
 
                 // Jeśli opłaca się przenieść
                 if (costAfterOptimization < costBeforeOptimization) {
-
                     // Używamy nazwy zmiennej z lokalnego scope
                     rule.setTimeWindow(lowestCostWindow);
-
                     // Obliczamy oszczędność
                     costSavings += savingsCost(costBeforeOptimization, costAfterOptimization);
-
+                    // Dodajemy do zoptymalizowanych nastaw
                     calculatedRules.add(rule);
-                } else {
-                    calculatedRules.add(rule); // Jeśli się nie opłaca, zachowujemy stary
                 }
-            } else {
-                calculatedRules.add(rule); // Dodajemy pozostałe reguły
             }
         }
 
@@ -108,8 +95,8 @@ public class CostReductionStrategy extends OptimizationStrategy {
     }
 
     /**
-     * Znajduje jedno-godzinne okno czasowe o najniższym bilansie energetycznym (Net Load).
-     * Net Load = Consumed - Generated. Im niższa wartość, tym lepiej (mniej kupujemy/więcej sprzedajemy).
+     * Znajduje jedno-godzinne okno czasowe o najniższym koszcie energetycznym.
+     * Cost = Consumed - Generated. Im niższa wartość, tym lepiej (mniej kupujemy/więcej sprzedajemy).
      */
     private Map<String, String> findLowestCostWindow(List<Float> consumed, List<Float> generated) {
         if (consumed.size() != 24 || generated.size() != 24) {
@@ -117,33 +104,28 @@ public class CostReductionStrategy extends OptimizationStrategy {
         }
 
         // minCost to Net Load dla danej godziny
-        Float minNetLoad = Float.MAX_VALUE;
-        Integer minIndex = -1;
-
+        int minIndex = 0;
+        float minCost = consumed.get(0) - generated.get(0);
         // Iteracja przez wszystkie 24 godziny
-        for (int i = 0; i < consumed.size(); i++) {
+        for (int i = 1; i < consumed.size(); i++) {
             // TUTAJ NASTĘPUJE OBLICZENIE KOSZTU (BILANSU)
-            Float currentNetLoad = consumed.get(i) - generated.get(i);
+            float currentCost = consumed.get(i) - generated.get(i);
 
-            if (currentNetLoad < minNetLoad) {
-                minNetLoad = currentNetLoad;
+            if (currentCost < minCost) {
+                minCost = currentCost;
                 minIndex = i;
             }
         }
 
-        if (minIndex == -1) {
-            return null;
-        }
-
-        int offPeakStartHour = minIndex;
         // Jednogodzinne okno kończy się o następnej pełnej godzinie
+        int offPeakStartHour = minIndex;
         int offPeakEndHour = (minIndex + 1) % 24;
 
         // Zabezpieczenie na wypadek minIndex=23, gdzie (23+1)%24 = 0 (00:00)
         String timeWindowStr = String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour == 0 ? 24 : offPeakEndHour);
 
         HashMap<String, String> lowestCostInfo = new HashMap<>();
-        lowestCostInfo.put("minCost", String.valueOf(minNetLoad));
+        lowestCostInfo.put("minCost", String.valueOf(minCost));
         lowestCostInfo.put("timeWindow", timeWindowStr);
 
         return lowestCostInfo;
