@@ -38,9 +38,21 @@ public class AutomaticReaction {
                     // dodać tutaj błąd że device nie ma stanu power co w założeniach każde miało mieć
                     break;
                 }
-                Map<String, Float> offset = Map.of("power", -1.0f);
-                AutomationRule reaction = new AutomationRule(deviceId, offset, "placeholder");
-                AutomationPlanManager.applyModifications(List.of(reaction), 1);
+                Map<String, Float> offset1 = Map.of("power", -1.0f);
+                AutomationRule reaction1 = new AutomationRule(deviceId, offset1, "placeholder");
+                AutomationPlanManager.applyModifications(List.of(reaction1), 1);
+                break;
+            case "turnOn":
+                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == 1.0f) {
+                    break;
+                }
+                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == null) {
+                    // dodać tutaj błąd że device nie ma stanu power co w założeniach każde miało mieć
+                    break;
+                }
+                Map<String, Float> offset2 = Map.of("power", 1.0f);
+                AutomationRule reaction2 = new AutomationRule(deviceId, offset2, "placeholder");
+                AutomationPlanManager.applyModifications(List.of(reaction2), 1);
                 break;
             default:
                 break;
