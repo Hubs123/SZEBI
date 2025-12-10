@@ -1,6 +1,6 @@
 package com.projekt.optimization;
 
-import com.projekt.sterowanie.AutomationPlanManager;
+//import com.projekt.sterowanie.AutomationPlanManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class CostReductionStrategy extends OptimizationStrategy {
         // Klonowanie reguł, aby nie modyfikować oryginalnej listy (ważne w symulacjach)
         List<AutomationRule> rules = currentRules.stream()
                 .map(AutomationRule::clone)
-                .collect(Collectors.toList());
+                .toList();
 
         // Parsowanie nowego okna czasowego (jedno godzinne)
         List<Integer> newWindow = parseOffTimeWindow(lowestCostWindow);
@@ -91,12 +91,12 @@ public class CostReductionStrategy extends OptimizationStrategy {
 
         //zapisanie wyniku
         plan.setRules(calculatedRules);
-
-        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
-        for (AutomationRule rule : calculatedRules) {
-            rulesSterowanie.add(rule.convertAutomationRule(rule));
-        }
-        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+        plan.setCostSavings(costSavings);
+//        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+//        for (AutomationRule rule : calculatedRules) {
+//            rulesSterowanie.add(rule.convertAutomationRule(rule));
+//        }
+//        AutomationPlanManager.applyModifications(rulesSterowanie,0);
         return true;
     }
 

@@ -8,8 +8,8 @@ import java.util.List;
 public class OptimizationPlanRepository {
 
     public List<OptimizationPlan> findAll(){
-        System.out.println("Uwaga: Metoda findAll nie łączy się z bazą danych na potrzeby symulacji.");
-        return new ArrayList<>(); // Stub na potrzeby kompilacji
+        System.out.println("Metoda findAll jeszcze nie łączy się z bazą danych na potrzeby symulacji.");
+        return new ArrayList<>();
     }
 
     public boolean save(OptimizationPlan plan) {
@@ -18,7 +18,6 @@ public class OptimizationPlanRepository {
 
         try (Connection conn = Db.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
-
             // 1. Ustawienie parametrów
             statement.setInt(1, plan.getUserId());
             statement.setString(2, plan.getStatus().name());

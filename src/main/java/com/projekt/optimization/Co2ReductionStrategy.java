@@ -1,6 +1,6 @@
 package com.projekt.optimization;
 
-import com.projekt.sterowanie.AutomationPlanManager;
+//import com.projekt.sterowanie.AutomationPlanManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class Co2ReductionStrategy extends OptimizationStrategy {
         // Klonowanie reguł, aby nie modyfikować oryginalnej listy
         List<AutomationRule> rules = currentRules.stream()
                 .map(AutomationRule::clone)
-                .collect(Collectors.toList());
+                .toList();
 
         double co2Savings = 0.0;
 
@@ -69,12 +69,12 @@ public class Co2ReductionStrategy extends OptimizationStrategy {
 
         //zapisanie wyniku
         plan.setRules(calculatedRules);
-
-        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
-        for (AutomationRule rule : calculatedRules) {
-            rulesSterowanie.add(rule.convertAutomationRule(rule));
-        }
-        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+        plan.setCo2Savings(co2Savings);
+//        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+//        for (AutomationRule rule : calculatedRules) {
+//            rulesSterowanie.add(rule.convertAutomationRule(rule));
+//        }
+//        AutomationPlanManager.applyModifications(rulesSterowanie,0);
         return true;
     }
 }

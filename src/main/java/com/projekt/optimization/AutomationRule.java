@@ -34,7 +34,7 @@ public class AutomationRule {
         return new AutomationRule(this.deviceId, this.states, this.timeWindow);
     }
 
-    public com.projekt.sterowanie.AutomationRule convertAutomationRule(AutomationRule rule) {
-        return new com.projekt.sterowanie.AutomationRule(rule.getDeviceId(), rule.getStates(), rule.getTimeWindow());
-    }
+//    public com.projekt.sterowanie.AutomationRule convertAutomationRule(AutomationRule rule) {
+//        return new com.projekt.sterowanie.AutomationRule(rule.getDeviceId(), rule.getStates(), rule.getTimeWindow());
+//    }
 }

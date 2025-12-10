@@ -2,7 +2,7 @@ package com.projekt.optimization;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import com.projekt.sterowanie.AutomationPlanManager;
+//import com.projekt.sterowanie.AutomationPlanManager;
 
 public class LoadReductionStrategy extends OptimizationStrategy {
 
@@ -22,7 +22,7 @@ public class LoadReductionStrategy extends OptimizationStrategy {
         // Klonowanie reguł, aby nie modyfikować oryginalnej listy
         List<AutomationRule> rules = currentRules.stream()
                 .map(AutomationRule::clone)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Integer> timeWindowNew = parseOffTimeWindow(offPeakLoadWindow);
         if (timeWindowNew.get(0) == -1) return false;
@@ -61,11 +61,11 @@ public class LoadReductionStrategy extends OptimizationStrategy {
         //zapisanie wyniku
         plan.setRules(calculatedRules);
 
-        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
-        for (AutomationRule rule : calculatedRules) {
-            rulesSterowanie.add(rule.convertAutomationRule(rule));
-        }
-        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+//        List<com.projekt.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+//        for (AutomationRule rule : calculatedRules) {
+//            rulesSterowanie.add(rule.convertAutomationRule(rule));
+//        }
+//        AutomationPlanManager.applyModifications(rulesSterowanie,0);
         return true;
     }
 }

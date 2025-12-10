@@ -63,9 +63,6 @@ public class OptimizationSimulation {
                 initialRules,
                 repository
         );
-
-        System.out.println("\n--- 5. Zapisane Plany Optymalizacji w Repozytorium ---");
-        repository.findAll().forEach(plan -> System.out.println("   - " + plan));
     }
 
     private static void simulateStrategy(
@@ -101,7 +98,7 @@ public class OptimizationSimulation {
 
             System.out.println("   Zoptymalizowane Reguły (Przesunięte):");
             plan.getRules().stream()
-                    .filter(r -> !initialRules.stream().anyMatch(ir -> ir.getDeviceId().equals(r.getDeviceId()) && ir.getTimeWindow().equals(r.getTimeWindow())))
+                    .filter(r -> initialRules.stream().noneMatch(ir -> ir.getDeviceId().equals(r.getDeviceId()) && ir.getTimeWindow().equals(r.getTimeWindow())))
                     .forEach(r -> System.out.printf("      - Urządzenie %d: Nowe okno: %s%n", r.getDeviceId(), r.getTimeWindow()));
 
         } else {
