@@ -26,6 +26,8 @@ target/
 hs_err_pid*
 replay_pid*
 
+__pycache__/
+
 # plik .env
 .env
 

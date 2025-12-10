@@ -1,0 +1,138 @@
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Simulation Table Styles */
+.simulation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.simulation-header h2 {
+  margin: 0;
+}
+
+.loading-indicator {
+  color: #007bff;
+  font-size: 0.9rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.simulation-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.simulation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.simulation-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.simulation-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.simulation-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.simulation-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.simulation-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.simulation-table td {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.simulation-table .value-cell {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  text-align: right;
+}
+
+.battery-level {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.battery-level.high {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.battery-level.medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.battery-level.low {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .simulation-table {
+    font-size: 0.85rem;
+  }
+  
+  .simulation-table th,
+  .simulation-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .simulation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
