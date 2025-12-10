@@ -24,7 +24,6 @@ public class OptimizationData {
             this.forecastSold = forecastSold;
             this.forecastStored = forecastStored;
             this.forecastGenerated = forecastGenerated;
-            this.forecastTemperature = forecastTemperature;
             return true;
         } catch (Exception e) {
             e.printStackTrace();
