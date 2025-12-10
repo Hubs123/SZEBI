@@ -40,6 +40,10 @@ export const dataApi = {
     return api.get('/data/measurements', { params });
   },
   getSimulationResults: () => api.get('/data/simulation/results'),
+  runSimulation: (date) => {
+    const params = date ? { date } : {};
+    return api.post('/data/simulation/run', null, { params });
+  },
 };
 
 export default api;

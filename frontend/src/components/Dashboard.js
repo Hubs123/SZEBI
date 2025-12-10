@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [simulationData, setSimulationData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [simulationLoading, setSimulationLoading] = useState(false);
+  const [simulationRunning, setSimulationRunning] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -65,10 +66,12 @@ const Dashboard = () => {
       setSimulationLoading(true);
       const response = await dataApi.getSimulationResults();
       const rawData = response.data || [];
+      
+      console.log('Otrzymane dane symulacji:', rawData); // Debug log
 
       // Przekształć dane symulacji na format kompatybilny z measurements
       const transformedData = rawData.map(record => ({
-        timestamp: record.periodStart + ':00', // Dodaj sekundy do ISO formatu
+        timestamp: record.periodStart ? (record.periodStart.includes(':') ? record.periodStart + ':00' : record.periodStart) : new Date().toISOString(),
         gridConsumption: record.gridConsumption || 0,
         gridFeedIn: record.gridFeedIn || 0,
         pvProduction: record.pvProduction || 0,
@@ -80,24 +83,55 @@ const Dashboard = () => {
       setSimulationData(rawData);
       setMeasurements(transformedData); // Ustaw measurements dla wykresu i statystyk
     } catch (err) {
-      console.warn('Błąd ładowania danych symulacji:', err);
+      console.error('Błąd ładowania danych symulacji:', err);
+      console.error('Szczegóły błędu:', err.response?.data || err.message);
       // Nie ustawiamy pustej tablicy, żeby zachować poprzednie dane
     } finally {
       setSimulationLoading(false);
     }
   };
 
+  const runSimulation = async () => {
+    try {
+      setSimulationRunning(true);
+      const response = await dataApi.runSimulation();
+      console.log('Symulacja uruchomiona:', response.data);
+      // Poczekaj chwilę i odśwież dane
+      setTimeout(() => {
+        loadSimulationData();
+      }, 500);
+    } catch (err) {
+      console.error('Błąd uruchamiania symulacji:', err);
+      console.error('Szczegóły błędu:', err.response?.data || err.message);
+      alert('Nie udało się uruchomić symulacji. Sprawdź konsolę.');
+    } finally {
+      setSimulationRunning(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     try {
-      const date = new Date(dateString);
+      // Obsługa formatu "2025-12-10T00:00" (bez sekund i bez 'Z')
+      let dateStr = dateString;
+      if (dateStr.includes('T') && !dateStr.includes('Z') && !dateStr.includes('+')) {
+        // Dodaj sekundy jeśli brakuje
+        if (!dateStr.includes(':')) {
+          dateStr = dateStr + 'T00:00:00';
+        } else if (dateStr.match(/T\d{2}:\d{2}$/)) {
+          dateStr = dateStr + ':00';
+        }
+      }
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        return dateString; // Zwróć oryginalny string jeśli parsowanie się nie powiodło
+      }
       return date.toLocaleString('pl-PL', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
       });
     } catch {
       return dateString;
@@ -152,7 +186,24 @@ const Dashboard = () => {
       <div className="panel">
         <div className="simulation-header">
           <h2>⚡ Dane Symulacji (Odświeżanie co 3s)</h2>
-          {simulationLoading && <span className="loading-indicator">🔄 Ładowanie...</span>}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {simulationLoading && <span className="loading-indicator">🔄 Ładowanie...</span>}
+            <button 
+              onClick={runSimulation} 
+              disabled={simulationRunning}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: simulationRunning ? '#ccc' : '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: simulationRunning ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              {simulationRunning ? 'Uruchamianie...' : '▶ Uruchom Symulację'}
+            </button>
+          </div>
         </div>
         
         {simulationData.length > 0 ? (
@@ -177,9 +228,18 @@ const Dashboard = () => {
                     <td className="value-cell">{record.gridFeedIn?.toFixed(3) || '0.000'}</td>
                     <td className="value-cell">{record.pvProduction?.toFixed(3) || '0.000'}</td>
                     <td className="value-cell">
-                      <span className={`battery-level ${record.batteryLevel >= 50 ? 'high' : record.batteryLevel >= 20 ? 'medium' : 'low'}`}>
-                        {record.batteryLevel?.toFixed(1) || '0.0'}%
-                      </span>
+                      {(() => {
+                        // batteryLevel jest w kWh, musimy przeliczyć na procent używając batteryCapacity
+                        const batteryLevelKwh = record.batteryLevel || 0;
+                        const batteryCapacity = record.batteryCapacity || 100; // domyślnie 100 kWh jeśli brak
+                        const batteryLevelPercent = batteryCapacity > 0 ? (batteryLevelKwh / batteryCapacity) * 100 : 0;
+                        const levelClass = batteryLevelPercent >= 50 ? 'high' : batteryLevelPercent >= 20 ? 'medium' : 'low';
+                        return (
+                          <span className={`battery-level ${levelClass}`}>
+                            {batteryLevelPercent.toFixed(1)}%
+                          </span>
+                        );
+                      })()}
                     </td>
                   </tr>
                 ))}
