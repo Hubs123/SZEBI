@@ -8,6 +8,7 @@ pl\szebi\model\EnergyStats.class
 pl\szebi\repository\PredictionRepository.class
 pl\szebi\config\RestTemplateConfig.class
 pl\szebi\model\Measurement.class
+com\projekt\symulacja\RunSimulationForDashboard.class
 com\projekt\symulacja\SimulationManager.class
 pl\szebi\controller\PredictionController.class
 pl\szebi\controller\ReportController.class

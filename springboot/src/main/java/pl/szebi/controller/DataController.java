@@ -10,6 +10,7 @@ import pl.szebi.model.Measurement;
 import pl.szebi.service.FastApiClient;
 import com.projekt.symulacja.SimulationManager;
 import com.projekt.symulacja.SimulationRecord;
+import com.projekt.symulacja.Settings;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,21 +72,20 @@ public class DataController {
             List<Map<String, Object>> results = new ArrayList<>();
             for (SimulationRecord record : records) {
                 if (record != null) {
-                    Map<String, Object> map = Map.ofEntries(
-                        Map.entry("id", record.getId()),
-                        Map.entry("periodNumber", record.getPeriodNumber()),
-                        Map.entry("simulationDate", record.getSimulationDate().toString()),
-                        Map.entry("periodStart", record.getPeriodStart().toString()),
-                        Map.entry("periodEnd", record.getPeriodEnd().toString()),
-                        Map.entry("gridConsumption", record.getGridConsumption()),
-                        Map.entry("gridFeedIn", record.getGridFeedIn()),
-                        Map.entry("pvProduction", record.getPvProduction()),
-                        Map.entry("batteryLevel", record.getBatteryLevel()),
-                        Map.entry("energyStored", record.getEnergyStored()),
-                        Map.entry("sunlightIntensity", record.getSunlightIntensity()),
-                        Map.entry("panelPower", record.getPanelPower()),
-                        Map.entry("batteryCapacity", record.getBatteryCapacity())
-                    );
+                    Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", record.getId());
+                    map.put("periodNumber", record.getPeriodNumber());
+                    map.put("simulationDate", record.getSimulationDate() != null ? record.getSimulationDate().toString() : null);
+                    map.put("periodStart", record.getPeriodStart() != null ? record.getPeriodStart().toString() : null);
+                    map.put("periodEnd", record.getPeriodEnd() != null ? record.getPeriodEnd().toString() : null);
+                    map.put("gridConsumption", record.getGridConsumption());
+                    map.put("gridFeedIn", record.getGridFeedIn());
+                    map.put("pvProduction", record.getPvProduction());
+                    map.put("batteryLevel", record.getBatteryLevel());
+                    map.put("energyStored", record.getEnergyStored());
+                    map.put("sunlightIntensity", record.getSunlightIntensity());
+                    map.put("panelPower", record.getPanelPower());
+                    map.put("batteryCapacity", record.getBatteryCapacity());
                     results.add(map);
                 }
             }
@@ -94,6 +94,35 @@ public class DataController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("INTERNAL_ERROR", "Internal server error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/simulation/run")
+    public ResponseEntity<?> runSimulation() {
+        try {
+            // Utworzenie ustawień systemu
+            Settings settings = new Settings();
+            settings.setPanelPower(5.0);
+            settings.setBatteryCapacity(100.0);
+
+            // Utworzenie managera symulacji
+            SimulationManager manager = new SimulationManager(settings);
+
+            // Wykonanie symulacji dla dzisiejszej daty
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.util.List<SimulationRecord> records = manager.simulateDay(today);
+
+            // Zwróć informację o sukcesie
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Simulation completed successfully");
+            response.put("recordCount", records.size());
+            response.put("date", today.toString());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("SIMULATION_ERROR", "Failed to run simulation: " + e.getMessage()));
         }
     }
 }

@@ -64,7 +64,21 @@ const Dashboard = () => {
     try {
       setSimulationLoading(true);
       const response = await dataApi.getSimulationResults();
-      setSimulationData(response.data || []);
+      const rawData = response.data || [];
+
+      // Przekształć dane symulacji na format kompatybilny z measurements
+      const transformedData = rawData.map(record => ({
+        timestamp: record.periodStart + ':00', // Dodaj sekundy do ISO formatu
+        gridConsumption: record.gridConsumption || 0,
+        gridFeedIn: record.gridFeedIn || 0,
+        pvProduction: record.pvProduction || 0,
+        batteryLevel: record.batteryLevel || 0,
+        periodNumber: record.periodNumber,
+        ...record // Zachowaj wszystkie oryginalne pola
+      }));
+
+      setSimulationData(rawData);
+      setMeasurements(transformedData); // Ustaw measurements dla wykresu i statystyk
     } catch (err) {
       console.warn('Błąd ładowania danych symulacji:', err);
       // Nie ustawiamy pustej tablicy, żeby zachować poprzednie dane

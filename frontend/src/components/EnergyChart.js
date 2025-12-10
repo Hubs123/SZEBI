@@ -27,14 +27,26 @@ const EnergyChart = ({ measurements }) => {
     return <div>Brak danych do wyświetlenia</div>;
   }
 
-  const sortedMeasurements = [...measurements].sort((a, b) => 
-    new Date(a.timestamp) - new Date(b.timestamp)
-  );
+  const sortedMeasurements = [...measurements].sort((a, b) => {
+    try {
+      return new Date(a.timestamp) - new Date(b.timestamp);
+    } catch {
+      return 0;
+    }
+  });
 
   const data = {
-    labels: sortedMeasurements.map(m => 
-      format(new Date(m.timestamp), 'dd.MM HH:mm')
-    ),
+    labels: sortedMeasurements.map((m, index) => {
+      try {
+        if (!m.timestamp) return `Okres ${index + 1}`;
+        const date = new Date(m.timestamp);
+        if (isNaN(date.getTime())) return `Okres ${index + 1}`;
+        return format(date, 'dd.MM HH:mm');
+      } catch (error) {
+        console.warn('Błąd formatowania daty:', m.timestamp, error);
+        return m.periodNumber ? `Okres ${m.periodNumber}` : `Okres ${index + 1}`;
+      }
+    }),
     datasets: [
       {
         label: 'Zużycie energii (kWh)',
