@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { predictionApi, dataApi } from '../services/api';
-import PredictionChart from './PredictionChart';
-import './PredictionPanel.css';
+import { predictionApi, dataApi } from '../../../services/api';
+import PredictionChart from '../components/PredictionChart';
+import './PredictionPage.css';
 
 const PredictionPanel = () => {
   const [sensorId, setSensorId] = useState(1);

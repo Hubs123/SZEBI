@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { analysisApi, dataApi } from '../services/api';
-import EnergyChart from './EnergyChart';
-import './AnalysisPanel.css';
+import { analysisApi, dataApi } from '../../../services/api';
+import EnergyChart from '../components/EnergyChart';
+import './AnalysisPage.css';
 
-const AnalysisPanel = () => {
+const AnalysisPage = () => {
   const [sensorId, setSensorId] = useState(1);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -129,5 +129,5 @@ const AnalysisPanel = () => {
   );
 };
 
-export default AnalysisPanel;
+export default AnalysisPage;
 

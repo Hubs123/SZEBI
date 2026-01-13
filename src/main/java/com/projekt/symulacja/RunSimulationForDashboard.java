@@ -5,14 +5,14 @@ import java.util.List;
 
 /**
  * Prosty skrypt do uruchomienia symulacji i zapisania wyników.
- * Użyj tego aby wygenerować nowe dane dla Frontend Dashboard.
+ * Użyj tego aby wygenerować nowe dane dla Frontend DashboardPage.
  */
 public class RunSimulationForDashboard {
 
     public static void main(String[] args) {
         try {
             System.out.println("=".repeat(60));
-            System.out.println("Uruchamianie symulacji dla Dashboard Frontend");
+            System.out.println("Uruchamianie symulacji dla DashboardPage Frontend");
             System.out.println("=".repeat(60));
 
             // 1. Utworzenie ustawień systemu
@@ -68,7 +68,7 @@ public class RunSimulationForDashboard {
                 .max()
                 .orElse(0.0);
 
-            System.out.println("\n[4] Statystyki Grid Consumption (to samo co w Dashboard):");
+            System.out.println("\n[4] Statystyki Grid Consumption (to samo co w DashboardPage):");
             System.out.println("    Średnie zużycie: " + String.format("%.2f", avgGridConsumption) + " kWh");
             System.out.println("    Minimum:         " + String.format("%.2f", minGridConsumption) + " kWh");
             System.out.println("    Maximum:         " + String.format("%.2f", maxGridConsumption) + " kWh");
@@ -76,7 +76,7 @@ public class RunSimulationForDashboard {
 
             System.out.println("\n[5] ✓ Symulacja zakończona pomyślnie!");
             System.out.println("    Wyniki są teraz dostępne w SimulationManager.getSimulationResults()");
-            System.out.println("    Frontend Dashboard powinien pokazać powyższe wartości.");
+            System.out.println("    Frontend DashboardPage powinien pokazać powyższe wartości.");
 
             System.out.println("\n[6] Aby zobaczyć dane w Frontend:");
             System.out.println("    1. Uruchom Spring Boot: mvn spring-boot:run");

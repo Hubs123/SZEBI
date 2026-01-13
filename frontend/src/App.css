@@ -1,51 +1,70 @@
-.App {
+.app-container {
   min-height: 100vh;
-}
-
-.App-header {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 1.5rem 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.App-header h1 {
-  color: #333;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.nav-tabs {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
 }
 
-.nav-tabs button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  background: transparent;
-  color: #666;
-  font-size: 1rem;
+.navbar {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #333;
+  letter-spacing: 1px;
+  text-decoration: none;
   cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  transition: opacity 0.3s ease;
 }
 
-.nav-tabs button:hover {
+.logo:hover {
+  opacity: 0.7;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.95rem;
+}
+
+.navbar-links a:hover {
   background: rgba(102, 126, 234, 0.1);
   color: #667eea;
 }
 
-.nav-tabs button.active {
+.navbar-links a.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.App-main {
+.content {
+  flex: 1;
   max-width: 1400px;
+  width: 100%;
   margin: 2rem auto;
   padding: 0 2rem;
 }
@@ -116,7 +135,6 @@
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .error {
@@ -178,3 +196,52 @@
   color: #666;
 }
 
+.footer {
+  text-align: center;
+  padding: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.module-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Delikatna ramka */
+}
+
+.nav-tabs a {
+  text-decoration: none;
+  padding: 0.75rem 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  border: none;
+  background: transparent;
+}
+
+.nav-tabs a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.nav-tabs a.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}

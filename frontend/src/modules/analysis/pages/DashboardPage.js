@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { dataApi } from '../services/api';
-import EnergyChart from './EnergyChart';
-import './Dashboard.css';
+import { dataApi } from '../../../services/api';
+import EnergyChart from '../components/EnergyChart';
+import './DashboardPage.css';
 
-const Dashboard = () => {
+const DashboardPage = () => {
   const [sensorId] = useState(1);
   const [measurements, setMeasurements] = useState([]);
   const [simulationData, setSimulationData] = useState([]);
@@ -256,5 +256,5 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
 
