@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<button class="addChat" onclick="addChat()">New Chat</button>
+
+<div class="main">
+    <div class="chat">
+        <h1>SZEBI Chat</h1>
+        <div class="chat-header-buttons">
+            <button class="addUser" onclick="addUsers()">Add Users</button>
+            <button class="removeUser" onclick="removeUsers()">Remove Users</button>
+        </div>
+        <div id="userListContainer" style="display:none; margin-top: 1vh;">
+            <ul id="userList"></ul>
+        </div>
+        <div id="messages"></div>
+        <div class="buttons">
+            <input id="msgInput" placeholder="Send a message...">
+            <button onclick="sendMsg()">Send</button>
+            <button onclick="sendFile()">File</button>
+            <input type="file" id="fileInput" style="display:none" accept=".jpg,.png,.jpeg">
+        </div>
+    </div>
+
+    <div class="history">
+        <h1>HISTORY</h1>
+        <div id="chatHistory"></div>
+    </div>
+</div>
+
+<div id="panel" class="panel">
+    <p>Chat name:</p>
+    <input id="nameChat" placeholder="Enter the name">
+    <p>Select participants</p>
+    <input id="searchUser" placeholder="Type a name...">
+    <div id="userResults"></div>
+    <button onclick="createChat()">Finish</button>
+    <button onclick="closeNewChatPanel()">Cancel</button>
+</div>
+
+<div id="addUserPanel" class="panel" style="display:none;">
+    <p>Enter username:</p>
+    <input id="newUserNamePanel" placeholder="Type username...">
+    <div id="addUserResults" class="autocomplete"></div>
+    <div style="margin-top: 1vh;">
+        <button id="confirmAddUserPanel">Add</button>
+        <button onclick="closeAddUserPanel()">Cancel</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

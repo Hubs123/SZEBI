@@ -1,27 +1,25 @@
 package com.projekt.alerts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceGroupRepository {
-    private List<DeviceGroup> groups;
+    private List<DeviceGroup> groups = new ArrayList<>();
 
-    public DeviceGroupRepository() {
-    }
-
-    public List<DeviceGroup> getAllGroups() {
+    public List<DeviceGroup> getAll() {
         return groups;
     }
 
-    public DeviceGroup getGroupById(int id) {
+    public DeviceGroup getById(int id) {
         for (DeviceGroup g : groups) {
-            if (g.getDeviceGroupId() == id) {
+            if (g.getId() == id) {
                 return g;
             }
         }
         return null;
     }
 
-    public Boolean addGroup(DeviceGroup group) {
+    public Boolean add(DeviceGroup group) {
         try {
             groups.add(group);}
         catch (Exception e) {
@@ -30,9 +28,9 @@ public class DeviceGroupRepository {
         return true;
     }
 
-    public Boolean deleteGroup(int id) {
+    public Boolean delete(int id) {
         for (DeviceGroup g : groups) {
-            if (g.getDeviceGroupId() == id) {
+            if (g.getId() == id) {
                 try {
                     groups.remove(g);}
                 catch (Exception e) {
