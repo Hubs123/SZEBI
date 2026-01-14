@@ -28,7 +28,7 @@ public class SmokeDetectorSimulation implements SimulationModel {
             device.applyCommand(Map.of("smokeDetected", 1.0f));
             return;
         }
-        if (device.getState("smokeDetected") >= 0.5f) {
+        if (device.getState("smokeDetected") == 1.0f) {
             device.applyCommand(Map.of("smokeDetected", 0.0f));
             nextSmoke = now.plusMillis(sampleExpMs(rng));
         }
