@@ -1,8 +1,9 @@
 package com.projekt.sterowanie;
 
 public enum DeviceType {
-    noSimulation(NoSimulation.class);
-    // dorobimy później więcej typów
+    noSimulation(NoSimulation.class),
+    thermometer(ThermometerSimulation.class),
+    smokeDetector(SmokeDetectorSimulation.class);
 
     // enum przechowuje referencję do klasy symulacji odpowiadającej typowi urządzenia
     private final Class<? extends SimulationModel> modelClass;
