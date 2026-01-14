@@ -19,6 +19,7 @@ public class DeviceManager {
         if (added) {
             return d;
         }
+        d.stopTicking();
         return null;
     }
 

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoomRepository {
-    private List<Room> rooms = new ArrayList<>();
+    private final List<Room> rooms = new ArrayList<>();
 
     public Boolean add(Room room) {
         return rooms.add(room);

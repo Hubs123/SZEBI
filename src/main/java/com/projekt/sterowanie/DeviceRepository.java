@@ -7,10 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class DeviceRepository {
-    private List<Device> devices = new ArrayList<>();
+    private final List<Device> devices = Collections.synchronizedList(new ArrayList<>());
 
     public Boolean save(Device device) {
         PreparedStatement ps = null;
@@ -61,15 +62,27 @@ public class DeviceRepository {
         return devices.add(device);
     }
 
-    public Boolean delete(Integer deviceId) {
-        if (devices.isEmpty()) return false;
-        return devices.removeIf(device -> device.getId() != null && device.getId().equals(deviceId));
+    public boolean delete(Integer deviceId) {
+        synchronized (devices) {
+            Iterator<Device> it = devices.iterator();
+            while (it.hasNext()) {
+                Device d = it.next();
+                if (deviceId.equals(d.getId())) {
+                    d.stopTicking();
+                    it.remove();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public Device findById(Integer deviceId) {
-        for (Device d : devices) {
-            if (d.getId() != null && d.getId().equals(deviceId)) {
-                return d;
+        synchronized (devices) {
+            for (Device d : devices) {
+                if (d.getId() != null && d.getId().equals(deviceId)) {
+                    return d;
+                }
             }
         }
         return null;
@@ -79,25 +92,31 @@ public class DeviceRepository {
         if (roomId == null) return Collections.emptyList();
 
         List<Device> result = new ArrayList<>();
-        for (Device d : devices) {
-            if (roomId.equals(d.getRoomId())) {
-                result.add(d);
+        synchronized (devices) {
+            for (Device d : devices) {
+                if (roomId.equals(d.getRoomId())) {
+                    result.add(d);
+                }
             }
         }
         return result;
     }
 
     public List<Device> findAll() {
-        return new ArrayList<>(devices);
+        synchronized (devices) {
+            return new ArrayList<>(devices);
+        }
     }
 
     public List<Device> findByType(DeviceType type) {
         if (type == null) return Collections.emptyList();
 
         List<Device> result = new ArrayList<>();
-        for (Device d : devices) {
-            if (type.equals(d.getType())) {
-                result.add(d);
+        synchronized (devices) {
+            for (Device d : devices) {
+                if (type.equals(d.getType())) {
+                    result.add(d);
+                }
             }
         }
         return result;

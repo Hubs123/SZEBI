@@ -36,6 +36,7 @@ public class Device {
             }
         }
         this.model = type.newModelInstance();
+        startTicking();
     }
 
     public Integer getId() {
