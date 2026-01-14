@@ -31,7 +31,6 @@ public class DeviceManager {
         return deviceRepo.save(device);
     }
 
-    // warto zastanowić się nad zmianą nazwy DeviceManager na np DeviceRoomManager
     public Boolean saveRoomToDatabase(Room room) {
         return roomRepo.save(room);
     }
@@ -57,38 +56,11 @@ public class DeviceManager {
         return Collections.unmodifiableList(deviceRepo.findByRoom(roomId));
     }
 
-    public Boolean turnOnAllDevicesInRoom(Integer roomId) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(Map.of("power", 1.0f))) {
-                result = false;
-                // bez break - niech włączy ile się da
-            }
-        }
-        return result;
-        // jeśli false - błąd typu "nie udało się włączyć niektórych urządzeń"
+    public static Boolean applyToRoom(Integer roomId, DeviceType type, Map<String, Float> states) {
+        return deviceRepo.applyToRoom(roomId, type, states);
     }
 
-    public Boolean turnOffAllDevicesInRoom(Integer roomId) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(Map.of("power", 0.0f))) {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    public Boolean applyToRoom(Integer roomId, DeviceType type, Map<String, Float> states) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(states)) {
-                result = false;
-            }
-        }
-        return result;
+    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float> > > devicesStates) {
+        return deviceRepo.applyCommands(devicesStates);
     }
 }

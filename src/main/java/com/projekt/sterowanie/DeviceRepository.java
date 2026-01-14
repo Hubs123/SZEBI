@@ -5,10 +5,7 @@ import com.projekt.db.Db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class DeviceRepository {
     private final List<Device> devices = Collections.synchronizedList(new ArrayList<>());
@@ -120,5 +117,33 @@ public class DeviceRepository {
             }
         }
         return result;
+    }
+
+    public Boolean applyToRoom(Integer roomId, DeviceType type, Map<String, Float> states) {
+        if (roomId == null) return false;
+        synchronized (devices) {
+            boolean result = true;
+            for (Device d : devices) {
+                if (roomId.equals(d.getRoomId()) && d.getType().equals(type)) {
+                    if (!d.applyCommand(states)) result = false;
+                }
+            }
+            return result;
+        }
+    }
+
+    public Boolean applyCommands(List<Pair<Integer, Map<String, Float> > > devicesStates) {
+        synchronized (devices) {
+            boolean result = true;
+            for (Device d : devices) {
+                for (Pair<Integer, Map<String, Float> > ds : devicesStates ) {
+                    if (d.getId().equals(ds.first())) {
+                        if(!d.applyCommand(ds.second()))
+                            result = false;
+                    }
+                }
+            }
+            return result;
+        }
     }
 }
