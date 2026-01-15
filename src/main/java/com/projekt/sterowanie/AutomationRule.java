@@ -15,6 +15,7 @@ public class AutomationRule {
         this.timeWindow = null;
     }
 
+    // timeWindow np: "12:00-15:00" oznacza wprowadzenie zmian o 12:00 i wycofanie o 15:00
     public AutomationRule(Integer deviceId, Map<String, Float> states, String timeWindow) {
         this.deviceId = deviceId;
         if (states != null) this.states.putAll(states);

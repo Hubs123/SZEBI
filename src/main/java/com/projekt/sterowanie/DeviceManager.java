@@ -1,7 +1,5 @@
 package com.projekt.sterowanie;
 
-import com.projekt.alerts.DeviceGroupRepository;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +9,6 @@ public class DeviceManager {
     private final RoomRepository roomRepo = new RoomRepository();
 
     static public final DeviceRepository deviceRepo = new DeviceRepository();
-    static public final DeviceGroupRepository groupRepo = new DeviceGroupRepository();
 
     public Device registerDevice(String name, DeviceType type, Integer roomId) {
         Device d = new Device(name, type, roomId);
