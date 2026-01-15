@@ -2,19 +2,7 @@ let selectedUsers = [];
 let activeChatId = null;
 //to do zmiany ale nie mam pomysl jak to zrobic, bo trzebabyloby zrobic modul logowania itd, a to chyba odgornie do apki
 //musi byc
-const token = localStorage.getItem("token");
-const userId = localStorage.getItem("userId");
-
-if (!token || !userId) {
-    window.location.href = "login.html";
-}
-function authFetch(url, options = {}) {
-    options.headers = {
-        ...(options.headers || {}),
-        "Authorization": "Bearer " + localStorage.getItem("token")
-    };
-    return fetch(url, options);
-}
+const userId = 1;
 
 function addMessageToBox(senderName, content, attachments = []) {
     const msgBox = document.getElementById("messages");
@@ -40,7 +28,7 @@ async function sendMessage(content = "", file = null) {
 
     if (file) formData.append("file", file);
 
-    const res = await authFetch(`/api/chat/${activeChatId}/send`, {
+    const res = await fetch(`/api/chat/${activeChatId}/send`, {
         method: "POST",
         body: formData
     });
@@ -73,7 +61,7 @@ function sendFile() {
 }
 
 async function loadMessages(chatId) {
-    const res = await authFetch(`/api/chat/${chatId}/messages`);
+    const res = await fetch(`/api/chat/${chatId}/messages`);
     const messages = await res.json();
     const msgBox = document.getElementById("messages");
     msgBox.innerHTML = "";
@@ -83,7 +71,7 @@ async function loadMessages(chatId) {
 }
 
 async function loadChatHistory() {
-    const res = await authFetch(`/api/chat/all?userId=${userId}`);
+    const res = await fetch(`/api/chat/all?userId=${userId}`);
     const chats = await res.json();
     const history = document.getElementById("chatHistory");
     history.innerHTML = "";
@@ -97,7 +85,7 @@ async function loadChatHistory() {
             e.stopPropagation();
             if (await checkUsersRole(userId) === "ADMIN") {
                 if (!confirm(`Do you want to delete "${chat.chatName}"?`)) return;
-                const res = await authFetch(`/api/chat/${chat.id}`, {
+                const res = await fetch(`/api/chat/${chat.id}`, {
                     method: "DELETE"
                 });
                 if (!res.ok) {
@@ -148,7 +136,7 @@ async function createChat() {
     const name = document.getElementById("nameChat").value.trim();
     if (!name) return alert("Chat name cannot be empty");
 
-    const res = await authFetch("/api/chat/create", {
+    const res = await fetch("/api/chat/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chatName: name, creatorId: userId, participants: selectedUsers })
@@ -160,6 +148,28 @@ async function createChat() {
     document.getElementById("nameChat").value = "";
     await loadChatHistory();
 }
+
+// const searchInput = document.getElementById("searchUser");
+// const resultsBox = document.getElementById("userResults");
+//
+// searchInput.oninput = async () => {
+//     const prefix = searchInput.value.trim();
+//     if (!prefix) { resultsBox.innerHTML = ""; return; }
+//
+//     const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
+//     const users = await res.json();
+//     resultsBox.innerHTML = "";
+//     users.forEach(u => {
+//         const div = document.createElement("div");
+//         div.textContent = `${u.firstName} ${u.lastName}`;
+//         div.onclick = () => {
+//             if (!selectedUsers.includes(u.id)) selectedUsers.push(u.id);
+//             searchInput.value = "";
+//             resultsBox.innerHTML = "";
+//         };
+//         resultsBox.appendChild(div);
+//     });
+// };
 
 async function addUsers() {
     let result = await checkUsersRole(userId)
@@ -178,7 +188,7 @@ document.getElementById('confirmAddUserPanel').addEventListener('click', async (
     const username = document.getElementById('newUserNamePanel').value.trim();
     if (!username) return alert('Enter a username');
 
-    const response = await authFetch(`/api/chat/${activeChatId}/addUser`, {
+    const response = await fetch(`/api/chat/${activeChatId}/addUser`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: username })
@@ -211,7 +221,7 @@ async function removeUsers() {
 async function usersList() {
     const userList = document.getElementById('userList');
 
-    const response = await authFetch(`/api/chat/${activeChatId}/users`);
+    const response = await fetch(`/api/chat/${activeChatId}/users`);
     const users = await response.json();
     console.log(users)
 
@@ -231,7 +241,7 @@ async function usersList() {
 }
 
 async function deleteUserFromChat(userId) {
-    const response = await authFetch(`/api/chat/${activeChatId}/users/${userId}`, {
+    const response = await fetch(`/api/chat/${activeChatId}/users/${userId}`, {
         method: "DELETE"
     });
     if (response.ok) {
@@ -251,7 +261,7 @@ function enableUserSearch(inputElement, resultsElement, onSelect) {
             return;
         }
 
-        const res = await authFetch(`/api/chat/searchUsers?prefix=${prefix}`);
+        const res = await fetch(`/api/chat/searchUsers?prefix=${prefix}`);
         const users = await res.json();
 
         resultsElement.innerHTML = "";
@@ -292,7 +302,7 @@ enableUserSearch(
 
 async function checkUsersRole(userId) {
     console.log(userId)
-    const userRole = await authFetch(`/api/chat/${userId}/role`);
+    const userRole = await fetch(`/api/chat/${userId}/role`);
     let result = await userRole.json();
     console.log(result);
     console.log(result['role']);

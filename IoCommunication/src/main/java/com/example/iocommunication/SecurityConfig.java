@@ -1,0 +1,103 @@
+package com.example.iocommunication;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private static final String SECRET = "CHANGE_ME_SECRET";
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        OncePerRequestFilter jwtFilter = new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest req,
+                                            HttpServletResponse res,
+                                            FilterChain chain) throws ServletException, IOException {
+
+                String path = req.getRequestURI();
+
+                if (
+                        path.startsWith("/login") ||            // GET /login or /login.html
+                                path.startsWith("/register") ||         // GET /register or /register.html
+                                path.endsWith(".html") ||               // any HTML file
+                                path.endsWith(".js") ||                 // static JS
+                                path.endsWith(".css") ||                // static CSS
+                                (req.getMethod().equalsIgnoreCase("POST") &&
+                                        (path.startsWith("/login") || path.startsWith("/register"))) // POST API
+                ) {
+                    chain.doFilter(req, res);
+                    return;
+                }
+
+                String header = req.getHeader("Authorization");
+                if (header != null && header.startsWith("Bearer ")) {
+                    try {
+                        String token = header.substring(7);
+                        Claims claims = Jwts.parser()
+                                .setSigningKey(SECRET)
+                                .parseClaimsJws(token)
+                                .getBody();
+
+                        Long userId = Long.parseLong(claims.getSubject());
+                        String role = claims.get("role", String.class);
+
+                        UsernamePasswordAuthenticationToken auth =
+                                new UsernamePasswordAuthenticationToken(
+                                        userId.toString(),
+                                        null,
+                                        List.of(new SimpleGrantedAuthority(role))
+                                );
+
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    } catch (Exception e) {
+                        SecurityContextHolder.clearContext();
+                    }
+                }
+
+                chain.doFilter(req, res);
+            }
+        };
+
+        return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/register", "/login.html", "/register.html",
+                                "/auth.js", "/styles.css").permitAll()
+                        .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
+                        .requestMatchers("/chat/**").authenticated()
+                        .anyRequest().denyAll()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

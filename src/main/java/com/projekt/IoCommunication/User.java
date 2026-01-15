@@ -1,7 +1,6 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import jakarta.persistence.*;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Date;
 
@@ -16,7 +15,6 @@ public class User {
     private String firstName;
     private String lastName;
     private String role;
-    private String password;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastLogin;
@@ -64,11 +62,5 @@ public class User {
     }
     public void setLastLogin(Date lastLogin) {
         this.lastLogin = lastLogin;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public String getPassword() {
-        return password;
     }
 }

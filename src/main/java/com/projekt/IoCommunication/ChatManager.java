@@ -1,8 +1,8 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
+import com.projekt.IoCommunication.*;
 import javax.swing.*;
 import java.util.Date;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ChatManager {
         return chatRepository.findById(id);
     }
 
-    public Optional<User> getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
