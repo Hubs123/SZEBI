@@ -12,7 +12,7 @@ public class AlertManager {
     static public final AlertRepository alertRepo = new AlertRepository();
 
     public Alert createAlert(Date date, Float anomalyValue, String anomalyType, Integer deviceId) {
-        DeviceGroup deviceGroup;
+        DeviceGroup deviceGroup = null;
         DeviceType type = DeviceManager.getDevice(deviceId).getType();
         switch (type) {
             case noSimulation:

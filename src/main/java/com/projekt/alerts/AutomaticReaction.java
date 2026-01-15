@@ -31,27 +31,19 @@ public class AutomaticReaction {
     public void executeReaction(Integer deviceId) {
         switch (name) {
             case "turnOff":
-                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == 0.0f) {
+                if (!DeviceManager.getDevice(deviceId).isOn()) {
                     break;
                 }
-                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == null) {
-                    // dodać tutaj błąd że device nie ma stanu power co w założeniach każde miało mieć
-                    break;
-                }
-                Map<String, Float> offset1 = Map.of("power", -1.0f);
-                AutomationRule reaction1 = new AutomationRule(deviceId, offset1, "placeholder");
+                Map<String, Float> offState = Map.of("power", 0.0f);
+                AutomationRule reaction1 = new AutomationRule(deviceId, offState);
                 AutomationPlanManager.applyModifications(List.of(reaction1), 1);
                 break;
             case "turnOn":
-                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == 1.0f) {
+                if (DeviceManager.getDevice(deviceId).isOn()) {
                     break;
                 }
-                if (DeviceManager.deviceRepo.findById(deviceId).getStates().get("power") == null) {
-                    // dodać tutaj błąd że device nie ma stanu power co w założeniach każde miało mieć
-                    break;
-                }
-                Map<String, Float> offset2 = Map.of("power", 1.0f);
-                AutomationRule reaction2 = new AutomationRule(deviceId, offset2, "placeholder");
+                Map<String, Float> onState = Map.of("power", 1.0f);
+                AutomationRule reaction2 = new AutomationRule(deviceId, onState);
                 AutomationPlanManager.applyModifications(List.of(reaction2), 1);
                 break;
             default:
