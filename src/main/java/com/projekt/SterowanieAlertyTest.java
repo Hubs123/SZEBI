@@ -9,7 +9,7 @@ public class SterowanieAlertyTest {
     public static void main(String[] args) {
         DeviceManager manager = new DeviceManager();
         // domyślnie żarówka (typ noSimulation) jest włączona - power -> 1.0
-        Device device = manager.registerDevice("zarowka2", DeviceType.noSimulation, 1, null);
+        Device device = manager.registerDevice("zarowka2", DeviceType.noSimulation, null);
         if (!manager.saveDeviceToDatabase(device)) {
             System.out.println("Could not save device to database");
         }

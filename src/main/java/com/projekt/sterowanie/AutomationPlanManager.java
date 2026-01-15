@@ -6,8 +6,7 @@ import java.util.Map;
 
 public class AutomationPlanManager {
     private final AutomationPlanRepository planRepo = new AutomationPlanRepository();
-    private static AutomationPlan currentPlan = null;
-    private static Boolean isCurrentPlanPrio = false;
+    private static volatile AutomationPlan currentPlan = null;
 
     public Integer createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
@@ -20,10 +19,6 @@ public class AutomationPlanManager {
         return planRepo.delete(planId);
     }
 
-    public Boolean getCurrentPlanPrio() {
-        return isCurrentPlanPrio;
-    }
-
     public AutomationPlan getCurrentPlan() {
         return currentPlan;
     }
@@ -32,71 +27,47 @@ public class AutomationPlanManager {
         AutomationPlan plan = planRepo.findById(planId);
         if (plan == null) return false;
         List<AutomationRule> rules = plan.getRules();
-        List<Device> devices = new ArrayList<>();
+        List<Pair<Integer, Map<String, Float>>> devicesStates = new ArrayList<>();
         for (AutomationRule rule : rules) {
-            devices.add(DeviceManager.deviceRepo.findById(rule.getDeviceId()));
+            devicesStates.add(new Pair<>(rule.getDeviceId(), rule.getStates()));
         }
-        boolean commandApplied = true;
-        for (int i = 0; i < devices.size(); i++) {
-            if (!devices.get(i).applyCommand(rules.get(i).getStates())) {
-                commandApplied = false;
-                // podobnie jak w device manager
-            }
-        }
+        Boolean commandApplied = DeviceManager.applyCommands(devicesStates);
         if (commandApplied) {
             currentPlan = plan;
         }
         else {
             currentPlan = null;
-            // na razie bez rollbacku
         }
         return commandApplied;
-        // time window na razie nie zaimplementowany - bardzo skomplikowane
-
     }
 
-    static public Boolean applyModifications(List<AutomationRule> offsets, Integer priority) {
-        List<Device> devices = new ArrayList<>();
-        for (AutomationRule rule : offsets) {
-            devices.add(DeviceManager.deviceRepo.findById(rule.getDeviceId()));
+    static public Boolean applyModifications(List<AutomationRule> rules, Integer priority) {
+        final boolean emergency = priority > 0;
+        List<Pair<Integer, Map<String, Float>>> devicesStates = new ArrayList<>();
+        for (AutomationRule rule : rules) {
+            devicesStates.add(new Pair<>(rule.getDeviceId(), rule.getStates()));
         }
         if (currentPlan == null || currentPlan.getName().equals("temp")) {
-            List<AutomationRule> rules = new ArrayList<>();
-            for (int i = 0; i < devices.size(); i++) {
-                Device device = devices.get(i);
-                Map<String, Float> newStates = device.getStates();
-                offsets.get(i).getStates().forEach((key, value) ->
-                        newStates.merge(key, value, Float::sum)
-                ); // dodanie wszystkich wartości offsetów stanów
-                AutomationRule rule = new AutomationRule(device.getId(), newStates, offsets.get(i).getTimeWindow());
-                rules.add(rule);
-            }
             AutomationPlan tempPlan = new AutomationPlan("temp", rules);
-            boolean commandApplied = true;
-            for (int i = 0; i < devices.size(); i++) {
-                if(!devices.get(i).applyCommand(rules.get(i).getStates())) {
-                    commandApplied = false;
-                }
-            }
-            if (commandApplied) {
+            if (DeviceManager.applyCommands(devicesStates, emergency)) {
                 currentPlan = tempPlan;
+                if (emergency) {
+                    for (AutomationRule rule : rules) {
+                        Device d = DeviceManager.getDevice(rule.getDeviceId());
+                        if (d != null) d.emergencyLock();
+                    }
+                }
                 return true;
             }
-            // tymczasowy plan utworzony na bazie obecnych stanów i modyfikacji od modułu optymalizacji
+            // tymczasowy plan utworzony na bazie poleceń od modułu optymalizacji
         }
-        boolean commandApplied = true;
-        for (int i = 0; i < offsets.size(); i++) {
-            Map<String, Float> oldStates = devices.get(i).getStates();
-            Map<String, Float> newStates = offsets.get(i).getStates();
-            oldStates.forEach((key, value) ->
-                    newStates.merge(key, value, Float::sum)
-            );
-            if (!devices.get(i).applyCommand(newStates)) {
-                commandApplied = false;
+        boolean commandApplied = DeviceManager.applyCommands(devicesStates);
+        if (commandApplied && emergency) {
+            for (AutomationRule rule : rules) {
+                Device d = DeviceManager.getDevice(rule.getDeviceId());
+                if (d != null) d.emergencyLock();
             }
         }
-        // priority 0 - zwykłe, 1 - priorytetowe
-        isCurrentPlanPrio = priority > 0;
         return commandApplied;
     }
 

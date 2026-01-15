@@ -13,12 +13,13 @@ public class DeviceManager {
     static public final DeviceRepository deviceRepo = new DeviceRepository();
     static public final DeviceGroupRepository groupRepo = new DeviceGroupRepository();
 
-    public Device registerDevice(String name, DeviceType type, Integer deviceGroupId, Integer roomId) {
-        Device d = new Device(name, type, deviceGroupId, roomId);
+    public Device registerDevice(String name, DeviceType type, Integer roomId) {
+        Device d = new Device(name, type, roomId);
         Boolean added = deviceRepo.add(d);
         if (added) {
             return d;
         }
+        d.stopTicking();
         return null;
     }
 
@@ -30,7 +31,6 @@ public class DeviceManager {
         return deviceRepo.save(device);
     }
 
-    // warto zastanowić się nad zmianą nazwy DeviceManager na np DeviceRoomManager
     public Boolean saveRoomToDatabase(Room room) {
         return roomRepo.save(room);
     }
@@ -43,7 +43,7 @@ public class DeviceManager {
 
     public boolean sendCommand(Integer deviceId, Map<String, Float> m) {
         Device d = deviceRepo.findById(deviceId);
-        if (d == null) return false;
+        if (d == null || d.isEmergencyLocked()) return false;
         return d.applyCommand(m);
     }
 
@@ -51,43 +51,24 @@ public class DeviceManager {
         return Collections.unmodifiableList(deviceRepo.findAll());
     }
 
+    public static Device getDevice(Integer deviceId) {
+        return deviceRepo.findById(deviceId);
+    }
+
     public List<Device> listRoomDevices(Integer roomId) {
         if (roomId == null) return Collections.emptyList();
         return Collections.unmodifiableList(deviceRepo.findByRoom(roomId));
     }
 
-    public Boolean turnOnAllDevicesInRoom(Integer roomId) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(Map.of("power", 1.0f))) {
-                result = false;
-                // bez break - niech włączy ile się da
-            }
-        }
-        return result;
-        // jeśli false - błąd typu "nie udało się włączyć niektórych urządzeń"
+    public static Boolean applyToRoom(Integer roomId, DeviceType type, Map<String, Float> states) {
+        return deviceRepo.applyToRoom(roomId, type, states);
     }
 
-    public Boolean turnOffAllDevicesInRoom(Integer roomId) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(Map.of("power", 0.0f))) {
-                result = false;
-            }
-        }
-        return result;
+    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates) {
+        return applyCommands(devicesStates, false);
     }
 
-    public Boolean applyToRoom(Integer roomId, DeviceType type, Map<String, Float> states) {
-        List<Device> devices = deviceRepo.findByRoom(roomId);
-        boolean result = true;
-        for (Device device : devices) {
-            if (!device.applyCommand(states)) {
-                result = false;
-            }
-        }
-        return result;
+    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates, boolean force) {
+        return deviceRepo.applyCommands(devicesStates, force);
     }
 }

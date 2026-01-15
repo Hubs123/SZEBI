@@ -6,10 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RoomRepository {
-    private List<Room> rooms = new ArrayList<>();
+    private final List<Room> rooms = new ArrayList<>();
 
     public Boolean add(Room room) {
         return rooms.add(room);
@@ -45,7 +46,7 @@ public class RoomRepository {
     }
 
     public Boolean delete(int roomId) {
-        return rooms.remove(roomId) != null;
+        return rooms.removeIf(r -> r.getId() == roomId);
     }
 
     public Room findById(int roomId) {
@@ -58,6 +59,6 @@ public class RoomRepository {
     }
 
     public List<Room> findAll() {
-        return rooms;
+        return Collections.unmodifiableList(rooms);
     }
 }
