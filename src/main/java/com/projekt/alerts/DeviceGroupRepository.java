@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceGroupRepository {
-    private List<DeviceGroup> groups = new ArrayList<>();
+    private static List<DeviceGroup> groups = new ArrayList<>();
 
     public List<DeviceGroup> getAll() {
         return groups;
     }
 
-    public DeviceGroup getById(int id) {
+    static DeviceGroup getById(int id) {
         for (DeviceGroup g : groups) {
             if (g.getId() == id) {
                 return g;

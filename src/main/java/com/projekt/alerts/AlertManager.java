@@ -1,6 +1,5 @@
 package com.projekt.alerts;
 
-import com.projekt.sterowanie.Device;
 import com.projekt.sterowanie.DeviceManager;
 import com.projekt.sterowanie.DeviceType;
 
@@ -16,13 +15,13 @@ public class AlertManager {
         DeviceType type = DeviceManager.getDevice(deviceId).getType();
         switch (type) {
             case noSimulation:
-                deviceGroup = new DeviceGroup(1, "light", null, null);
+                deviceGroup = DeviceGroupRepository.getById(1);
                 break;
             case thermometer:
-                deviceGroup = new DeviceGroup(2, "thermometer", null, null);
+                deviceGroup = DeviceGroupRepository.getById(2);
                 break;
             case smokeDetector:
-                deviceGroup = new DeviceGroup(3, "smokeDetector", null, null);
+                deviceGroup = DeviceGroupRepository.getById(3);
         }
         Alert a = new Alert(date, anomalyValue, anomalyType, deviceGroup, deviceId);
         try {
