@@ -51,6 +51,10 @@ public class DeviceManager {
         return Collections.unmodifiableList(deviceRepo.findAll());
     }
 
+    public static Device getDevice(Integer deviceId) {
+        return deviceRepo.findById(deviceId);
+    }
+
     public List<Device> listRoomDevices(Integer roomId) {
         if (roomId == null) return Collections.emptyList();
         return Collections.unmodifiableList(deviceRepo.findByRoom(roomId));
