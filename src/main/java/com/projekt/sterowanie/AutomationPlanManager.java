@@ -96,7 +96,6 @@ public class AutomationPlanManager {
 
         void cancel() {
             if (applied && before != null) {
-                // wyjątkowo force również przy braku priorytetu, jeśli system dobrze działa, to się nie wydarzy
                 DeviceManager.applyCommands(toDeviceStates(before), true);
             }
             Thread t = thread;
@@ -140,7 +139,7 @@ public class AutomationPlanManager {
 
                 waitUntil(endI);
                 if (applied && before != null) {
-                    DeviceManager.applyCommands(toDeviceStates(before), true);
+                    DeviceManager.applyCommands(toDeviceStates(before));
                 }
             } finally {
                 synchronized (TW_LOCK) {
