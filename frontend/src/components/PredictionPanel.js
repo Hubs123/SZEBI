@@ -28,17 +28,21 @@ const PredictionPanel = () => {
       );
       setResult(response.data);
 
-      // Pobierz dane historyczne do wykresu
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - historyDays);
-      
-      const measurementsResponse = await dataApi.getMeasurements(
-        sensorId,
-        start.toISOString(),
-        end.toISOString()
-      );
-      setMeasurements(measurementsResponse.data || []);
+      // Dane do wykresu bierzemy z wyników symulacji (getSimulationResults), a nie z tabeli measurements.
+      const simResponse = await dataApi.getSimulationResults();
+      const rawData = simResponse.data || [];
+
+      const transformedData = rawData.map((record, index) => ({
+        timestamp: record.periodStart ? (record.periodStart.includes(':') ? record.periodStart + ':00' : record.periodStart) : `Okres ${index + 1}`,
+        gridConsumption: record.gridConsumption || 0,
+        gridFeedIn: record.gridFeedIn || 0,
+        pvProduction: record.pvProduction || 0,
+        batteryLevel: record.batteryLevel || 0,
+        periodNumber: record.periodNumber,
+        ...record
+      }));
+
+      setMeasurements(transformedData);
     } catch (err) {
       console.error('Błąd prognozy:', err);
       setError(err.response?.data?.message || err.message || 'Wystąpił błąd podczas prognozowania');

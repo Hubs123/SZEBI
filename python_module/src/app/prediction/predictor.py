@@ -39,12 +39,28 @@ class Predictor:
     def loadModel(self) -> None:
         if self.model_type is None or self.id_model is None:
             raise ModelNotSelectedError("Model must be selected before loading")
-        # dla prostych modeli nic więcej nie trzeba robić
 
     def _get_history_for_last_days(self, sensor_id: int, days: int) -> List[Measurement]:
+        # Źródłem historii są wyniki symulacji (SimulationManager), nie tabela measurements.
         end = self.timestamp
         start = end - timedelta(days=days)
-        return self.measurement_repo.get_measurements(sensor_id, start, end)
+
+        all_measurements = self.measurement_repo.get_simulation_results()
+        if not all_measurements:
+            return []
+
+        # Porównania naive/aware: jeśli symulacja zwróci naive, traktujemy to jako UTC.
+        def _normalize(ts: datetime) -> datetime:
+            if ts.tzinfo is None and end.tzinfo is not None:
+                return ts.replace(tzinfo=end.tzinfo)
+            return ts
+
+        norm_start = start
+        norm_end = end
+        if norm_start.tzinfo is None and norm_end.tzinfo is not None:
+            norm_start = norm_start.replace(tzinfo=norm_end.tzinfo)
+
+        return [m for m in all_measurements if norm_start <= _normalize(m.timestamp) <= norm_end]
 
     def _linear_regression_next_day(self, measurements: List[Measurement]) -> float:
         # prosty placeholder; w przyszłości można zaimplementować regresję liniową
@@ -87,4 +103,3 @@ class Predictor:
             model_id=self.id_model if self.id_model is not None else -1,
         )
         return self.prediction_repo.save(prediction)
-

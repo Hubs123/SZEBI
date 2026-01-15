@@ -39,6 +39,11 @@ def run_prediction(request: PredictionRequest):
 
     try:
         measurement_repo = get_measurement_repo()
+        # cast typów dla analizatora/predictora
+        from typing import cast
+        from app.analysis.data_manager import MeasurementRepositoryProtocol
+        measurement_repo = cast(MeasurementRepositoryProtocol, measurement_repo)
+
         prediction_repo = get_prediction_repo()
         energy_stats_repo = get_energy_stats_repo()
         report_repo = get_report_repo()
@@ -51,6 +56,10 @@ def run_prediction(request: PredictionRequest):
             measurement_repo=measurement_repo,
             prediction_repo=prediction_repo,
         )
+
+        # zastosuj okno historii z requestu, jeśli podane
+        if request.historyDays is not None:
+            predictor.config.moving_avg_window_days = request.historyDays
 
         try:
             predictor.selectModel(
@@ -104,4 +113,3 @@ def run_prediction(request: PredictionRequest):
             status_code=500,
             detail={"code": "INTERNAL_ERROR", "message": f"Internal server error: {str(e)}"}
         )
-

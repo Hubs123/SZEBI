@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 import pandas as pd
@@ -29,12 +28,41 @@ class EnergyAnalyzer:
             ]
         ).set_index("timestamp").sort_index()
 
+    def _normalize_dt_to_range(self, ts, time_range: TimeRange):
+        """Ujednolica tzinfo dla bezpiecznych porównań naive/aware.
+
+        Założenie: jeśli datetime jest naive, traktujemy go jako UTC.
+        """
+        if ts.tzinfo is None:
+            if time_range.start.tzinfo is not None:
+                return ts.replace(tzinfo=time_range.start.tzinfo)
+            if time_range.end.tzinfo is not None:
+                return ts.replace(tzinfo=time_range.end.tzinfo)
+        return ts
+
+    def _normalize_range(self, time_range: TimeRange) -> TimeRange:
+        # Jeśli request przyszedł jako naive datetime, potraktuj go jako UTC
+        if time_range.start.tzinfo is None and time_range.end.tzinfo is None:
+            import datetime as _dt
+
+            return TimeRange(
+                start=time_range.start.replace(tzinfo=_dt.timezone.utc),
+                end=time_range.end.replace(tzinfo=_dt.timezone.utc),
+            )
+        return time_range
+
     def averageConsumption(self, time_range: TimeRange) -> EnergyStats:
-        measurements = self.measurement_repo.get_measurements(
-            sensor_id=self.sensor_id,
-            start=time_range.start,
-            end=time_range.end,
-        )
+        time_range = self._normalize_range(time_range)
+
+        measurements = self.measurement_repo.get_simulation_results()
+        if not measurements:
+            raise NoDataError("No measurements in given range")
+
+        measurements = [
+            m
+            for m in measurements
+            if time_range.contains(self._normalize_dt_to_range(m.timestamp, time_range))
+        ]
         if not measurements:
             raise NoDataError("No measurements in given range")
 
@@ -66,7 +94,7 @@ class EnergyAnalyzer:
         return self.averageConsumption(time_range)
 
     def lowestConsumption(self) -> EnergyStats:
-        measurements = self.measurement_repo.get_all_for_sensor(self.sensor_id)
+        measurements = self.measurement_repo.get_simulation_results()
         if not measurements:
             raise NoDataError("No measurements for sensor")
         df = self._to_dataframe(measurements)
@@ -86,7 +114,7 @@ class EnergyAnalyzer:
         )
 
     def highestConsumption(self) -> EnergyStats:
-        measurements = self.measurement_repo.get_all_for_sensor(self.sensor_id)
+        measurements = self.measurement_repo.get_simulation_results()
         if not measurements:
             raise NoDataError("No measurements for sensor")
         df = self._to_dataframe(measurements)
@@ -104,4 +132,3 @@ class EnergyAnalyzer:
             min=max_val,
             max=max_val,
         )
-

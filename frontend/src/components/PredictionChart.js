@@ -27,20 +27,37 @@ const PredictionChart = ({ measurements, prediction }) => {
     return <div>Brak danych do wyświetlenia</div>;
   }
 
-  const sortedMeasurements = [...measurements].sort((a, b) => 
-    new Date(a.timestamp) - new Date(b.timestamp)
-  );
+  const sortedMeasurements = [...measurements].sort((a, b) => {
+    try {
+      return new Date(a.timestamp) - new Date(b.timestamp);
+    } catch {
+      return 0;
+    }
+  });
+
+  const safeLabel = (ts, index) => {
+    try {
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return `Okres ${index + 1}`;
+      return format(d, 'dd.MM HH:mm');
+    } catch {
+      return `Okres ${index + 1}`;
+    }
+  };
 
   // Dodaj punkt prognozy
   const predictionDate = new Date(prediction.predictedForDate);
-  
+
   const labels = [
-    ...sortedMeasurements.map(m => format(new Date(m.timestamp), 'dd.MM HH:mm')),
-    format(predictionDate, 'dd.MM HH:mm'),
+    ...sortedMeasurements.map((m, idx) => safeLabel(m.timestamp, idx)),
+    safeLabel(predictionDate, sortedMeasurements.length),
   ];
 
+  // Historyczna seria ma wartości tylko dla punktów historycznych
   const historicalData = sortedMeasurements.map(m => m.gridConsumption);
-  const predictionData = [...historicalData, null, prediction.value];
+
+  // Seria prognozy: null dla historycznych punktów, wartość tylko na końcu
+  const predictionData = new Array(sortedMeasurements.length).fill(null).concat([prediction.value]);
 
   const data = {
     labels,
@@ -62,6 +79,7 @@ const PredictionChart = ({ measurements, prediction }) => {
         tension: 0.4,
         pointRadius: 6,
         pointHoverRadius: 8,
+        spanGaps: true,
       },
     ],
   };
@@ -102,4 +120,3 @@ const PredictionChart = ({ measurements, prediction }) => {
 };
 
 export default PredictionChart;
-

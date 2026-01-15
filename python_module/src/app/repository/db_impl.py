@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import os
@@ -147,12 +147,21 @@ class DbMeasurementRepository:
                 response.raise_for_status()
                 data = response.json()
 
+            def _parse_dt(dt_str: str) -> datetime:
+                # Spring bywa że zwraca bez offsetu (np. 2025-12-10T00:00).
+                # Ujednolicamy do timezone-aware UTC.
+                dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
+
             # Konwertuj wyniki symulacji na obiekty Measurement
             measurements = []
             for record in data:
+                period_start = record.get("periodStart")
                 measurement = Measurement(
                     id=record.get("id"),
-                    timestamp=datetime.fromisoformat(record.get("periodStart")),
+                    timestamp=_parse_dt(period_start) if period_start else datetime.now(timezone.utc),
                     power_output=record.get("pvProduction", 0.0),
                     grid_feed_in=record.get("gridFeedIn", 0.0),
                     grid_consumption=record.get("gridConsumption", 0.0),
