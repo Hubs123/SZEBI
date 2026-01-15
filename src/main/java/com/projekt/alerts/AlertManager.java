@@ -1,5 +1,9 @@
 package com.projekt.alerts;
 
+import com.projekt.sterowanie.Device;
+import com.projekt.sterowanie.DeviceManager;
+import com.projekt.sterowanie.DeviceType;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -7,7 +11,19 @@ import java.util.List;
 public class AlertManager {
     static public final AlertRepository alertRepo = new AlertRepository();
 
-    public Alert createAlert(Date date, Float anomalyValue, String anomalyType, DeviceGroup deviceGroup, Integer deviceId) {
+    public Alert createAlert(Date date, Float anomalyValue, String anomalyType, Integer deviceId) {
+        DeviceGroup deviceGroup;
+        DeviceType type = DeviceManager.getDevice(deviceId).getType();
+        switch (type) {
+            case noSimulation:
+                deviceGroup = new DeviceGroup(1, "light", null, null);
+                break;
+            case thermometer:
+                deviceGroup = new DeviceGroup(2, "thermometer", null, null);
+                break;
+            case smokeDetector:
+                deviceGroup = new DeviceGroup(3, "smokeDetector", null, null);
+        }
         Alert a = new Alert(date, anomalyValue, anomalyType, deviceGroup, deviceId);
         try {
             a.findPriorityLevel();
