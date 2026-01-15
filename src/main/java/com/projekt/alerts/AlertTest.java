@@ -33,8 +33,8 @@ public class AlertTest {
             System.out.println("Threshold added");
         } else {System.out.println("Threshold not added");}
         Date today = new Date();
-        Alert alert = alertManager.createAlert(today, 4F, "battery", deviceGroup, device.getId());
-        if (manager.getStates(deviceId).get("power") == 0.0f) {
+        Alert alert = alertManager.createAlert(today, 4F, "battery", device.getId());
+        if (!manager.getDevice(deviceId).isOn()) {
             System.out.println("It slayed");
         }
         else {
