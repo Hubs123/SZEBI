@@ -1,9 +1,8 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

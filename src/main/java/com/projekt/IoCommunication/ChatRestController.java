@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

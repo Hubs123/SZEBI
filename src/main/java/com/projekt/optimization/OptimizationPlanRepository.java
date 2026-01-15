@@ -16,7 +16,7 @@ public class OptimizationPlanRepository {
         String sql = "INSERT INTO optimization_plan (user_id, status, cost_savings, co2_savings, rules, optimization_strategy) " +
                 "VALUES (?, ?::plan_status_enum, ?, ?, ?::jsonb, ?::plan_strategy_enum) RETURNING id";
 
-        try (Connection conn = Db.getConnection();
+        try (Connection conn = Db.conn;
              PreparedStatement statement = conn.prepareStatement(sql)) {
             // 1. Ustawienie parametrów
             statement.setInt(1, plan.getUserId());

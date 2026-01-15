@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

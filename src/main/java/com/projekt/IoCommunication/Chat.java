@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.projekt.IoCommunication;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
