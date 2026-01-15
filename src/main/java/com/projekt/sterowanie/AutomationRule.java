@@ -19,7 +19,7 @@ public class AutomationRule {
     }
 
     public Map<String, Float> getStates() {
-        return states;
+        return Map.copyOf(states);
     }
 
     public String getTimeWindow() {

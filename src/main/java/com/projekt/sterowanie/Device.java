@@ -70,7 +70,7 @@ public class Device {
 
     public float getState(String key) {
         synchronized (states) {
-            return states.get(key);
+            return states.getOrDefault(key, 0.0f);
         }
     }
 
@@ -83,13 +83,8 @@ public class Device {
     }
 
     public boolean isEmergencyLocked() {
-        Instant until = emergencyLockUntil;
-        if (until.equals(Instant.EPOCH)) return false;
         Instant now = TimeControl.now();
-        if (now.isBefore(until)) return true;
-        // reset jeśli sprawdzenie po upływie czasu blokady
-        emergencyLockUntil = Instant.EPOCH;
-        return false;
+        return now.isBefore(emergencyLockUntil);
     }
 
     public Boolean applyCommand(Map<String, Float> m) {
