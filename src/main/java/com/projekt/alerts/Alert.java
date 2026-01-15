@@ -59,7 +59,7 @@ public class Alert {
     }
 
     public void findPriorityLevel() {
-        List<Threshold> thresholds = deviceGroup.getThresholds();
+        List<Threshold> thresholds = deviceGroup.getAllThresholds();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAnomalyType())) {
                 if(threshold.getValueWarning()>threshold.getValueEmergency()) {
@@ -89,8 +89,8 @@ public class Alert {
     }
 
     public void checkAutomaticReaction() {
-        List<Threshold> thresholds = deviceGroup.getThresholds();
-        List<AutomaticReaction> reactions = deviceGroup.getReactions();
+        List<Threshold> thresholds = deviceGroup.getAllThresholds();
+        List<AutomaticReaction> reactions = deviceGroup.getAllReactions();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAnomalyType())) {
                 if (threshold.getReactionId() != null) {

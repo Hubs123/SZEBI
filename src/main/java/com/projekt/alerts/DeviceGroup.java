@@ -3,7 +3,6 @@ package com.projekt.alerts;
 import java.util.ArrayList;
 import java.util.List;
 import com.projekt.sterowanie.Device;
-import com.projekt.sterowanie.DeviceRepository;
 
 public class DeviceGroup {
     private final Integer id;
@@ -27,31 +26,15 @@ public class DeviceGroup {
         return groupName;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public List<Threshold> getThresholds() {
+    public List<Threshold> getAllThresholds() {
         return thresholds;
     }
 
-    public void setThresholds(List<Threshold> thresholds) {
-        this.thresholds = thresholds;
-    }
-
-    public List<AutomaticReaction> getReactions() {
+    public List<AutomaticReaction> getAllReactions() {
         return reactions;
     }
 
     public List<Device> getDevices() { return devices; }
-
-    public void setReactions(List<AutomaticReaction> reactions) {
-        this.reactions = reactions;
-    }
-
-    public void setDevices(List<Device> devices) {
-        this.devices = devices;
-    }
 
     public Boolean addThreshold(Threshold threshold) {
         try {
@@ -61,17 +44,8 @@ public class DeviceGroup {
         }
         return true;
     }
-    public Boolean removeThreshold(Threshold threshold) {
-        try {
-            thresholds.remove(threshold);
-        }
-        catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
 
-        public Boolean addReaction(AutomaticReaction reaction) {
+    public Boolean addReaction(AutomaticReaction reaction) {
         try {
             reactions.add(reaction);
         } catch (Exception e) {
@@ -79,13 +53,41 @@ public class DeviceGroup {
         }
         return true;
     }
-    public Boolean removeReaction(AutomaticReaction reaction) {
+
+    public Boolean addDevice(Device device) {
         try {
-            reactions.remove(reaction);
-        }
-        catch (Exception e) {
+            devices.add(device);
+        } catch (Exception e) {
             return false;
         }
         return true;
     }
+
+    public Device getDeviceById(Integer id) {
+        for (Device device : devices) {
+            if (device.getId().equals(id)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    public Threshold getThresholdById(Integer id) {
+        for (Threshold threshold : thresholds) {
+            if (threshold.getId().equals(id)) {
+                return threshold;
+            }
+        }
+        return null;
+    }
+
+    public AutomaticReaction getReactionById(Integer id) {
+        for (AutomaticReaction reaction : reactions) {
+            if (reaction.getId().equals(id)) {
+                return reaction;
+            }
+        }
+        return null;
+    }
+
 }
