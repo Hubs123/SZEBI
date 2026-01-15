@@ -9,19 +9,18 @@ import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 public class Device {
-    private Integer id;
+    private volatile Integer id;
     private String name;
-    private Integer deviceGroupId;
     private DeviceType type;
-    private Integer roomId;
+    private volatile Integer roomId;
     private final Map<String, Float> states = new HashMap<>();
     private final SimulationModel model;
     private volatile Thread tickThread;
+    private volatile Instant emergencyLockUntil = Instant.EPOCH;
 
-    public Device(String name, DeviceType type, Integer deviceGroupId, Integer roomId) {
+    public Device(String name, DeviceType type, Integer roomId) {
         this.id = null;
         this.name = name;
-        this.deviceGroupId = deviceGroupId;
         this.type = type;
         this.roomId = roomId;
         synchronized (states) {
@@ -45,10 +44,6 @@ public class Device {
 
     void setId(int id) {
         this.id = id;
-    }
-
-    public Integer getDeviceGroupId() {
-        return deviceGroupId;
     }
 
     public String getName() {
@@ -83,13 +78,31 @@ public class Device {
         return getState("power") == 1.0f;
     }
 
+    public void emergencyLock() {
+        emergencyLockUntil = TimeControl.now().plus(Duration.ofMinutes(1));
+    }
+
+    public boolean isEmergencyLocked() {
+        Instant until = emergencyLockUntil;
+        if (until.equals(Instant.EPOCH)) return false;
+        Instant now = TimeControl.now();
+        if (now.isBefore(until)) return true;
+        // reset jeśli sprawdzenie po upływie czasu blokady
+        emergencyLockUntil = Instant.EPOCH;
+        return false;
+    }
+
     public Boolean applyCommand(Map<String, Float> m) {
+        return applyCommand(m, false);
+    }
+
+    public Boolean applyCommand(Map<String, Float> m, boolean force) {
+        if (!force && isEmergencyLocked()) return false;
         boolean result = true;
         synchronized (states) {
             for (Map.Entry<String, Float> entry : m.entrySet()) {
                 String key = entry.getKey();
                 Float value = entry.getValue();
-                // replace zwraca null jeśli klucza nie było
                 Float prev = states.replace(key, value);
                 if (prev == null) result = false;
             }

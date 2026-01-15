@@ -6,8 +6,7 @@ import java.util.Map;
 
 public class AutomationPlanManager {
     private final AutomationPlanRepository planRepo = new AutomationPlanRepository();
-    private static AutomationPlan currentPlan = null;
-    private static Boolean isCurrentPlanPrio = false;
+    private static volatile AutomationPlan currentPlan = null;
 
     public Integer createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
@@ -18,10 +17,6 @@ public class AutomationPlanManager {
 
     public Boolean removePlan(Integer planId) {
         return planRepo.delete(planId);
-    }
-
-    public Boolean getCurrentPlanPrio() {
-        return isCurrentPlanPrio;
     }
 
     public AutomationPlan getCurrentPlan() {
@@ -47,24 +42,32 @@ public class AutomationPlanManager {
     }
 
     static public Boolean applyModifications(List<AutomationRule> rules, Integer priority) {
-        if (isCurrentPlanPrio && priority == 0)
-            return false;
+        final boolean emergency = priority > 0;
         List<Pair<Integer, Map<String, Float>>> devicesStates = new ArrayList<>();
         for (AutomationRule rule : rules) {
             devicesStates.add(new Pair<>(rule.getDeviceId(), rule.getStates()));
         }
         if (currentPlan == null || currentPlan.getName().equals("temp")) {
             AutomationPlan tempPlan = new AutomationPlan("temp", rules);
-            if (DeviceManager.applyCommands(devicesStates)) {
+            if (DeviceManager.applyCommands(devicesStates, emergency)) {
                 currentPlan = tempPlan;
-                isCurrentPlanPrio = priority > 0;
+                if (emergency) {
+                    for (AutomationRule rule : rules) {
+                        Device d = DeviceManager.getDevice(rule.getDeviceId());
+                        if (d != null) d.emergencyLock();
+                    }
+                }
                 return true;
             }
-            // tymczasowy plan utworzony na bazie obecnych stanów i modyfikacji od modułu optymalizacji
+            // tymczasowy plan utworzony na bazie poleceń od modułu optymalizacji
         }
         boolean commandApplied = DeviceManager.applyCommands(devicesStates);
-        // priority 0 - zwykłe, 1 - priorytetowe
-        isCurrentPlanPrio = priority > 0;
+        if (commandApplied && emergency) {
+            for (AutomationRule rule : rules) {
+                Device d = DeviceManager.getDevice(rule.getDeviceId());
+                if (d != null) d.emergencyLock();
+            }
+        }
         return commandApplied;
     }
 

@@ -77,9 +77,8 @@ public class DeviceRepository {
     public Device findById(Integer deviceId) {
         synchronized (devices) {
             for (Device d : devices) {
-                if (d.getId() != null && d.getId().equals(deviceId)) {
+                if (d.getId() != null && d.getId().equals(deviceId))
                     return d;
-                }
             }
         }
         return null;
@@ -91,9 +90,8 @@ public class DeviceRepository {
         List<Device> result = new ArrayList<>();
         synchronized (devices) {
             for (Device d : devices) {
-                if (roomId.equals(d.getRoomId())) {
+                if (roomId.equals(d.getRoomId()))
                     result.add(d);
-                }
             }
         }
         return result;
@@ -111,9 +109,8 @@ public class DeviceRepository {
         List<Device> result = new ArrayList<>();
         synchronized (devices) {
             for (Device d : devices) {
-                if (type.equals(d.getType())) {
+                if (type.equals(d.getType()))
                     result.add(d);
-                }
             }
         }
         return result;
@@ -124,24 +121,25 @@ public class DeviceRepository {
         synchronized (devices) {
             boolean result = true;
             for (Device d : devices) {
-                if (roomId.equals(d.getRoomId()) && d.getType().equals(type)) {
+                if (roomId.equals(d.getRoomId()) && d.getType().equals(type))
                     if (!d.applyCommand(states)) result = false;
-                }
             }
             return result;
         }
     }
 
-    public Boolean applyCommands(List<Pair<Integer, Map<String, Float> > > devicesStates) {
+    public Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates) {
+        return applyCommands(devicesStates, false);
+    }
+
+    public Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates, boolean force) {
         synchronized (devices) {
             boolean result = true;
             for (Device d : devices) {
-                for (Pair<Integer, Map<String, Float> > ds : devicesStates ) {
-                    if (d.getId().equals(ds.first())) {
-                        if(!d.applyCommand(ds.second()))
+                for (Pair<Integer, Map<String, Float>> ds : devicesStates)
+                    if (d.getId().equals(ds.first()))
+                        if(!d.applyCommand(ds.second(), force))
                             result = false;
-                    }
-                }
             }
             return result;
         }

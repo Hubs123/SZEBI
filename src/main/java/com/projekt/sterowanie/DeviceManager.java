@@ -13,8 +13,8 @@ public class DeviceManager {
     static public final DeviceRepository deviceRepo = new DeviceRepository();
     static public final DeviceGroupRepository groupRepo = new DeviceGroupRepository();
 
-    public Device registerDevice(String name, DeviceType type, Integer deviceGroupId, Integer roomId) {
-        Device d = new Device(name, type, deviceGroupId, roomId);
+    public Device registerDevice(String name, DeviceType type, Integer roomId) {
+        Device d = new Device(name, type, roomId);
         Boolean added = deviceRepo.add(d);
         if (added) {
             return d;
@@ -43,7 +43,7 @@ public class DeviceManager {
 
     public boolean sendCommand(Integer deviceId, Map<String, Float> m) {
         Device d = deviceRepo.findById(deviceId);
-        if (d == null) return false;
+        if (d == null || d.isEmergencyLocked()) return false;
         return d.applyCommand(m);
     }
 
@@ -64,7 +64,11 @@ public class DeviceManager {
         return deviceRepo.applyToRoom(roomId, type, states);
     }
 
-    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float> > > devicesStates) {
-        return deviceRepo.applyCommands(devicesStates);
+    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates) {
+        return applyCommands(devicesStates, false);
+    }
+
+    public static Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates, boolean force) {
+        return deviceRepo.applyCommands(devicesStates, force);
     }
 }
