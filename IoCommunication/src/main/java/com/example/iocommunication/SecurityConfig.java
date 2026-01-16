@@ -2,6 +2,7 @@ package com.example.iocommunication;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String SECRET = "CHANGE_ME_SECRET";
+    private static final String SECRET = "CHANGE_ME_SECRET_1234567890123456";
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -40,15 +43,15 @@ public class SecurityConfig {
 
                 String path = req.getRequestURI();
 
-                if (
-                        path.startsWith("/login") ||            // GET /login or /login.html
-                                path.startsWith("/register") ||         // GET /register or /register.html
-                                path.endsWith(".html") ||               // any HTML file
-                                path.endsWith(".js") ||                 // static JS
-                                path.endsWith(".css") ||                // static CSS
-                                (req.getMethod().equalsIgnoreCase("POST") &&
-                                        (path.startsWith("/login") || path.startsWith("/register"))) // POST API
-                ) {
+                if (path.equals("/") ||
+                        path.equals("/index.html") ||
+                        path.equals("/login.html") ||
+                        path.equals("/register.html") ||
+                        path.endsWith(".js") ||
+                        path.endsWith(".css") ||
+                        path.startsWith("/api/szebi/login") ||
+                        path.startsWith("/api/szebi/register")) {
+
                     chain.doFilter(req, res);
                     return;
                 }
@@ -57,8 +60,9 @@ public class SecurityConfig {
                 if (header != null && header.startsWith("Bearer ")) {
                     try {
                         String token = header.substring(7);
-                        Claims claims = Jwts.parser()
-                                .setSigningKey(SECRET)
+                        Claims claims = Jwts.parserBuilder()
+                                .setSigningKey(SECRET_KEY)
+                                .build()
                                 .parseClaimsJws(token)
                                 .getBody();
 
@@ -86,10 +90,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/login.html", "/register.html",
-                                "/auth.js", "/styles.css").permitAll()
+                        // public resources
+                        .requestMatchers(
+                                "/", "/index.html", "/login.html", "/register.html",
+                                "/script.js", "/auth.js", "/styles.css",
+                                "/js/**", "/css/**", "/images/**",
+                                "/api/chat/files/**"
+                        ).permitAll()
+                        // login/register API
                         .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
-                        .requestMatchers("/chat/**").authenticated()
+                        // chat API
+                        .requestMatchers("/api/chat/addUser", "/api/chat/create").hasRole("ADMIN")
+                        .requestMatchers("/chat/**", "/api/chat/**").authenticated()
+                        .requestMatchers("/api/chat/files/**").permitAll()
+                        // any other request denied
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

@@ -1,108 +1,98 @@
 body {
-    font-family: Arial, serif;
-    padding: 20px;
-    display: flex;
-    flex-direction:
-            column;
+    height: 100vh;
     margin: 0;
+    background: linear-gradient(135deg, #6a7cff, #7e5abf);
+    overflow: hidden;
 }
+
+.chat-card {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-body {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 
 #messages {
-    display: flex;
-    flex-direction:
-            column;
-    border: 1px solid #ccc;
-    height: 70vh;
-    overflow-y: scroll;
-    padding: 0.5vh;
-    gap: 1vh;
-    margin: 1vh 0;
-}
+    flex: 1 1 auto;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
 
-#messages div {
-    height: fit-content;
-    width: fit-content;
-    border: 1px solid black;
-    background-color: gainsboro;
-    border-radius: 2vh;
-    padding: 1vh;
-}
-
-input {
-    width: 80%;
-    padding: 10px;
-}
-button {
-    padding: 10px;
-}
-.chat {
     display: flex;
     flex-direction: column;
-    width: 80%;
+    gap: 0.5rem;
 }
 
-.history { display: flex;
-    flex-direction: column;
-    width: 20%;
-    margin-left: 2vh;
+#messages .message {
+    max-width: 70%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    background: #e9ecef;
+    word-wrap: break-word;
 }
 
-.buttons {
-    display: flex;
-    gap: 1vh;
+#messages img {
+    max-width: 200px;
+    border-radius: 8px;
+    display: block;
+    margin-top: 0.5rem;
 }
 
-.main {
-    display: flex;
+
+.input-group {
+    flex-shrink: 0;
 }
 
-.addChat {
-    margin-left: auto;
-    margin-right: 30vh;
-    width: fit-content;
+
+#chatHistory {
+    overflow-y: auto;
+    height: calc(80vh - 80px);
 }
+
 
 .panel {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 50vh;
+    width: 400px;
     transform: translate(-50%, -50%);
-    background: #f0f0f0;
-    padding: 2vh;
-    border: 0.5vh solid #ccc;
-    border-radius: 2vh;
-    z-index: 1000;
-    box-shadow: 0 0 2vh rgba(0,0,0,0.3);
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1050;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
-#userResults div {
-    padding: 0.5vh;
-    background: white;
-    border: 1px solid #ccc;
+.autocomplete-item {
+    padding: 6px;
+    border: 1px solid #ddd;
     cursor: pointer;
-    margin-top: 0.5vh;
+    background: #fff;
 }
 
-#userResults div:hover {
+.autocomplete-item:hover {
     background: #eee;
 }
+
 .chatItem {
-    padding: 1vh;
-    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-bottom: 0.5vh;
 }
 
 .chatItem.active {
     background-color: #d0e0ff;
-}
-
-img {
-    max-width: 200px;
-    display: block;
-    margin-top: 0.5vh;
 }
 
 .deleteChatButton {
@@ -110,7 +100,7 @@ img {
     border: none;
     cursor: pointer;
     font-size: 14px;
-    padding: 3px;
+    padding-left: 0.5rem;
     color: red;
+    float: right;
 }
-

@@ -20,7 +20,7 @@ async function login() {
     const payload = JSON.parse(atob(data.token.split(".")[1]));
     localStorage.setItem("userId", payload.sub);
 
-    window.location.href = "chat.html";
+    window.location.href = "index.html";
 }
 
 async function register() {

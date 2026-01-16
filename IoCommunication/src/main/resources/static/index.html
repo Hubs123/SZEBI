@@ -39,7 +39,6 @@
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
 
-        <!-- CHAT -->
         <div class="col-lg-7 mb-3">
             <div class="card shadow-lg chat-card d-flex flex-column">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -50,14 +49,14 @@
                     </div>
                 </div>
 
-                <div class="card-body d-flex flex-column gap-3">
+                <div class="card-body d-flex flex-column p-2" style="min-height: 0;">
                     <div id="userListContainer" class="border rounded p-2" style="display:none;">
                         <ul id="userList" class="mb-0"></ul>
                     </div>
 
-                    <div id="messages"></div>
+                    <div id="messages" class="flex-grow-1 overflow-auto d-flex flex-column gap-2"></div>
 
-                    <div class="input-group">
+                    <div class="input-group mt-2">
                         <input id="msgInput" class="form-control" placeholder="Send a message...">
                         <button class="btn btn-primary" onclick="sendMsg()">Send</button>
                         <button class="btn btn-outline-secondary" onclick="sendFile()">File</button>
