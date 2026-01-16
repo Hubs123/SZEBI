@@ -28,6 +28,10 @@ public class File {
         this.uploadedBy = uploadedBy;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getId() {
         return id;
     }

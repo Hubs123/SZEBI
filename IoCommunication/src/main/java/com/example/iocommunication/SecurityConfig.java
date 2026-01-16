@@ -90,20 +90,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // public resources
                         .requestMatchers(
                                 "/", "/index.html", "/login.html", "/register.html",
                                 "/script.js", "/auth.js", "/styles.css",
                                 "/js/**", "/css/**", "/images/**",
                                 "/api/chat/files/**"
                         ).permitAll()
-                        // login/register API
                         .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
-                        // chat API
                         .requestMatchers("/api/chat/addUser", "/api/chat/create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
                         .requestMatchers("/api/chat/files/**").permitAll()
-                        // any other request denied
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

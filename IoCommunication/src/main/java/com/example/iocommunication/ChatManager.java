@@ -102,6 +102,22 @@ public class ChatManager {
         message.getAttachments().add(file);
     }
 
+    public ChatRepository getChatRepository() {
+        return chatRepository;
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public MessageRepository getMessageRepository() {
+        return messageRepository;
+    }
+
+    public FileRepository getFileRepository() {
+        return fileRepository;
+    }
+
     public void dbRemoveFileFromMessage(Message msg, File file) {
         msg.getAttachments().remove(file);
         messageRepository.save(msg);

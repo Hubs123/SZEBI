@@ -1,5 +1,4 @@
 package com.example.iocommunication;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -238,7 +237,6 @@ public class ChatRestController {
         return Map.of("role", u.getRole());
     }
 
-    /* ===================== HELPERS ===================== */
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(auth.getName());
@@ -255,7 +253,6 @@ public class ChatRestController {
         }
     }
 
-    /* ===================== DTO ===================== */
     static class LoginReq {
         public String username;
         public String password;

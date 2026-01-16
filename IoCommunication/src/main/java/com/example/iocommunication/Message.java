@@ -21,6 +21,14 @@ public class Message {
 
     private String content;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Message() {}
 
     public Message(User sender, List<File> attachments, Date dateCreated, String content) {
