@@ -32,6 +32,31 @@
             overflow-y: auto;
             height: calc(80vh - 80px);
         }
+
+        /* dodatkowe style dla listy użytkowników */
+        #userListContainer {
+            width: 230px;
+            min-width: 200px;
+            max-width: 320px;
+            background: #ffffffee;
+        }
+
+        #userList {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        #userList li {
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        #userList li .username {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -45,23 +70,29 @@
                     <h5 class="mb-0">💬 SZEBI Chat</h5>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-outline-primary" onclick="addUsers()">Add users</button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeUsers()">Remove</button>
                     </div>
                 </div>
 
-                <div class="card-body d-flex flex-column p-2" style="min-height: 0;">
-                    <div id="userListContainer" class="border rounded p-2" style="display:none;">
-                        <ul id="userList" class="mb-0"></ul>
+                <div class="card-body d-flex p-0" style="min-height: 0;">
+
+                    <!-- USERS LIST (LEFT) -->
+                    <div id="userListContainer" class="border-end p-2 d-flex flex-column" style="overflow-y:auto;">
+                        <h6 class="text-center mb-2">👥 Users</h6>
+                        <ul id="userList" class="list-unstyled mb-0"></ul>
                     </div>
 
-                    <div id="messages" class="flex-grow-1 overflow-auto d-flex flex-column gap-2"></div>
+                    <!-- CHAT (RIGHT) -->
+                    <div class="d-flex flex-column flex-grow-1 p-2" style="min-height:0;">
+                        <div id="messages" class="flex-grow-1 overflow-auto d-flex flex-column gap-2"></div>
 
-                    <div class="input-group mt-2">
-                        <input id="msgInput" class="form-control" placeholder="Send a message...">
-                        <button class="btn btn-primary" onclick="sendMsg()">Send</button>
-                        <button class="btn btn-outline-secondary" onclick="sendFile()">File</button>
-                        <input type="file" id="fileInput" hidden accept=".jpg,.png,.jpeg">
+                        <div class="input-group mt-2">
+                            <input id="msgInput" class="form-control" placeholder="Send a message...">
+                            <button class="btn btn-primary" onclick="sendMsg()">Send</button>
+                            <button class="btn btn-outline-secondary" onclick="sendFile()">File</button>
+                            <input type="file" id="fileInput" hidden accept=".jpg,.png,.jpeg">
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

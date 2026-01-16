@@ -134,6 +134,7 @@ async function addUsers() {
 
     users.forEach(u => {
         const li = document.createElement('li');
+        li.dataset.userId = u.id;
         li.className = 'd-flex justify-content-between align-items-center mb-1';
         li.textContent = `${u.firstName} ${u.lastName} (${u.username})`;
 
@@ -232,10 +233,7 @@ async function removeUsers() {
     const role = await checkUsersRole(userId);
     if (role !== "ROLE_ADMIN") return alert("You don't have permission");
 
-    const userListContainer = document.getElementById("userListContainer");
-    userListContainer.style.display = "block";
-
-    const res = await authFetch(`/api/chat/${activeChatId}/users`);
+    const res = await authFetch(`/api/chat/${activeChatId}/availableUsers`);
     if (!res.ok) return alert("Cannot load chat users");
 
     const users = await res.json();
@@ -244,25 +242,29 @@ async function removeUsers() {
 
     users.forEach(u => {
         const li = document.createElement("li");
-        li.className = "d-flex justify-content-between align-items-center mb-1";
+        li.dataset.userId = u.id;
 
         li.innerHTML = `
             <span>${u.firstName} ${u.lastName} (${u.username})</span>
             <button class="btn btn-sm btn-danger">Remove</button>
         `;
 
-        li.querySelector("button").onclick = async () => {
-            if (!confirm("Remove this user from chat?")) return;
+        if (role === "ROLE_ADMIN") {
+            li.querySelector("button").onclick = async () => {
+                if (!confirm("Remove this user from chat?")) return;
 
-            const removeRes = await authFetch(`/api/chat/${activeChatId}/users/${u.id}`, {
-                method: "DELETE"
-            });
+                const removeRes = await authFetch(`/api/chat/${activeChatId}/users/${u.id}`, {
+                    method: "DELETE"
+                });
 
-            if (!removeRes.ok) return alert(await removeRes.text());
+                if (!removeRes.ok) return alert(await removeRes.text());
 
-            alert("User removed successfully!");
-            removeUsers();
-        };
+                alert("User removed successfully!");
+                removeUsers();
+            };
+        } else {
+            alert("You don't have permission");
+        }
 
         userList.appendChild(li);
     });
@@ -294,6 +296,7 @@ async function loadChats() {
             activeChatId = chat.id;
             document.getElementById("messages").innerHTML = "";
             loadMessages(chat.id);
+            loadChatUsers();
         };
 
         if (currentUserRole === "ROLE_ADMIN") {
@@ -326,7 +329,7 @@ async function loadMessages(chatId) {
 async function loadChatUsers() {
     if (!activeChatId) return;
 
-    const res = await authFetch(`/api/chat/${activeChatId}/users`);
+    const res = await authFetch(`/api/chat/${activeChatId}/availableUsers`);
     if (!res.ok) return;
 
     const users = await res.json();
@@ -335,7 +338,7 @@ async function loadChatUsers() {
 
     users.forEach(u => {
         const li = document.createElement("li");
-        li.className = "d-flex justify-content-between align-items-center mb-1";
+        li.dataset.userId = u.id;
 
         li.innerHTML = `
             <span>${u.firstName} ${u.lastName} (${u.username})</span>
@@ -363,34 +366,6 @@ async function removeUserFromChat(userIdToRemove) {
         return li.dataset.userId == userIdToRemove;
     });
     if (liToRemove) ul.removeChild(liToRemove);
-}
-
-function renderChats(chats, currentUserRole) {
-    const chatHistory = document.getElementById('chatHistory');
-    chatHistory.innerHTML = '';
-
-    chats.forEach(chat => {
-        const chatDiv = document.createElement('div');
-        chatDiv.className = 'chatItem';
-        chatDiv.textContent = chat.chatName;
-
-        if (chat.id === activeChatId) chatDiv.classList.add('active');
-
-        chatDiv.onclick = () => selectChat(chat.id);
-
-        if (currentUserRole === 'ROLE_ADMIN') {
-            const delBtn = document.createElement('button');
-            delBtn.textContent = '❌';
-            delBtn.className = 'deleteChatButton';
-            delBtn.onclick = (e) => {
-                e.stopPropagation(); // don't select chat
-                deleteChat(chat.id);
-            };
-            chatDiv.appendChild(delBtn);
-        }
-
-        chatHistory.appendChild(chatDiv);
-    });
 }
 
 function deleteChat(chatId) {

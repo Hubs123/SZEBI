@@ -156,6 +156,7 @@ public class ChatRestController {
                 chatManager.getChat(chatId).orElseThrow(),
                 chatManager.getUser(userId)
         );
+
     }
     @GetMapping("/chat/{chatId}/availableUsers")
     @ResponseBody
