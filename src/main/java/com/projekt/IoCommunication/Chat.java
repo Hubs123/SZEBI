@@ -1,4 +1,4 @@
-package com.projekt.IoCommunication;
+package com.example.iocommunication;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -21,50 +21,36 @@ public class Chat {
     private Date dateCreated;
 
     @ManyToMany
+    @JoinTable(
+            name = "chat_users",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> usersInChat = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Message> messages = new ArrayList<>();
 
-    public Chat() {}
 
-    public Chat(String chatName, User createdBy, Date dateCreated, List<User> usersInChat, List<Message> messages) {
-        this.chatName = chatName;
-        this.createdBy = createdBy;
-        this.dateCreated = dateCreated;
-        this.usersInChat = usersInChat != null ? usersInChat : new ArrayList<>();
-        this.messages = messages != null ? messages : new ArrayList<>();
+    public Long getId() { return id; }
+    public String getChatName() { return chatName; }
+    public User getCreatedBy() { return createdBy; }
+    public Date getDateCreated() { return dateCreated; }
+    public List<User> getUsersInChat() { return usersInChat; }
+    public List<Message> getMessages() { return messages; }
+
+
+    public void setId(Long id) { this.id = id; }
+    public void setChatName(String chatName) { this.chatName = chatName; }
+    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
+    public void setDateCreated(Date dateCreated) { this.dateCreated = dateCreated; }
+    public void setUsersInChat(List<User> users) {
+        usersInChat.clear();
+        if (users != null) usersInChat.addAll(users);
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getChatName() {
-        return chatName;
-    }
-
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public Date getDateCreated() {
-        return dateCreated;
-    }
-
-    public List<User> getAllUsers() {
-        return usersInChat != null ? usersInChat : new ArrayList<>();
-    }
-
-    public List<Message> getAllMessages() {
-        return messages != null ? messages : new ArrayList<>();
-    }
-
-    public List<File> getAllFiles() {
-        if (messages == null) return new ArrayList<>();
-        return messages.stream()
-                .flatMap(msg -> msg.getAttachments().stream())
-                .toList();
+    public void setMessages(List<Message> messages) {
+        this.messages.clear();
+        if (messages != null) this.messages.addAll(messages);
     }
 
     public void addUser(User user) {
@@ -81,25 +67,5 @@ public class Chat {
 
     public void removeMessage(Message msg) {
         messages.remove(msg);
-    }
-
-    public void setChatName(String chatName) {
-        this.chatName = chatName;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public void setDateCreated(Date dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    public void setUsersInChat(List<User> usersInChat) {
-        this.usersInChat = usersInChat != null ? usersInChat : new ArrayList<>();
-    }
-
-    public void setMessages(List<Message> messages) {
-        this.messages = messages != null ? messages : new ArrayList<>();
     }
 }

@@ -1,4 +1,4 @@
-package com.projekt.IoCommunication;
+package com.example.iocommunication;
 
 import jakarta.persistence.*;
 import java.util.Date;
@@ -20,6 +20,14 @@ public class Message {
     private Date dateCreated;
 
     private String content;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Message() {}
 

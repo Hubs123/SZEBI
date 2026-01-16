@@ -1,4 +1,4 @@
-package com.projekt.IoCommunication;
+package com.example.iocommunication;
 
 import jakarta.persistence.*;
 
@@ -26,6 +26,10 @@ public class File {
         this.size = size;
         this.content = content;
         this.uploadedBy = uploadedBy;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
@@ -61,4 +65,5 @@ public class File {
     public void setUploadedBy(User uploadedBy) {
         this.uploadedBy = uploadedBy;
     }
+
 }

@@ -1,70 +1,87 @@
-package com.projekt.IoCommunication;
+package com.example.iocommunication;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 public class DataInitializer {
-    //Ta klasa jest do tworzenia poczatkowych danych wiec w sumie juz mozna ja wywalic bo dane sa w bazie
+
     @Bean
     public CommandLineRunner initData(UserRepository userRepository,
-                                      ChatRepository chatRepository) {
+                                      ChatRepository chatRepository,
+                                      PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.count() == 0){
-                User oldPiotr = userRepository.findByUsername("piotr.nowak");
-                if (oldPiotr != null) {
-                    userRepository.delete(oldPiotr);
-                    System.out.println("Usunięto starego użytkownika: piotr.nowak");
-                }
+            if (userRepository.count() == 0) {
 
-                if (userRepository.count() == 0) {
-                    User adminPiotr = new User();
-                    adminPiotr.setFirstName("Piotr");
-                    adminPiotr.setLastName("Nowak");
-                    adminPiotr.setUsername("piotr.nowak");
-                    adminPiotr.setRole("ADMIN");
-                    adminPiotr.setLastLogin(new Date());
-                    userRepository.save(adminPiotr);
+                Optional<User> oldPiotr = userRepository.findByUsername("piotr.nowak");
+                oldPiotr.ifPresent(userRepository::delete);
 
-                    System.out.println("Dodano użytkownika ADMIN: Piotr Nowak");
 
-                    User userAnna = new User();
-                    userAnna.setFirstName("Anna");
-                    userAnna.setLastName("Nowak");
-                    userAnna.setUsername("anna.nowak");
-                    userAnna.setRole("USER");
-                    userAnna.setLastLogin(new Date());
-                    userRepository.save(userAnna);
+                User adminPiotr = new User();
+                adminPiotr.setFirstName("Piotr");
+                adminPiotr.setLastName("Nowak");
+                adminPiotr.setUsername("piotr.nowak");
+                adminPiotr.setRole("ROLE_ADMIN");
+                adminPiotr.setPassword(passwordEncoder.encode("admin123"));
+                adminPiotr.setLastLogin(new Date());
+                userRepository.save(adminPiotr);
+                System.out.println("Dodano użytkownika ADMIN: Piotr Nowak");
 
-                    System.out.println("Dodano użytkownika USER: Anna Nowak");
 
-                    Chat sampleChat = new Chat();
-                    sampleChat.setChatName("Czat testowy");
+                User userAnna = new User();
+                userAnna.setFirstName("Anna");
+                userAnna.setLastName("Nowak");
+                userAnna.setUsername("anna.nowak");
+                userAnna.setRole("ROLE_USER");
+                userAnna.setPassword(passwordEncoder.encode("user123"));
+                userAnna.setLastLogin(new Date());
+                userRepository.save(userAnna);
+                System.out.println("Dodano użytkownika USER: Anna Nowak");
 
-                    sampleChat.addUser(adminPiotr);
-                    sampleChat.addUser(userAnna);
+                List<User> allUsers = List.of(adminPiotr, userAnna);
 
-                    chatRepository.save(sampleChat);
+                for (User u : allUsers) {
+                    Chat chat = new Chat();
+                    chat.setChatName("Czat testowy dla " + u.getFirstName());
+                    chat.addUser(u);
 
-                    System.out.println("Dodano przykładowy czat: " + sampleChat.getChatName());
                     Message welcomeMsg = new Message();
-                    welcomeMsg.setSender(adminPiotr);
-                    welcomeMsg.setContent("Witaj w czacie testowym!");
+                    welcomeMsg.setSender(u);
+                    welcomeMsg.setContent("Witaj w czacie testowym, " + u.getFirstName() + "!");
                     welcomeMsg.setDateCreated(new Date());
 
                     List<Message> messages = new ArrayList<>();
                     messages.add(welcomeMsg);
+                    chat.setMessages(messages);
 
-                    sampleChat.setMessages(messages);
-                    chatRepository.save(sampleChat);
-
-                    System.out.println("Dodano przykładową wiadomość do czatu testowego.");
+                    chatRepository.save(chat);
+                    System.out.println("Dodano czat początkowy dla użytkownika: " + u.getUsername());
                 }
+
+
+                Chat wspolnyChat = new Chat();
+                wspolnyChat.setChatName("Czat testowy wspólny");
+                allUsers.forEach(wspolnyChat::addUser);
+
+                Message welcomeShared = new Message();
+                welcomeShared.setSender(adminPiotr);
+                welcomeShared.setContent("Witajcie w wspólnym czacie testowym!");
+                welcomeShared.setDateCreated(new Date());
+
+
+                List<Message> sharedMessages = new ArrayList<>();
+                sharedMessages.add(welcomeShared);
+                wspolnyChat.setMessages(sharedMessages);
+
+                chatRepository.save(wspolnyChat);
+                System.out.println("Dodano wspólny czat testowy dla wszystkich użytkowników.");
             }
         };
     }

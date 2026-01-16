@@ -1,0 +1,106 @@
+body {
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #6a7cff, #7e5abf);
+    overflow: hidden;
+}
+
+.chat-card {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-body {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+#messages {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#messages .message {
+    max-width: 70%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    background: #e9ecef;
+    word-wrap: break-word;
+}
+
+#messages img {
+    max-width: 200px;
+    border-radius: 8px;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+
+.input-group {
+    flex-shrink: 0;
+}
+
+
+#chatHistory {
+    overflow-y: auto;
+    height: calc(80vh - 80px);
+}
+
+
+.panel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    z-index: 1050;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.autocomplete-item {
+    padding: 6px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background: #fff;
+}
+
+.autocomplete-item:hover {
+    background: #eee;
+}
+
+.chatItem {
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.chatItem.active {
+    background-color: #d0e0ff;
+}
+
+.deleteChatButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding-left: 0.5rem;
+    color: red;
+    float: right;
+}

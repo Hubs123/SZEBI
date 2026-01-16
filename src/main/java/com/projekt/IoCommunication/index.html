@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>SZEBI Chat</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a7cff, #7e5abf);
+        }
+
+        .chat-card {
+            height: 80vh;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        #chatHistory {
+            overflow-y: auto;
+            height: calc(80vh - 80px);
+        }
+
+        #userListContainer {
+            width: 230px;
+            min-width: 200px;
+            max-width: 320px;
+            background: #ffffffee;
+        }
+
+        #userList {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        #userList li {
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        #userList li .username {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7 mb-3">
+            <div class="card shadow-lg chat-card d-flex flex-column">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">💬 SZEBI Chat</h5>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="addUsers()">Add users</button>
+                    </div>
+                </div>
+
+                <div class="card-body d-flex p-0" style="min-height: 0;">
+
+                    <div id="userListContainer" class="border-end p-2 d-flex flex-column" style="overflow-y:auto;">
+                        <h6 class="text-center mb-2">👥 Users</h6>
+                        <ul id="userList" class="list-unstyled mb-0"></ul>
+                    </div>
+
+                    <div class="d-flex flex-column flex-grow-1 p-2" style="min-height:0;">
+                        <div id="messages" class="flex-grow-1 overflow-auto d-flex flex-column gap-2"></div>
+
+                        <div class="input-group mt-2">
+                            <input id="msgInput" class="form-control" placeholder="Send a message...">
+                            <button class="btn btn-primary" onclick="sendMsg()">Send</button>
+                            <button class="btn btn-outline-secondary" onclick="sendFile()">File</button>
+                            <input type="file" id="fileInput" hidden accept=".jpg,.png,.jpeg">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 mb-3">
+            <div class="card shadow-lg chat-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">📜 History</h6>
+                    <button class="btn btn-sm btn-success" onclick="addChat()">New</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
+                </div>
+                <div class="card-body" id="chatHistory"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="panel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create new chat</h5>
+                <button class="btn-close" onclick="closeNewChatPanel()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Chat name</label>
+                    <input id="nameChat" class="form-control" placeholder="Enter name">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Participants</label>
+                    <input id="searchUser" class="form-control" placeholder="Type a name...">
+                    <div id="userResults" class="mt-2"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNewChatPanel()">Cancel</button>
+                <button class="btn btn-primary" onclick="createChat()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addUserPanel" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add user</h5>
+                <button class="btn-close" onclick="closeAddUserPanel()"></button>
+            </div>
+            <div class="modal-body">
+                <input id="newUserNamePanel" class="form-control" placeholder="Username...">
+                <div id="addUserResults" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddUserPanel()">Cancel</button>
+                <button class="btn btn-success" id="confirmAddUserPanel">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

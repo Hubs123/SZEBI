@@ -1,4 +1,4 @@
-package com.projekt.IoCommunication;
+package com.example.iocommunication;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
