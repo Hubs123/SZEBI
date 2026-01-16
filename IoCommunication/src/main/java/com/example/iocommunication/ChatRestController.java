@@ -61,7 +61,7 @@ public class ChatRestController {
         return "chat.html";
     }
 
-    /* ===================== AUTH ===================== */
+
     @PostMapping("/szebi/login")
     @ResponseBody
     public Map<String, String> login(@RequestBody LoginReq r) {
@@ -100,7 +100,6 @@ public class ChatRestController {
         userRepository.save(u);
     }
 
-    /* ===================== CHAT ===================== */
     @GetMapping("/chat/searchUsers")
     @ResponseBody
     public List<User> searchUsers(@RequestParam String prefix) {
@@ -111,16 +110,19 @@ public class ChatRestController {
     @ResponseBody
     public Chat createChat(@RequestBody Map<String, Object> body) {
         requireAdmin();
+
         String chatName = (String) body.get("chatName");
         List<String> participants = (List<String>) body.get("participants");
 
         User creator = getCurrentUser();
         Chat chat = chatManager.dbCreateChat(chatName, creator);
 
+        chatManager.dbAddUserToChat(chat, creator);
+
         if (participants != null) {
             for (String username : participants) {
-                User u = userRepository.findByUsername(username).orElse(null);
-                if (u != null) chatManager.dbAddUserToChat(chat, u);
+                userRepository.findByUsername(username)
+                        .ifPresent(u -> chatManager.dbAddUserToChat(chat, u));
             }
         }
 
@@ -244,7 +246,10 @@ public class ChatRestController {
     }
 
     private void requireAdmin() {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("AUTH = " + auth);
+        System.out.println("AUTHORITIES = " + auth.getAuthorities());
         if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             throw new RuntimeException("ADMIN ONLY");
         }

@@ -75,13 +75,11 @@
 
                 <div class="card-body d-flex p-0" style="min-height: 0;">
 
-                    <!-- USERS LIST (LEFT) -->
                     <div id="userListContainer" class="border-end p-2 d-flex flex-column" style="overflow-y:auto;">
                         <h6 class="text-center mb-2">👥 Users</h6>
                         <ul id="userList" class="list-unstyled mb-0"></ul>
                     </div>
 
-                    <!-- CHAT (RIGHT) -->
                     <div class="d-flex flex-column flex-grow-1 p-2" style="min-height:0;">
                         <div id="messages" class="flex-grow-1 overflow-auto d-flex flex-column gap-2"></div>
 
@@ -97,12 +95,12 @@
             </div>
         </div>
 
-        <!-- HISTORY -->
         <div class="col-lg-3 mb-3">
             <div class="card shadow-lg chat-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">📜 History</h6>
                     <button class="btn btn-sm btn-success" onclick="addChat()">New</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
                 </div>
                 <div class="card-body" id="chatHistory"></div>
             </div>

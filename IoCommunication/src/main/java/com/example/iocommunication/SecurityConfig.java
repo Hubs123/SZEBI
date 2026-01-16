@@ -100,7 +100,7 @@ public class SecurityConfig {
                         // login/register API
                         .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
                         // chat API
-                        .requestMatchers("/api/chat/addUser", "/api/chat/create").hasRole("ADMIN")
+                        .requestMatchers("/api/chat/addUser", "/api/chat/create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
                         .requestMatchers("/api/chat/files/**").permitAll()
                         // any other request denied

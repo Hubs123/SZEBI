@@ -200,18 +200,18 @@ function closeNewChatPanel() {
     if (modalInstance) modalInstance.hide();
 }
 
-async function addChat() {
-    if (await checkUsersRole(userId) === "ROLE_ADMIN") {
-        const newChatModal = new bootstrap.Modal(document.getElementById('panel'));
-        newChatModal.show();
-    } else alert("You don't have permission");
+function addChat() {
+    const modal = new bootstrap.Modal(document.getElementById('panel'));
+    modal.show();
 }
 
 async function createChat() {
     const chatName = document.getElementById("nameChat").value.trim();
     if (!chatName) return alert("Enter chat name");
 
-    const participants = [document.getElementById("searchUser").value.trim()].filter(u => u);
+    const participants = [
+        document.getElementById("searchUser").value.trim()
+    ].filter(Boolean);
 
     const res = await authFetch("/api/chat/create", {
         method: "POST",
@@ -219,10 +219,17 @@ async function createChat() {
         body: JSON.stringify({ chatName, participants })
     });
 
-    if (!res.ok) return alert(await res.text());
-    const chat = await res.json();
-    alert("Chat created: " + chat.chatName);
+    if (res.status === 403 || res.status === 401) {
+        return alert("Only ADMIN can create chats");
+    }
+
+    if (!res.ok) {
+        return alert(await res.text());
+    }
+
+    alert("Chat created");
     closeNewChatPanel();
+    loadChats();
 }
 
 async function removeUsers() {
@@ -334,7 +341,7 @@ async function loadChatUsers() {
 
     const users = await res.json();
     const ul = document.getElementById("userList");
-    ul.innerHTML = ""; // czyścimy listę przed odświeżeniem
+    ul.innerHTML = "";
 
     users.forEach(u => {
         const li = document.createElement("li");
@@ -352,20 +359,27 @@ async function loadChatUsers() {
 async function removeUserFromChat(userIdToRemove) {
     if (!confirm("Remove this user from chat?")) return;
 
-    const res = await authFetch(`/api/chat/${activeChatId}/users/${userIdToRemove}`, {
-        method: "DELETE"
-    });
+    try {
+        const res = await authFetch(`/api/chat/${activeChatId}/users/${userIdToRemove}`, {
+            method: "DELETE"
+        });
 
-    if (!res.ok) {
-        alert(await res.text());
-        return;
+        const text = await res.text();
+
+        if (!res.ok) {
+            alert("Deleted user");
+            return;
+        }
+
+        const ul = document.getElementById("userList");
+        const liToRemove = Array.from(ul.children).find(li => li.dataset.userId == userIdToRemove);
+        if (liToRemove) ul.removeChild(liToRemove);
+
+        alert(text);
+    } catch (err) {
+        console.error(err);
+        alert("Failed to remove user");
     }
-
-    const ul = document.getElementById("userList");
-    const liToRemove = Array.from(ul.children).find(li => {
-        return li.dataset.userId == userIdToRemove;
-    });
-    if (liToRemove) ul.removeChild(liToRemove);
 }
 
 function deleteChat(chatId) {
@@ -399,7 +413,14 @@ function startPolling() {
         loadChats();
     }, 3000);
 }
+function logout() {
 
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.clear();
+
+    window.location.href = "login.html";
+}
 
 loadChats();
 startPolling();

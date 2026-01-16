@@ -2,8 +2,7 @@ package com.example.iocommunication;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
-import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +33,7 @@ public class ChatManager {
         chat.setChatName(chatName);
         chat.setCreatedBy(creator);
         chat.setDateCreated(new Date());
-        chat.setUsersInChat(List.of(creator));
+        chat.addUser(creator);
         return chatRepository.save(chat);
     }
 
@@ -50,6 +49,10 @@ public class ChatManager {
         return chatRepository.findById(id);
     }
 
+    public Optional<Chat> findByChatName(String name) {
+        return chatRepository.findByChatName(name);
+    }
+
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -59,40 +62,38 @@ public class ChatManager {
     }
 
     public void dbAddUserToChat(Chat chat, User user) {
-        if (!chat.getAllUsers().contains(user)) {
-            chat.getAllUsers().add(user);
-            chatRepository.save(chat);
-        }
+        chat.addUser(user);
+        chatRepository.save(chat);
     }
 
     public void dbRemoveUserFromChat(Chat chat, User user) {
-        chat.getAllUsers().remove(user);
+        chat.removeUser(user);
         chatRepository.save(chat);
     }
 
-    public void dbAddMessageToChat(Chat chat, Message msg) {
-        msg.setDateCreated(new Date());
-        messageRepository.save(msg);
-        chat.getAllMessages().add(msg);
-        chatRepository.save(chat);
-    }
-
-    public void dbRemoveMessageFromChat(Chat chat, Message msg) {
-        chat.getAllMessages().remove(msg);
-        chatRepository.save(chat);
-        messageRepository.delete(msg);
-    }
-
-    public List<Message> dbGetChatHistory(Chat chat) {
-        return chat.getAllMessages();
+    public List<User> getUsersInChat(Chat chat) {
+        return new ArrayList<>(chat.getUsersInChat());
     }
 
     public List<User> searchUsersByPrefix(String prefix) {
         return userRepository.findByFirstNameStartingWith(prefix);
     }
 
-    public List<User> getUsersInChat(Chat chat) {
-        return chat.getAllUsers();
+    public void dbAddMessageToChat(Chat chat, Message msg) {
+        msg.setDateCreated(new Date());
+        messageRepository.save(msg);
+        chat.addMessage(msg);
+        chatRepository.save(chat);
+    }
+
+    public void dbRemoveMessageFromChat(Chat chat, Message msg) {
+        chat.removeMessage(msg);
+        chatRepository.save(chat);
+        messageRepository.delete(msg);
+    }
+
+    public List<Message> dbGetChatHistory(Chat chat) {
+        return new ArrayList<>(chat.getMessages());
     }
 
     @Transactional
@@ -105,10 +106,6 @@ public class ChatManager {
         msg.getAttachments().remove(file);
         messageRepository.save(msg);
         fileRepository.delete(file);
-    }
-
-    public Optional<Chat> findByChatName(String name) {
-        return chatRepository.findByChatName(name);
     }
 
     public File getFile(Long fileId) {
