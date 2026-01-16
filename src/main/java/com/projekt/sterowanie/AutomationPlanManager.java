@@ -185,6 +185,10 @@ public class AutomationPlanManager {
         return commandApplied;
     }
 
+    public Boolean saveToDatabase(AutomationPlan plan) {
+        return planRepo.save(plan);
+    }
+
     static public Boolean applyModifications(List<AutomationRule> rules, Integer priority) {
         final boolean emergency = priority > 0;
         boolean hasTimeWindow = rules.get(0).getTimeWindow() != null;
@@ -235,9 +239,5 @@ public class AutomationPlanManager {
         }
 
         return true; // asynchronicznie
-    }
-
-    public Boolean saveToDatabase(AutomationPlan plan) {
-        return planRepo.save(plan);
     }
 }

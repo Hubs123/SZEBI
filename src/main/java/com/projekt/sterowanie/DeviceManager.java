@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class DeviceManager {
     // automation plan musi mieć dostęp do deviceRepo, stąd static
-    private final RoomRepository roomRepo = new RoomRepository();
+    static private final RoomRepository roomRepo = new RoomRepository();
 
     static public final DeviceRepository deviceRepo = new DeviceRepository();
 
@@ -20,8 +20,21 @@ public class DeviceManager {
         return null;
     }
 
+    public Room registerRoom(String name, Integer roomId) {
+        Room r = new Room(name);
+        Boolean added = roomRepo.add(r);
+        if (added) {
+            return r;
+        }
+        return null;
+    }
+
     public Boolean removeDevice(Integer deviceId) {
         return deviceRepo.delete(deviceId);
+    }
+
+    public Boolean removeRoom(Integer roomId) {
+        return roomRepo.delete(roomId);
     }
 
     public Boolean saveDeviceToDatabase(Device device) {
@@ -48,8 +61,20 @@ public class DeviceManager {
         return Collections.unmodifiableList(deviceRepo.findAll());
     }
 
+    public List<Device> listDevicesByType(DeviceType type) {
+        return Collections.unmodifiableList(deviceRepo.findByType(type));
+    }
+
     public static Device getDevice(Integer deviceId) {
         return deviceRepo.findById(deviceId);
+    }
+
+    public static Room getRoom(Integer roomId) {
+        return roomRepo.findById(roomId);
+    }
+
+    public List<Room> getRooms() {
+        return roomRepo.findAll();
     }
 
     public List<Device> listRoomDevices(Integer roomId) {

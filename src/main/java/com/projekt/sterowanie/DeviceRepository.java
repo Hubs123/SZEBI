@@ -128,10 +128,6 @@ public class DeviceRepository {
         }
     }
 
-    public Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates) {
-        return applyCommands(devicesStates, false);
-    }
-
     public Boolean applyCommands(List<Pair<Integer, Map<String, Float>>> devicesStates, boolean force) {
         synchronized (devices) {
             boolean result = true;
