@@ -26,9 +26,9 @@ export default function PlanCreatePage() {
       <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gap: "0.75rem" }}>
         <label>
           Nazwa planu:
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input value={name} onChange={(e) => setName(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}/>
         </label>
-        <button onClick={create} disabled={!name.trim()}>Utwórz</button>
+        <button class="btn" onClick={create} disabled={!name.trim()}>Utwórz</button>
       </div>
       <BackCancelBar cancelTo="/sterowanie/plany" />
     </Panel>

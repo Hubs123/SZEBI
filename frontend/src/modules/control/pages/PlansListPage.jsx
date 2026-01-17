@@ -28,14 +28,14 @@ export default function PlansListPage() {
       <ErrorBox error={error} />
 
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-        <button onClick={() => nav("nowy")}>Dodaj nowy plan</button>
+        <button class="btn" onClick={() => nav("nowy")}>Dodaj nowy plan</button>
       </div>
 
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {plans.map((p) => (
           <ListCard
             key={p.id}
-            title={`${p.name} (ID: ${p.id})`}
+            title={`${p.name}`}
             subtitle={`Reguły: ${p.rules ? p.rules.length : 0}`}
             onClick={() => nav(`${p.id}`)}
           />

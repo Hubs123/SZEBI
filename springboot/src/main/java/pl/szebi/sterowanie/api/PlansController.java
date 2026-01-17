@@ -37,9 +37,10 @@ public class PlansController {
         if (req == null || req.name == null || req.name.isBlank()) {
             return ResponseEntity.badRequest().body("Niepoprawna nazwa planu.");
         }
-        Integer id = planManager.createPlan(req.name, new ArrayList<>());
-        if (id == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się utworzyć planu.");
-        return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        AutomationPlan plan = planManager.createPlan(req.name, new ArrayList<>());
+        planManager.saveToDatabase(plan);
+        if (plan == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się utworzyć planu.");
+        return ResponseEntity.status(HttpStatus.CREATED).body(plan.getId());
     }
 
     @DeleteMapping("/{planId}")

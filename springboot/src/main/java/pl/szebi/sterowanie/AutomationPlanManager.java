@@ -152,11 +152,11 @@ public class AutomationPlanManager {
         }
     }
 
-    public Integer createPlan(String name, List<AutomationRule> rules) {
+    public AutomationPlan createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
         AutomationPlan plan = new AutomationPlan(name, rules);
         boolean added = planRepo.add(plan);
-        return added ? plan.getId() : null;
+        return added ? plan : null;
     }
 
     public Boolean removePlan(Integer planId) {
