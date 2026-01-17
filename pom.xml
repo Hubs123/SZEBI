@@ -11,12 +11,16 @@
         <version>3.2.0</version>
     </parent>
 
-    <groupId>com.projekt</groupId>
+    <groupId>pl.szebi</groupId>
     <artifactId>SZEBI</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.test.skip>true</maven.test.skip>
     </properties>
 
     <dependencies>
@@ -83,13 +87,44 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>springboot/src/main/java</sourceDirectory>
+        <testSourceDirectory>springboot/src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>springboot/src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>springboot/src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.projekt.Main</mainClass>
+                    <mainClass>pl.szebi.EnergyAnalysisApplication</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
