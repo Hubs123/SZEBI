@@ -221,7 +221,7 @@
   margin-left: auto;
   margin-right: auto;
   border-radius: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Delikatna ramka */
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .nav-tabs a {
@@ -245,3 +245,44 @@
   color: #667eea;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+.module-container {
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.module-content-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 1000px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  min-height: 60vh;
+}
+
+.messages-display {
+  height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.message-row { display: flex; margin-bottom: 1rem; }
+.message-row.mine { justify-content: flex-end; }
+.message-row.theirs { justify-content: flex-start; }
+
+.message-bubble {
+  padding: 0.8rem 1.2rem;
+  border-radius: 15px;
+  max-width: 70%;
+}
+
+.mine .message-bubble { background: #6a7cff; color: white; }
+.theirs .message-bubble { background: #eee; color: #333; }
+
+.sender-name { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 3px; }
