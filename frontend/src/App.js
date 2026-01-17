@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import MainPageLayout from './layouts/MainPageLayout';
 import AnalysisLayout from './layouts/AnalysisLayout';
+import ControlLayout from './layouts/ControlLayout';
 
 import DashboardPage from './modules/analysis/pages/DashboardPage';
 import AnalysisPage from './modules/analysis/pages/AnalysisPage';
@@ -10,6 +11,27 @@ import PredictionPanel from './modules/analysis/pages/PredictionPage';
 
 import AlertLayout from './layouts/AlertsLayout';
 import {AlertsPage, DeviceGroupsPage, GroupDetailsPage} from './modules/alerts';
+
+
+import ControlHomePage from "./modules/control/pages/ControlHomePage";
+import DevicesListPage from "./modules/control/pages/DevicesListPage";
+import DeviceCreatePage from "./modules/control/pages/DeviceCreatePage";
+import DeviceActionsPage from "./modules/control/pages/DeviceActionsPage";
+import DeviceParamsPage from "./modules/control/pages/DeviceParamsPage";
+import DeviceAssignRoomPage from "./modules/control/pages/DeviceAssignRoomPage";
+
+import RoomsListPage from "./modules/control/pages/RoomsListPage";
+import RoomActionsPage from "./modules/control/pages/RoomActionsPage";
+import RoomDevicesPage from "./modules/control/pages/RoomDevicesPage";
+import RoomGroupControlPage from "./modules/control/pages/RoomGroupControlPage";
+
+import PlansListPage from "./modules/control/pages/PlansListPage";
+import PlanCreatePage from "./modules/control/pages/PlanCreatePage";
+import PlanActionsPage from "./modules/control/pages/PlanActionsPage";
+import PlanActivatePage from "./modules/control/pages/PlanActivatePage";
+import PlanAddRulePage from "./modules/control/pages/PlanAddRulePage";
+import PlanDeletePage from "./modules/control/pages/PlanDeletePage";
+
 
 
 function App() {
@@ -25,15 +47,29 @@ function App() {
                     </Route>
 
                     <Route path="symulacja" element={<Placeholder title="Moduł Symulacji" />} />
-                    <Route path="sterowanie" element={<Placeholder title="Moduł Sterowania" />} />
+                    <Route path="sterowanie" element={<ControlLayout />}>
+                      <Route index element={<ControlHomePage />} />
+                      <Route path="urzadzenia" element={<DevicesListPage />} />
+                      <Route path="urzadzenia/nowe" element={<DeviceCreatePage />} />
+                      <Route path="urzadzenia/:deviceId" element={<DeviceActionsPage />} />
+                      <Route path="urzadzenia/:deviceId/parametry" element={<DeviceParamsPage />} />
+                      <Route path="urzadzenia/:deviceId/przypisz" element={<DeviceAssignRoomPage />} />
+
+                      <Route path="pokoje" element={<RoomsListPage />} />
+                      <Route path="pokoje/:roomId" element={<RoomActionsPage />} />
+                      <Route path="pokoje/:roomId/urzadzenia" element={<RoomDevicesPage />} />
+                      <Route path="pokoje/:roomId/grupowe" element={<RoomGroupControlPage />} />
+
+                      <Route path="plany" element={<PlansListPage />} />
+                      <Route path="plany/nowy" element={<PlanCreatePage />} />
+                      <Route path="plany/:planId" element={<PlanActionsPage />} />
+                      <Route path="plany/:planId/aktywuj" element={<PlanActivatePage />} />
+                      <Route path="plany/:planId/reguly/dodaj" element={<PlanAddRulePage />} />
+                      <Route path="plany/:planId/usun" element={<PlanDeletePage />} />
+                    </Route>
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji" />} />
                     <Route path="komunikacja" element={<Placeholder title="Moduł Komunikacji" />} />
-                    <Route path="alerty" element={<AlertLayout />}>
-                        <Route index element={<AlertsPage role="ADMIN" />} />
-                        <Route path="grupy" element={<DeviceGroupsPage />} />
-                        <Route path="grupy/:groupId" element={<GroupDetailsPage role="ADMIN" />} />
-                    </Route>
-
+                    <Route path="alerty" element={<Placeholder title="Moduł Alertów" />} />
 
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

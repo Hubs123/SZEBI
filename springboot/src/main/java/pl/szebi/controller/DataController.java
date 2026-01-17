@@ -8,9 +8,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pl.szebi.dto.ErrorResponse;
 import pl.szebi.model.Measurement;
 import pl.szebi.service.FastApiClient;
-import com.projekt.symulacja.SimulationManager;
-import com.projekt.symulacja.SimulationRecord;
-import com.projekt.symulacja.Settings;
+import pl.szebi.symulacja.SimulationManager;
+import pl.szebi.symulacja.SimulationRecord;
+import pl.szebi.symulacja.Settings;
 
 import java.time.LocalDateTime;
 import java.util.List;
