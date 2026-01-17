@@ -240,4 +240,19 @@ public class AutomationPlanManager {
 
         return true; // asynchronicznie
     }
+
+    public List<AutomationPlan> listPlans() {
+        return planRepo.findAll();
+    }
+
+    public AutomationPlan getPlan(Integer planId) {
+        return planRepo.findById(planId);
+    }
+
+    public Boolean addRule(Integer planId, AutomationRule rule) {
+        AutomationPlan plan = planRepo.findById(planId);
+        if (plan == null || rule == null) return false;
+        plan.getRules().add(rule);
+        return planRepo.save(plan);
+    }
 }
