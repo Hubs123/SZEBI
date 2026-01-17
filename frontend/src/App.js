@@ -14,6 +14,7 @@ import DevicesListPage from "./modules/control/pages/DevicesListPage";
 import DeviceCreatePage from "./modules/control/pages/DeviceCreatePage";
 import DeviceActionsPage from "./modules/control/pages/DeviceActionsPage";
 import DeviceParamsPage from "./modules/control/pages/DeviceParamsPage";
+import DeviceDeleteInline from "./modules/control/pages/DeviceDeleteInline";
 import DeviceAssignRoomPage from "./modules/control/pages/DeviceAssignRoomPage";
 
 import RoomsListPage from "./modules/control/pages/RoomsListPage";
@@ -50,7 +51,7 @@ function App() {
                       <Route path="urzadzenia/:deviceId" element={<DeviceActionsPage />} />
                       <Route path="urzadzenia/:deviceId/parametry" element={<DeviceParamsPage />} />
                       <Route path="urzadzenia/:deviceId/przypisz" element={<DeviceAssignRoomPage />} />
-
+                      <Route path="urzadzenia/:deviceId/usun" element={<DeviceDeleteInline />} />
                       <Route path="pokoje" element={<RoomsListPage />} />
                       <Route path="pokoje/:roomId" element={<RoomActionsPage />} />
                       <Route path="pokoje/:roomId/urzadzenia" element={<RoomDevicesPage />} />

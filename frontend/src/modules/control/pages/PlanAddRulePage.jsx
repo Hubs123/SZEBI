@@ -13,7 +13,7 @@ export default function PlanAddRulePage() {
   const [deviceId, setDeviceId] = useState("");
   const [key, setKey] = useState("");
   const [val, setVal] = useState("");
-  const [timeWindow, setTimeWindow] = useState(""); // opcjonalne
+  const [timeWindow, setTimeWindow] = useState("");
 
   const [error, setError] = useState(null);
 

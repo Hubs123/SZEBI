@@ -23,7 +23,7 @@ export default function RoomDevicesPage() {
   }, [roomId]);
 
   return (
-    <Panel title="Wyświetlenie listy urządzeń w pokoju">
+    <Panel title="Lista urządzeń w pokoju">
       <ErrorBox error={error} />
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {devices.map((d) => (

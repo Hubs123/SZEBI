@@ -10,15 +10,13 @@ export default function DeviceActionsPage() {
   return (
     <Panel title="Wybranie urządzenia">
       <div style={{ textAlign: "center", marginBottom: "1rem", opacity: 0.85 }}>
-        Urządzenie ID: {deviceId}
+        ID urządzenia: {deviceId}
       </div>
 
       <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto" }}>
-        <button onClick={() => nav(`parametry`)}>Ustawienie parametrów</button>
-        <button onClick={() => nav(`przypisz`)}>Wybranie opcji przypisania do pokoju</button>
-        <button onClick={() => nav(`/sterowanie/urzadzenia/${deviceId}?akcja=usun`)}>
-          Usunięcie
-        </button>
+        <button class="btn-gray" onClick={() => nav(`parametry`)}>Ustaw parametry</button>
+        <button class="btn-gray" onClick={() => nav(`przypisz`)}>Przypisz do pokoju</button>
+        <button class="btn-gray" onClick={() => nav(`usun`)}>Usuń urządzenie</button>
       </div>
 
       <BackCancelBar cancelTo="/sterowanie/urzadzenia" />

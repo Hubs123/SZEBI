@@ -185,6 +185,10 @@ public class AutomationPlanManager {
         return commandApplied;
     }
 
+    public Boolean loadFromDatabase() {
+        return planRepo.load();
+    }
+
     public Boolean saveToDatabase(AutomationPlan plan) {
         return planRepo.save(plan);
     }

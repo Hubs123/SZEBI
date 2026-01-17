@@ -49,6 +49,28 @@ public class RoomRepository {
         return rooms.removeIf(r -> r.getId() == roomId);
     }
 
+    public boolean load() {
+        String sql = "SELECT id, name FROM rooms";
+        try (PreparedStatement ps = Db.conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                boolean exists = rooms.stream()
+                        .anyMatch(r -> id.equals(r.getId()));
+                if (exists) {
+                    continue;
+                }
+                Room room = new Room(rs.getString("name"));
+                room.setId(id);
+                rooms.add(room);
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public Room findById(int roomId) {
         for (Room r : rooms) {
             if (r.getId() != null && r.getId().equals(roomId)) {

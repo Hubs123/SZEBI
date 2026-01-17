@@ -37,6 +37,14 @@ public class DeviceManager {
         return roomRepo.delete(roomId);
     }
 
+    public Boolean loadDevicesFromDataBase() {
+        return deviceRepo.load();
+    }
+
+    public Boolean loadRoomsFromDataBase() {
+        return roomRepo.load();
+    }
+
     public Boolean saveDeviceToDatabase(Device device) {
         return deviceRepo.save(device);
     }

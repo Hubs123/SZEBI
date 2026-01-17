@@ -36,15 +36,14 @@ export default function RoomGroupControlPage() {
       const v = Number(val);
       const res = await ControlApi.groupCommand(roomId, type, { [key]: v });
 
-      // Diagram: po zastosowaniu polecenia -> jeśli były blokady (alarm) -> komunikat o braku możliwości zmiany parametrów
       if (res?.lockedDeviceIds?.length) {
-        setLockedMsg("Wyświetlenie komunikatu o braku możliwości zmiany parametrów");
+        setLockedMsg("Brak możliwości zmiany parametrów - parametry ustawione przez procedurę alarmową");
       } else {
         setLockedMsg("");
       }
     } catch (e) {
       if (e.status === 404) {
-        setNoDevicesMsg("Wyświetlenie komunikatu o braku urządzeń w pokoju");
+        setNoDevicesMsg("Brak urządzeń w pokoju");
         return;
       }
       setError(e);

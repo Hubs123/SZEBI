@@ -23,12 +23,12 @@ export default function DeviceDeletePage() {
   return (
     <Panel title="Usunięcie urządzenia">
       <ErrorBox error={error} />
-      <div style={{ textAlign: "center" }}>
-        Czy na pewno usunąć urządzenie ID: <b>{deviceId}</b>?
+      <div style={{ textAlign: "center", fontWeight: 600 }}>
+        Czy na pewno usunąć urządzenie o ID {deviceId}?
       </div>
 
       <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", marginTop: "1rem" }}>
-        <button onClick={remove}>Usuń</button>
+        <button class="btn" onClick={remove}>Usuń</button>
       </div>
 
       <BackCancelBar cancelTo={`/sterowanie/urzadzenia/${deviceId}`} />

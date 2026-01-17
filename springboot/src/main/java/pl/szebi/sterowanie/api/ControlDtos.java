@@ -11,7 +11,7 @@ public class ControlDtos {
     public static class CreateDeviceRequest {
         public String name;
         public DeviceType type;
-        public Integer roomId; // opcjonalne
+        public Integer roomId;
     }
 
     public static class UpdateDeviceStatesRequest {
@@ -19,7 +19,7 @@ public class ControlDtos {
     }
 
     public static class AssignRoomRequest {
-        public Integer roomId; // może być null -> "odpięcie"
+        public Integer roomId;
     }
 
     // ---- Rooms ----
@@ -34,8 +34,8 @@ public class ControlDtos {
 
     public static class GroupCommandResult {
         public List<Integer> appliedDeviceIds;
-        public List<Integer> lockedDeviceIds;  // niezmienione (np. blokada alarmowa/emergency)
-        public List<Integer> missingDeviceIds; // jeśli coś zniknęło w trakcie
+        public List<Integer> lockedDeviceIds;
+        public List<Integer> missingDeviceIds;
     }
 
     // ---- Plans ----
@@ -46,6 +46,6 @@ public class ControlDtos {
     public static class AddRuleRequest {
         public Integer deviceId;
         public Map<String, Float> states;
-        public String timeWindow; // opcjonalne (jeśli Twoje AutomationRule to wspiera)
+        public String timeWindow;
     }
 }

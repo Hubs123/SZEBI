@@ -18,10 +18,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/control/devices")
-@CrossOrigin // jeśli masz globalny CORS – możesz usunąć
+@CrossOrigin
 public class DevicesController {
 
-    private final DeviceManager deviceManager = new DeviceManager();
+    private final DeviceManager deviceManager;
+
+    DevicesController() {
+        deviceManager = new DeviceManager();
+        deviceManager.loadDevicesFromDataBase();
+        deviceManager.loadRoomsFromDataBase();
+    }
 
     @GetMapping
     public List<Device> listDevices() {
@@ -35,6 +41,9 @@ public class DevicesController {
         }
         Device d = deviceManager.registerDevice(req.name, req.type, req.roomId);
         if (d == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się utworzyć urządzenia.");
+        }
+        if (!deviceManager.saveDeviceToDatabase(d)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się utworzyć urządzenia.");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(d);
@@ -54,13 +63,6 @@ public class DevicesController {
         return ResponseEntity.ok(states);
     }
 
-    /**
-     * Zmiana parametrów urządzenia.
-     * Diagram wymaga ścieżki: "Zmiana parametrów" -> jeśli blokada (np. alarmowa) -> komunikat o braku możliwości zmiany.
-     *
-     * U Ciebie DeviceManager.sendCommand() zwraca false m.in. gdy d == null lub d.isEmergencyLocked().
-     * To mapujemy na 409 + komunikat (UI pokaże dokładnie wymagany komunikat).
-     */
     @PutMapping("/{deviceId}/states")
     public ResponseEntity<?> updateStates(@PathVariable Integer deviceId, @RequestBody UpdateDeviceStatesRequest req) {
         if (req == null || req.states == null || req.states.isEmpty()) {
@@ -68,9 +70,8 @@ public class DevicesController {
         }
         boolean ok = deviceManager.sendCommand(deviceId, req.states);
         if (!ok) {
-            // 409 = nie można wykonać (np. blokada / brak możliwości zmiany parametrów)
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Wyświetlenie komunikatu o braku możliwości zmiany parametrów");
+                    .body("Brak możliwości zmiany parametrów - parametry ustawione przez procedurę alarmową.");
         }
         return ResponseEntity.ok().build();
     }
@@ -84,11 +85,10 @@ public class DevicesController {
         if (roomId != null) {
             Room r = DeviceManager.getRoom(roomId);
             if (r == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wyświetlenie komunikatu o braku pokoi");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Brak pokoi");
             }
         }
 
-        // zakładam, że Device ma setter/ustawienie roomId; jeśli nie – dopasuj do Twojej implementacji
         d.setRoomId(roomId);
         deviceManager.saveDeviceToDatabase(d);
 

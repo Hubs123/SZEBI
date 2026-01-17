@@ -8,9 +8,9 @@ export default function ControlHomePage() {
   return (
     <Panel title="Moduł sterowania">
       <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto" }}>
-        <button onClick={() => nav("urzadzenia")}>Urządzenia</button>
-        <button onClick={() => nav("pokoje")}>Pokoje</button>
-        <button onClick={() => nav("plany")}>Plany</button>
+        <button className="btn" onClick={() => nav("urzadzenia")}>Urządzenia</button>
+        <button className="btn" onClick={() => nav("pokoje")}>Pokoje</button>
+        <button className="btn" onClick={() => nav("plany")}>Plany</button>
       </div>
     </Panel>
   );

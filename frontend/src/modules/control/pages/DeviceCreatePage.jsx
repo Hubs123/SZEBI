@@ -37,7 +37,6 @@ export default function DeviceCreatePage() {
         type,
         roomId: assignNow ? (roomId === "" ? null : Number(roomId)) : null,
       });
-      // diagram: "Dodanie nowego urządzenia" -> ewentualnie "Przypisanie do pokoju" -> koniec
       nav(`/sterowanie/urzadzenia/${created.id}`);
     } catch (e) {
       setError(e);
@@ -48,7 +47,7 @@ export default function DeviceCreatePage() {
     <Panel title="Dodanie nowego urządzenia">
       <ErrorBox error={error} />
 
-      <div style={{ display: "grid", gap: "0.75rem", maxWidth: 520, margin: "0 auto" }}>
+      <div style={{ display: "grid", gap: "0.75rem", maxWidth: 520, margin: "0 auto", fontWeight: 600 }}>
         <label>
           Nazwa:
           <input value={name} onChange={(e) => setName(e.target.value)} />
@@ -87,7 +86,7 @@ export default function DeviceCreatePage() {
           </select>
         </label>
 
-        <button onClick={submit} disabled={!name.trim() || !type}>
+        <button className="btn-gray" onClick={submit} disabled={!name.trim() || !type}>
           Dodaj
         </button>
 

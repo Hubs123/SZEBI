@@ -35,11 +35,9 @@ export default function DeviceParamsPage() {
       setCurrent(st);
       setKey("");
       setVal("");
-      // diagram: "Zmiana parametrów" -> koniec
     } catch (e) {
-      // 409 => "zmieniane parametry były ustawione przez reakcję alarmową" -> komunikat
       if (e.status === 409) {
-        setBlockedMsg("Wyświetlenie komunikatu o braku możliwości zmiany parametrów");
+        setBlockedMsg("Brak możliwości zmiany parametrów - parametry ustawione przez procedurę alarmową.");
         return;
       }
       setError(e);

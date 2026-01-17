@@ -32,10 +32,6 @@ public class PlansController {
         return ResponseEntity.ok(p);
     }
 
-    /**
-     * Diagram: "Utworzenie nowego planu" i koniec.
-     * Tworzymy pusty plan (reguły można dodać później w "Dodanie reguły").
-     */
     @PostMapping
     public ResponseEntity<?> createPlan(@RequestBody CreatePlanRequest req) {
         if (req == null || req.name == null || req.name.isBlank()) {
@@ -66,7 +62,6 @@ public class PlansController {
             return ResponseEntity.badRequest().body("Niepoprawna reguła.");
         }
 
-        // Dopasuj konstruktor AutomationRule do Twojej implementacji.
         AutomationRule rule = new AutomationRule(req.deviceId, req.states, req.timeWindow);
 
         boolean ok = planManager.addRule(planId, rule);

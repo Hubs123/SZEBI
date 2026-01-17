@@ -20,7 +20,7 @@ export default function DeviceAssignRoomPage() {
       try {
         const r = await ControlApi.listRooms();
         setRooms(r || []);
-        if (!r || r.length === 0) setNoRoomsMsg("Wyświetlenie komunikatu o braku pokoi");
+        if (!r || r.length === 0) setNoRoomsMsg("Brak pokoi w systemie");
       } catch (e) {
         setError(e);
       }
@@ -47,16 +47,22 @@ export default function DeviceAssignRoomPage() {
         </div>
       ) : (
         <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gap: "0.75rem" }}>
-          <label>
-            Pokój:
-            <select value={roomId} onChange={(e) => setRoomId(e.target.value)}>
-              <option value="">-- brak --</option>
-              {rooms.map((r) => (
-                <option key={r.id} value={r.id}>{r.name} (ID: {r.id})</option>
-              ))}
-            </select>
-          </label>
-          <button onClick={assign}>Przypisz</button>
+          <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontWeight: 500 }}>
+              <span style={{ fontWeight: 600 }}>Pokój:</span>
+              <select
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                style={{ padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" }}
+              >
+                <option value="">-- brak --</option>
+                {rooms.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} (ID: {r.id})
+                  </option>
+                ))}
+              </select>
+            </label>
+          <button class="btn" onClick={assign} style={{ width: "fit-content", justifySelf: "center"}}>Przypisz</button>
         </div>
       )}
 

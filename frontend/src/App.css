@@ -245,3 +245,28 @@
   color: #667eea;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
+.btn-gray {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #999;
+  cursor: pointer;
+  background-color: #d6d6d6;
+  color: #222;
+  transition: all 0.2s ease;
+}
+
+.btn-gray:hover {
+  background-color: #c0c0c0;
+}
+
+.btn-gray:active {
+  background-color: #b0b0b0;
+}
+
+.btn-gray:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

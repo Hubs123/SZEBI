@@ -104,24 +104,31 @@ public class AutomationPlanRepository {
         }
     }
 
-    // metoda przykładowa, na razie nie robimy więcej metod tego typu - nie było tego w planie
-    // i prawdopodobnie będzie robił to moduł akwizycji danych
-    public AutomationPlan getFromDatabase(int id) {
+    public boolean load() {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id, name, rules::text FROM automation_plan WHERE id = ?";
+            String sql = "SELECT id, name, rules::text FROM automation_plan";
             ps = Db.conn.prepareStatement(sql);
-            ps.setInt(1, id);
             rs = ps.executeQuery();
-            if (!rs.next()) return null;
-            String name = rs.getString("name");
-            String json = rs.getString("rules");
-            List<AutomationRule> rules = parseRules(json);
-            return new AutomationPlan(name, rules);
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                boolean exists = plans.stream()
+                        .anyMatch(p -> id.equals(p.getId()));
+                if (exists) {
+                    continue;
+                }
+                String name = rs.getString("name");
+                String json = rs.getString("rules");
+                List<AutomationRule> rules = parseRules(json);
+                AutomationPlan plan = new AutomationPlan(name, rules);
+                plan.setId(id);
+                plans.add(plan);
+            }
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return false;
         } finally {
             try { if (rs != null) rs.close(); } catch (Exception ignored) {}
             try { if (ps != null) ps.close(); } catch (Exception ignored) {}

@@ -42,10 +42,6 @@ public class RoomsController {
         return deviceManager.listRoomDevices(roomId);
     }
 
-    /**
-     * "Zastosowanie polecenia dla wszystkich urządzeń danego typu w pokoju"
-     * Jeśli brak urządzeń w pokoju (dla danego typu) -> UI pokaże komunikat.
-     */
     @PostMapping("/{roomId}/group-command")
     public ResponseEntity<?> applyGroupCommand(@PathVariable Integer roomId, @RequestBody GroupCommandRequest req) {
         if (req == null || req.type == null || req.states == null || req.states.isEmpty()) {
@@ -60,7 +56,6 @@ public class RoomsController {
                 .collect(Collectors.toList());
 
         if (targets.isEmpty()) {
-            // brak urządzeń w pokoju danego typu
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Wyświetlenie komunikatu o braku urządzeń w pokoju");
         }
@@ -74,7 +69,7 @@ public class RoomsController {
             try {
                 boolean ok = deviceManager.sendCommand(d.getId(), req.states);
                 if (ok) applied.add(d.getId());
-                else locked.add(d.getId()); // np. emergency/alarm lock
+                else locked.add(d.getId());
             } catch (Exception e) {
                 missing.add(d.getId());
             }
