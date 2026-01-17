@@ -90,4 +90,13 @@ public class DeviceGroup {
         return null;
     }
 
+    public Boolean modifyThreshold(Threshold threshold, Float valueWarning, Float valueEmergency) {
+        try {
+            threshold.setValues(valueWarning, valueEmergency);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }
