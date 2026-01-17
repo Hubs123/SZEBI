@@ -14,6 +14,8 @@ export default function DeviceParamsPage() {
   const [error, setError] = useState(null);
   const [blockedMsg, setBlockedMsg] = useState("");
 
+  const disabledParams = ["temp", "smokeDetected"];
+
   useEffect(() => {
     (async () => {
       try {
@@ -82,9 +84,9 @@ export default function DeviceParamsPage() {
               <option
                 key={k}
                 value={k}
-                disabled={k === "temp" || k === "smokeDetected"}
+                disabled={disabledParams.includes(k)}
               >
-                {k}
+                {k} {disabledParams.includes(k) ? "(nieedytowalne)" : ""}
               </option>
             ))}
           </select>

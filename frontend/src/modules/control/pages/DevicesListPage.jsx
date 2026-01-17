@@ -40,7 +40,7 @@ export default function DevicesListPage() {
         {devices.map((d) => (
           <ListCard
             key={d.id}
-            title={`${d.name} (ID: ${d.id})`}
+            title={`${d.name}`}
             subtitle={`Typ: ${d.type} | Pokój: ${d.roomId ? roomById[d.roomId] ?? "brak" : "brak"}`}
             onClick={() => nav(`../urzadzenia/${d.id}`)}
           />

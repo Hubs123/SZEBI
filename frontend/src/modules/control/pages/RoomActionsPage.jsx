@@ -10,12 +10,12 @@ export default function RoomActionsPage() {
   return (
     <Panel title="Wybranie pokoju">
       <div style={{ textAlign: "center", marginBottom: "1rem", opacity: 0.85 }}>
-        Pokój ID: {roomId}
+        ID pokoju: {roomId}
       </div>
 
       <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto" }}>
-        <button onClick={() => nav("grupowe")}>Grupowe sterowanie</button>
-        <button onClick={() => nav("urzadzenia")}>Urządzenia w pokoju</button>
+        <button class="btn-gray" onClick={() => nav("grupowe")}>Grupowe sterowanie</button>
+        <button class="btn-gray" onClick={() => nav("urzadzenia")}>Urządzenia w pokoju</button>
       </div>
 
       <BackCancelBar cancelTo="/sterowanie/pokoje" />

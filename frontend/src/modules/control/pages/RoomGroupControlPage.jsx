@@ -16,6 +16,14 @@ export default function RoomGroupControlPage() {
   const [noDevicesMsg, setNoDevicesMsg] = useState("");
   const [lockedMsg, setLockedMsg] = useState("");
 
+  const deviceStatesMap = {
+    noSimulation: ["power"],
+    thermometer: ["power", "temp"],
+    smokeDetector: ["power", "smokeDetected"],
+  };
+
+  const disabledParams = ["temp", "smokeDetected"];
+
   useEffect(() => {
     (async () => {
       try {
@@ -69,7 +77,7 @@ export default function RoomGroupControlPage() {
       <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gap: "0.75rem" }}>
         <label>
           Typ urządzeń:
-          <select value={type} onChange={(e) => setType(e.target.value)}>
+          <select value={type} onChange={(e) => setType(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}>
             <option value="">-- wybierz --</option>
             {types.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -78,16 +86,32 @@ export default function RoomGroupControlPage() {
         </label>
 
         <label>
-          Klucz parametru:
-          <input value={key} onChange={(e) => setKey(e.target.value)} />
+          Nazwa parametru:
+          <select
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              style={{ padding: "0.4rem", marginLeft: "0.5rem" }}
+              disabled={!type}
+            >
+              <option value="">-- wybierz --</option>
+              {type && deviceStatesMap[type].map((param) => (
+                <option
+                  key={param}
+                  value={param}
+                  disabled={disabledParams.includes(param)}
+                >
+                  {param} {disabledParams.includes(param) ? "(nieedytowalne)" : ""}
+                </option>
+              ))}
+            </select>
         </label>
 
         <label>
-          Wartość (float):
-          <input value={val} onChange={(e) => setVal(e.target.value)} />
+          Nowa wartość:
+          <input value={val} onChange={(e) => setVal(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}/>
         </label>
 
-        <button onClick={apply} disabled={!type || !key.trim() || val === ""}>
+        <button class="btn" onClick={apply} disabled={!type || !key.trim() || val === ""}>
           Zastosuj
         </button>
       </div>

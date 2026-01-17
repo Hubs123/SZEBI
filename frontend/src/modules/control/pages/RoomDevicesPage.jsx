@@ -29,7 +29,7 @@ export default function RoomDevicesPage() {
         {devices.map((d) => (
           <ListCard
             key={d.id}
-            title={`${d.name} (ID: ${d.id})`}
+            title={`${d.name}`}
             subtitle={`Typ: ${d.type}`}
             onClick={() => {}}
             right={<span style={{ opacity: 0.7 }}> </span>}

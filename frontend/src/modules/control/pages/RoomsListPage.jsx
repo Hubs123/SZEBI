@@ -30,7 +30,7 @@ export default function RoomsListPage() {
         {rooms.map((r) => (
           <ListCard
             key={r.id}
-            title={`${r.name} (ID: ${r.id})`}
+            title={`${r.name}`}
             onClick={() => nav(`${r.id}`)}
           />
         ))}
