@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.example.iocommunication.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.example.iocommunication;
+package com.example.iocommunication.model;
 
 import jakarta.persistence.*;
 

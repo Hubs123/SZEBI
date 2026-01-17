@@ -1,5 +1,13 @@
-package com.example.iocommunication;
+package com.example.iocommunication.service;
 
+import com.example.iocommunication.model.File;
+import com.example.iocommunication.model.Message;
+import com.example.iocommunication.model.User;
+import com.example.iocommunication.model.Chat;
+import com.example.iocommunication.repository.ChatRepository;
+import com.example.iocommunication.repository.FileRepository;
+import com.example.iocommunication.repository.MessageRepository;
+import com.example.iocommunication.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;

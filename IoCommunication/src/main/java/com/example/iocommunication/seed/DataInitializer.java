@@ -1,5 +1,10 @@
-package com.example.iocommunication;
+package com.example.iocommunication.seed;
 
+import com.example.iocommunication.model.Message;
+import com.example.iocommunication.model.User;
+import com.example.iocommunication.model.Chat;
+import com.example.iocommunication.repository.ChatRepository;
+import com.example.iocommunication.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
