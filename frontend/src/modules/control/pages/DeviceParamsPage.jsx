@@ -37,7 +37,7 @@ export default function DeviceParamsPage() {
       setVal("");
     } catch (e) {
       if (e.status === 409) {
-        setBlockedMsg("Brak możliwości zmiany parametrów - parametry ustawione przez procedurę alarmową.");
+        setBlockedMsg("Brak możliwości zmiany parametrów");
         return;
       }
       setError(e);
@@ -57,20 +57,45 @@ export default function DeviceParamsPage() {
       <div style={{ maxWidth: 640, margin: "0 auto", display: "grid", gap: "0.75rem" }}>
         <div style={{ border: "1px solid #ccc", padding: "0.75rem" }}>
           <div style={{ fontWeight: 600, marginBottom: "0.5rem" }}>Aktualne stany:</div>
-          <pre style={{ margin: 0 }}>{JSON.stringify(current, null, 2)}</pre>
+          {current && Object.keys(current).length > 0 ? (
+            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
+              {Object.entries(current).map(([k, v]) => (
+                <li key={k}>
+                  <b>{k}:</b> {v}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div>Brak aktualnych stanów</div>
+          )}
         </div>
 
         <label>
-          Klucz parametru:
-          <input value={key} onChange={(e) => setKey(e.target.value)} />
+          Nazwa parametru:
+          <select
+            value={key}
+            onChange={(e) => setKey(e.target.value)}
+            style={{ marginLeft: "0.5rem", padding: "0.4rem" }}
+          >
+            <option value="">-- wybierz parametr --</option>
+            {current && Object.keys(current).map((k) => (
+              <option
+                key={k}
+                value={k}
+                disabled={k === "temp" || k === "smokeDetected"}
+              >
+                {k}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label>
-          Wartość (float):
-          <input value={val} onChange={(e) => setVal(e.target.value)} />
+          Nowa wartość:
+          <input value={val} onChange={(e) => setVal(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }} />
         </label>
 
-        <button onClick={apply} disabled={!key.trim() || val === ""}>
+        <button class="btn" onClick={apply} disabled={!key.trim() || val === ""}>
           Ustaw
         </button>
       </div>

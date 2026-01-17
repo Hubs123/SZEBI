@@ -37,7 +37,7 @@ export default function RoomGroupControlPage() {
       const res = await ControlApi.groupCommand(roomId, type, { [key]: v });
 
       if (res?.lockedDeviceIds?.length) {
-        setLockedMsg("Brak możliwości zmiany parametrów - parametry ustawione przez procedurę alarmową");
+        setLockedMsg("Brak możliwości zmiany parametrów");
       } else {
         setLockedMsg("");
       }

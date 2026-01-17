@@ -47,16 +47,16 @@ export default function DeviceCreatePage() {
     <Panel title="Dodanie nowego urządzenia">
       <ErrorBox error={error} />
 
-      <div style={{ display: "grid", gap: "0.75rem", maxWidth: 520, margin: "0 auto", fontWeight: 600 }}>
+      <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto", fontWeight: 600 }}>
         <label>
           Nazwa:
-          <input value={name} onChange={(e) => setName(e.target.value)} />
+          <input value={name} onChange={(e) => setName(e.target.value)} style={{ padding: "0.3rem", marginLeft: "0.5rem" }} />
         </label>
 
         <label>
           Typ:
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="">-- wybierz --</option>
+          <select value={type} onChange={(e) => setType(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}>
+            <option value="" >-- wybierz --</option>
             {types.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -78,6 +78,7 @@ export default function DeviceCreatePage() {
             disabled={roomSelectDisabled}
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
+            style={{ padding: "0.4rem", marginLeft: "0.5rem" }}
           >
             <option value="">-- brak --</option>
             {rooms.map((r) => (
@@ -86,7 +87,7 @@ export default function DeviceCreatePage() {
           </select>
         </label>
 
-        <button className="btn-gray" onClick={submit} disabled={!name.trim() || !type}>
+        <button className="btn" onClick={submit} disabled={!name.trim() || !type}>
           Dodaj
         </button>
 

@@ -24,7 +24,7 @@ export default function DeviceDeletePage() {
     <Panel title="Usunięcie urządzenia">
       <ErrorBox error={error} />
       <div style={{ textAlign: "center", fontWeight: 600 }}>
-        Czy na pewno usunąć urządzenie o ID {deviceId}?
+        Czy na pewno usunąć urządzenie?
       </div>
 
       <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", marginTop: "1rem" }}>
