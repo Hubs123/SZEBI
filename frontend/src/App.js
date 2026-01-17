@@ -7,6 +7,7 @@ import AnalysisLayout from './layouts/AnalysisLayout';
 import DashboardPage from './modules/analysis/pages/DashboardPage';
 import AnalysisPage from './modules/analysis/pages/AnalysisPage';
 import PredictionPanel from './modules/analysis/pages/PredictionPage';
+import AlertsPage from './modules/alerts/pages/AlertsPage';
 
 function App() {
     return (
@@ -24,7 +25,7 @@ function App() {
                     <Route path="sterowanie" element={<Placeholder title="Moduł Sterowania" />} />
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji" />} />
                     <Route path="komunikacja" element={<Placeholder title="Moduł Komunikacji" />} />
-                    <Route path="alerty" element={<Placeholder title="Moduł Alertów" />} />
+                    <Route path="alerty" element={<AlertsPage />} />
 
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

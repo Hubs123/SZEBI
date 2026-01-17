@@ -105,4 +105,8 @@ public class Alert {
             }
         }
     }
+
+    public String getMessage() {
+        return createMessage();
+    }
 }
