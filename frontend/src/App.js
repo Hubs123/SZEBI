@@ -8,6 +8,10 @@ import DashboardPage from './modules/analysis/pages/DashboardPage';
 import AnalysisPage from './modules/analysis/pages/AnalysisPage';
 import PredictionPanel from './modules/analysis/pages/PredictionPage';
 
+import AlertsLayout from './layouts/AlertsLayout';
+import AlertsPage from './modules/alerts/pages/AlertsPage';
+import DeviceGroupsPage from './modules/alerts/pages/DeviceGroupsPage';
+
 function App() {
     return (
         <BrowserRouter>
@@ -24,7 +28,14 @@ function App() {
                     <Route path="sterowanie" element={<Placeholder title="Moduł Sterowania" />} />
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji" />} />
                     <Route path="komunikacja" element={<Placeholder title="Moduł Komunikacji" />} />
-                    <Route path="alerty" element={<Placeholder title="Moduł Alertów" />} />
+
+                    <Route path="alerty" element={<AlertsLayout />}>
+                        {/* Zakładka 1: Przegląd (domyślna) */}
+                        <Route index element={<AlertsPage />} />
+
+                        {/* Zakładka 2: Konfiguracja */}
+                        <Route path="konfiguracja" element={<DeviceGroupsPage />} />
+                    </Route>
 
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

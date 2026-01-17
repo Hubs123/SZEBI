@@ -1,15 +1,72 @@
-const API = "http://localhost:8080/api";
+// services/alertsApi.js
+const API_URL = "http://localhost:8080/api";
 
-export const getAlerts = (role) =>
-    fetch(`${API}/alerts?role=${role}`).then(res => res.json());
+// --- Alerts (AlertController) ---
+export const getAlerts = async (role) => {
+    try {
+        console.log(`[API] Wysyłanie zapytania: GET ${API_URL}/alerts?role=${role}`);
+        const response = await fetch(`${API_URL}/alerts?role=${role}`);
 
-export const getDeviceGroups = () =>
-    fetch(`${API}/admin/alerts/groups`).then(res => res.json());
+        if (!response.ok) {
+            throw new Error(`Błąd sieci: ${response.status} ${response.statusText}`);
+        }
 
-export const getThresholds = (groupId) =>
-    fetch(`${API}/admin/alerts/groups/${groupId}/thresholds`)
-        .then(res => res.json());
+        const data = await response.json();
+        console.log("[API] Otrzymane alerty:", data); // <-- To pokaże Ci w konsoli co dokładnie przyszło
+        return data;
+    } catch (error) {
+        console.error("[API] Błąd pobierania alertów:", error);
+        return []; // Zwracamy pustą tablicę, żeby nie wywalić aplikacji
+    }
+};
 
-export const getReactions = (groupId) =>
-    fetch(`${API}/maintenance/alerts/groups/${groupId}/reactions`)
-        .then(res => res.json());
+// --- Admin / Config (AdminController) ---
+export const getDeviceGroups = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups`);
+        if (!response.ok) throw new Error("Błąd pobierania grup");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+export const getThresholds = async (groupId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds`);
+        if (!response.ok) throw new Error("Błąd pobierania progów");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+export const addThreshold = async (groupId, threshold) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(threshold),
+        });
+        if (!response.ok) throw new Error("Błąd dodawania progu");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
+
+export const deleteThreshold = async (groupId, thresholdId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds/${thresholdId}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) throw new Error("Błąd usuwania progu");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
