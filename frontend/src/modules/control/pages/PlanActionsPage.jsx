@@ -14,9 +14,9 @@ export default function PlanActionsPage() {
       </div>
 
       <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto" }}>
-        <button class="btn-gray" onClick={() => nav("aktywuj")}>Aktywacja planu</button>
-        <button class="btn-gray" onClick={() => nav("reguly/dodaj")}>Dodanie reguły</button>
-        <button class="btn-gray" onClick={() => nav("usun")}>Usunięcie</button>
+        <button class="btn-gray" onClick={() => nav("aktywuj")}>Aktywuj plan</button>
+        <button class="btn-gray" onClick={() => nav("reguly/dodaj")}>Dodaj regułę</button>
+        <button class="btn-gray" onClick={() => nav("usun")}>Usuń plan</button>
       </div>
 
       <BackCancelBar cancelTo="/sterowanie/plany" />

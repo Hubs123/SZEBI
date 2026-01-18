@@ -37,7 +37,7 @@ export default function DeviceCreatePage() {
         type,
         roomId: assignNow ? (roomId === "" ? null : Number(roomId)) : null,
       });
-      nav(`/sterowanie/urzadzenia/${created.id}`);
+      nav(`/sterowanie/urzadzenia/`);
     } catch (e) {
       setError(e);
     }

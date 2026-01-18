@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Panel from "../components/Panel";
 import ErrorBox from "../components/ErrorBox";
 import BackCancelBar from "../components/BackCancelBar";
 import { ControlApi } from "../../../services/controlApi";
 
 export default function RoomGroupControlPage() {
+  const nav = useNavigate();
   const { roomId } = useParams();
   const [types, setTypes] = useState([]);
   const [type, setType] = useState("");
@@ -56,6 +57,7 @@ export default function RoomGroupControlPage() {
       }
       setError(e);
     }
+    nav(`/sterowanie/pokoje/`);
   }
 
   return (
