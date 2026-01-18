@@ -34,6 +34,10 @@ import PlanActivatePage from "./modules/control/pages/PlanActivatePage";
 import PlanAddRulePage from "./modules/control/pages/PlanAddRulePage";
 import PlanDeletePage from "./modules/control/pages/PlanDeletePage";
 
+import AlertsLayout from './layouts/AlertsLayout';
+import AlertsPage from './modules/alerts/pages/AlertsPage';
+import DeviceGroupsPage from './modules/alerts/pages/DeviceGroupsPage';
+
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("token");
 
@@ -92,11 +96,15 @@ function App() {
                       <Route path="plany/:planId/usun" element={<PlanDeletePage />} />
                     </Route>
 
+                    {/* alerty */}
+                    <Route path="alerty" element={<AlertsLayout />}>
+                        <Route index element={<AlertsPage />} />
+                        <Route path="konfiguracja" element={<DeviceGroupsPage />} />
+                    </Route>
+
                     {/* niedokończone moduły */}
                     <Route path="symulacja" element={<Placeholder title="Moduł Symulacji"/>}/>
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji"/>}/>
-                    <Route path="alerty" element={<Placeholder title="Moduł Alertów"/>}/>
-
                     <Route path="*" element={<Navigate to="/" replace/>}/>
                 </Route>
             </Routes>

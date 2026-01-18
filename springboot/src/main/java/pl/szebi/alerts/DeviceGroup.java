@@ -17,6 +17,7 @@ public class DeviceGroup {
         this.groupName = groupName;
         this.thresholds = (thresholds != null) ? thresholds : new ArrayList<>();
         this.reactions = (reactions != null) ? reactions : new ArrayList<>();
+        this.devices = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -27,51 +28,35 @@ public class DeviceGroup {
         return groupName;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public List<Threshold> getThresholds() {
+    public List<Threshold> getAllThresholds() {
         return thresholds;
     }
 
-    public void setThresholds(List<Threshold> thresholds) {
-        this.thresholds = thresholds;
-    }
-
-    public List<AutomaticReaction> getReactions() {
+    public List<AutomaticReaction> getAllReactions() {
         return reactions;
     }
 
     public List<Device> getDevices() { return devices; }
 
-    public void setReactions(List<AutomaticReaction> reactions) {
-        this.reactions = reactions;
-    }
-
-    public void setDevices(List<Device> devices) {
-        this.devices = devices;
-    }
-
     public Boolean addThreshold(Threshold threshold) {
         try {
+            if (threshold.getId() == null) {
+                int maxId = 0;
+                for (Threshold t : thresholds) {
+                    if (t.getId() != null && t.getId() > maxId) {
+                        maxId = t.getId();
+                    }
+                }
+                threshold.setId(maxId + 1);
+            }
             thresholds.add(threshold);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
-    public Boolean removeThreshold(Threshold threshold) {
-        try {
-            thresholds.remove(threshold);
-        }
-        catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
 
-        public Boolean addReaction(AutomaticReaction reaction) {
+    public Boolean addReaction(AutomaticReaction reaction) {
         try {
             reactions.add(reaction);
         } catch (Exception e) {
@@ -79,13 +64,50 @@ public class DeviceGroup {
         }
         return true;
     }
-    public Boolean removeReaction(AutomaticReaction reaction) {
+
+    public Boolean addDevice(Device device) {
         try {
-            reactions.remove(reaction);
-        }
-        catch (Exception e) {
+            devices.add(device);
+        } catch (Exception e) {
             return false;
         }
         return true;
     }
+
+    public Device getDeviceById(Integer id) {
+        for (Device device : devices) {
+            if (device.getId().equals(id)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    public Threshold getThresholdById(Integer id) {
+        for (Threshold threshold : thresholds) {
+            if (threshold.getId().equals(id)) {
+                return threshold;
+            }
+        }
+        return null;
+    }
+
+    public AutomaticReaction getReactionById(Integer id) {
+        for (AutomaticReaction reaction : reactions) {
+            if (reaction.getId().equals(id)) {
+                return reaction;
+            }
+        }
+        return null;
+    }
+
+    public Boolean modifyThreshold(Threshold threshold, Float valueWarning, Float valueEmergency) {
+        try {
+            threshold.setValues(valueWarning, valueEmergency);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceGroupRepository {
-    private List<DeviceGroup> groups = new ArrayList<>();
+    private static List<DeviceGroup> groups = new ArrayList<>();
+
+    static {
+        groups.add(new DeviceGroup(1, "Urządzenia Niesymulowane", null, null));
+        groups.add(new DeviceGroup(2, "Termometry", null, null));
+        groups.add(new DeviceGroup(3, "Czujniki Dymu", null, null));
+    }
 
     public List<DeviceGroup> getAll() {
         return groups;
     }
 
-    public DeviceGroup getById(int id) {
+    public static DeviceGroup getById(int id) {
         for (DeviceGroup g : groups) {
             if (g.getId() == id) {
                 return g;

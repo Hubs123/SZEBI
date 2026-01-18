@@ -12,6 +12,41 @@ public class AlertRepository {
     private List<Alert> alerts = new ArrayList<>();
 
     public List<Alert> getAll() {
+        alerts.clear();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            String sql = "SELECT * FROM alerts ORDER BY alert_date DESC";
+            ps = Db.conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                java.sql.Timestamp alertDate = rs.getTimestamp("alert_date");
+                float anomalyValue = rs.getFloat("anomaly_value");
+                String anomalyType = rs.getString("anomaly_type");
+                Integer deviceId = null;
+                int tempDevId = rs.getInt("device_id");
+                if (!rs.wasNull()) {
+                    deviceId = tempDevId;
+                }
+                Alert a = new Alert(alertDate, anomalyValue, anomalyType, null, deviceId);
+                a.setId(id);
+                try {
+                    String priorityStr = rs.getString("priority");
+                    if (priorityStr != null) {
+                        a.setPriority(Priority.valueOf(priorityStr));
+                    }
+                } catch (Exception e) {
+                    a.setPriority(Priority.Information);
+                }
+                alerts.add(a);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+        }
         return alerts;
     }
 
