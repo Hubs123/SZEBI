@@ -133,3 +133,100 @@
     gap: 0.5rem;
   }
 }
+
+/* Devices Table Styles */
+.devices-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.devices-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.devices-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.devices-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.devices-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.devices-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.devices-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.devices-table td {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.devices-table .device-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.devices-table .device-type {
+  color: #666;
+  text-transform: capitalize;
+}
+
+.device-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.device-status.on {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.device-status.off {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.devices-table tfoot {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.devices-table .total-row {
+  border-top: 2px solid #667eea;
+}
+
+.devices-table .total-label {
+  text-align: right;
+  color: #333;
+  padding-right: 1rem;
+}
+
+.devices-table .total-value {
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: 700;
+}

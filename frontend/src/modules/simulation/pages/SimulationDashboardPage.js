@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { dataApi } from '../../../services/api';
+import { ControlApi } from '../../../services/controlApi';
 import EnergyChart from '../../analysis/components/EnergyChart';
 import './SimulationDashboardPage.css';
 
 const SimulationDashboardPage = () => {
   const [simulationData, setSimulationData] = useState([]);
   const [measurements, setMeasurements] = useState([]);
+  const [devices, setDevices] = useState([]);
+  const [deviceConsumption, setDeviceConsumption] = useState([]);
   const [loading, setLoading] = useState(true);
   const [simulationLoading, setSimulationLoading] = useState(false);
   const [simulationRunning, setSimulationRunning] = useState(false);
@@ -13,10 +16,12 @@ const SimulationDashboardPage = () => {
 
   useEffect(() => {
     loadSimulationData();
+    loadDevices();
     
     // Ustaw interwał na odświeżanie danych symulacji co 3 sekundy
     intervalRef.current = setInterval(() => {
       loadSimulationData();
+      loadDevices();
     }, 3000);
 
     // Cleanup: wyczyść interwał przy unmount
@@ -52,6 +57,58 @@ const SimulationDashboardPage = () => {
     } finally {
       setLoading(false);
       setSimulationLoading(false);
+    }
+  };
+
+  const loadDevices = async () => {
+    try {
+      const devicesList = await ControlApi.listDevices();
+      setDevices(devicesList || []);
+
+      // Oblicz zużycie energii dla każdego urządzenia
+      const consumptionData = [];
+      for (const device of devicesList || []) {
+        try {
+          const states = await ControlApi.getDeviceStates(device.id);
+          const isOn = states?.power === 1.0;
+          
+          // Oblicz moc zużycia na podstawie typu urządzenia (zgodnie z SimulationManager.java)
+          let devicePower = 0.010; // Domyślnie 10W dla noSimulation
+          switch (device.type) {
+            case 'thermometer':
+              devicePower = 0.001; // 1W
+              break;
+            case 'smokeDetector':
+              devicePower = 0.005; // 5W
+              break;
+            case 'noSimulation':
+              devicePower = 0.010; // 10W
+              break;
+            default:
+              devicePower = 0.010; // 10W
+          }
+
+          // Oblicz zużycie energii dla całej doby (24h = 6 okresów po 4h)
+          // Symulacja ma 6 okresów, każdy po 4h, więc 24h
+          const periodDurationHours = 4.0;
+          const dailyConsumption = isOn ? devicePower * 24 : 0; // kWh na dzień
+          
+          consumptionData.push({
+            id: device.id,
+            name: device.name,
+            type: device.type,
+            isOn: isOn,
+            power: devicePower,
+            dailyConsumption: dailyConsumption
+          });
+        } catch (err) {
+          console.error(`Błąd pobierania stanu urządzenia ${device.id}:`, err);
+        }
+      }
+      
+      setDeviceConsumption(consumptionData);
+    } catch (err) {
+      console.error('Błąd ładowania urządzeń:', err);
     }
   };
 
@@ -217,6 +274,53 @@ const SimulationDashboardPage = () => {
         ) : (
           <div className="no-data-message">
             {simulationLoading ? 'Ładowanie danych...' : 'Brak danych symulacji. Uruchom symulację, aby zobaczyć wyniki.'}
+          </div>
+        )}
+      </div>
+
+      {/* Lista urządzeń z zużyciem energii */}
+      <div className="panel">
+        <h2>🔌 Urządzenia i Zużycie Energii</h2>
+        {deviceConsumption.length > 0 ? (
+          <div className="devices-table-container">
+            <table className="devices-table">
+              <thead>
+                <tr>
+                  <th>Nazwa urządzenia</th>
+                  <th>Typ</th>
+                  <th>Status</th>
+                  <th>Moc (kW)</th>
+                  <th>Zużycie dzienne (kWh)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deviceConsumption.map((device) => (
+                  <tr key={device.id}>
+                    <td className="device-name">{device.name}</td>
+                    <td className="device-type">{device.type}</td>
+                    <td>
+                      <span className={`device-status ${device.isOn ? 'on' : 'off'}`}>
+                        {device.isOn ? '● Włączone' : '○ Wyłączone'}
+                      </span>
+                    </td>
+                    <td className="value-cell">{device.power.toFixed(3)}</td>
+                    <td className="value-cell">{device.dailyConsumption.toFixed(3)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="total-row">
+                  <td colSpan="4" className="total-label">Całkowite zużycie wszystkich urządzeń:</td>
+                  <td className="value-cell total-value">
+                    {deviceConsumption.reduce((sum, d) => sum + d.dailyConsumption, 0).toFixed(3)} kWh
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        ) : (
+          <div className="no-data-message">
+            Brak urządzeń w systemie. Dodaj urządzenia w module sterowania.
           </div>
         )}
       </div>
