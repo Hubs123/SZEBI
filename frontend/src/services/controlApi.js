@@ -41,7 +41,7 @@ export const ControlApi = {
 
   // ---- Plans ----
   listPlans: () => http("GET", "/api/control/plans"),
-  createPlan: (name) => http("POST", "/api/control/plans", { name }),
+  createPlan: (name, rules) => http("POST", "/api/control/plans", { name, rules }),
   getPlan: (planId) => http("GET", `/api/control/plans/${planId}`),
   deletePlan: (planId) => http("DELETE", `/api/control/plans/${planId}`),
   activatePlan: (planId) => http("POST", `/api/control/plans/${planId}/activate`),

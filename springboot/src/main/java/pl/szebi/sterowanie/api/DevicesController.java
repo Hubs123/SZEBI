@@ -53,7 +53,7 @@ public class DevicesController {
     public ResponseEntity<?> deleteDevice(@PathVariable Integer deviceId) {
         boolean ok = deviceManager.removeDevice(deviceId);
         return ok ? ResponseEntity.noContent().build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nie znaleziono urządzenia.");
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Urządzenie o podanym id musi istnieć i być wyłączone.");
     }
 
     @GetMapping("/{deviceId}/states")

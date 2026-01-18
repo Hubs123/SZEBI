@@ -8,66 +8,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.postgresql.util.PGobject;
 
 public class AutomationPlanRepository {
     private List<AutomationPlan> plans = new ArrayList<>();
+    private static final ObjectMapper OM = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-    // lista AutomationRule's -> json do bazy
+    // lista AutomationRule -> JSON
     private String rulesToJson(List<AutomationRule> rules) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < rules.size(); i++) {
-            AutomationRule r = rules.get(i);
-            sb.append("{");
-            sb.append("\"deviceId\":").append(r.getDeviceId()).append(",");
-            sb.append("\"timeWindow\":\"").append(r.getTimeWindow()).append("\",");
-            sb.append("\"states\":{");
-            int cnt = 0;
-            for (Map.Entry<String, Float> e : r.getStates().entrySet()) {
-                sb.append("\"").append(e.getKey()).append("\":").append(e.getValue());
-                if (++cnt < r.getStates().size()) sb.append(",");
-            }
-            sb.append("}");
-            sb.append("}");
-            if (i < rules.size() - 1) sb.append(",");
+        try {
+            if (rules == null) rules = new ArrayList<>();
+            return OM.writeValueAsString(rules);
+        } catch (Exception e) {
+            throw new RuntimeException("rulesToJson failed", e);
         }
-        sb.append("]");
-        return sb.toString();
     }
 
-    // json z bazy -> lista AutomationRule's
-    // helper potencjalnie do przekazania modułowi akwizycji danych
+    // JSON -> lista AutomationRule
     private List<AutomationRule> parseRules(String json) {
-        List<AutomationRule> list = new ArrayList<>();
-        json = json.trim();
-        if (json.length() <= 2) return list;  // pusta lista ("[]")
-        String[] ruleBlocks = json.substring(1, json.length() - 1).split("\\},\\{");
-        for (String block : ruleBlocks) {
-            String clean = block.replace("{", "").replace("}", "");
-            String[] fields = clean.split(",");
-            // przy błędnym odczycie (-1 nie nadpisane) rule nie zostanie potem zastosowany dla żadnego urządzenia
-            int deviceId = -1;
-            Map<String, Float> states = new HashMap<>();
-            String timeWindow = "placeholder";
-            for (String f : fields) {
-                String[] kv = f.split(":");
-                String key = kv[0].replace("\"", "").trim();
-                String value = kv[1].replace("\"", "").trim();
-                switch (key) {
-                    case "deviceId":
-                        deviceId = Integer.parseInt(value);
-                        break;
-                    case "timeWindow":
-                        timeWindow = value;
-                        break;
-                    default:
-                        states.put(key, Float.parseFloat(value));
-                }
-            }
-            AutomationRule rule = new AutomationRule(deviceId, states, timeWindow);
-            list.add(rule);
+        try {
+            if (json == null || json.isBlank()) return new ArrayList<>();
+            return OM.readValue(json, new TypeReference<List<AutomationRule>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        return list;
     }
 
     // zapis do bazy danych nowego planu automatyzacji lub modyfikacja istniejącego (to samo id)
@@ -76,21 +45,25 @@ public class AutomationPlanRepository {
         ResultSet rs = null;
         try {
             String rulesJson = rulesToJson(plan.getRules());
+            PGobject jsonb = new PGobject();
+            jsonb.setType("jsonb");
+            jsonb.setValue(rulesJson);
+
             if (plan.getId() == null) {
-                String sql = "INSERT INTO automation_plan (name, rules) VALUES (?, ?::jsonb) RETURNING id";
+                String sql = "INSERT INTO automation_plan (name, rules) VALUES (?, ?) RETURNING id";
                 ps = Db.conn.prepareStatement(sql);
                 ps.setString(1, plan.getName());
-                ps.setString(2, rulesJson);
+                ps.setObject(2, jsonb);
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     plan.setId(rs.getInt("id"));
                 }
                 return true;
             } else {
-                String sql = "UPDATE automation_plan SET name = ?, rules = ?::jsonb WHERE id = ?";
+                String sql = "UPDATE automation_plan SET name = ?, rules = ? WHERE id = ?";
                 ps = Db.conn.prepareStatement(sql);
                 ps.setString(1, plan.getName());
-                ps.setString(2, rulesJson);
+                ps.setObject(2, jsonb);
                 ps.setInt(3, plan.getId());
                 return ps.executeUpdate() > 0;
             }
@@ -98,7 +71,6 @@ public class AutomationPlanRepository {
             e.printStackTrace();
             return false;
         } finally {
-            // zamknięcie statement i result set, bez obsługi wyjątków (nie ma za bardzo co zrobić)
             try { if (rs != null) rs.close(); } catch (Exception ignored) {}
             try { if (ps != null) ps.close(); } catch (Exception ignored) {}
         }
@@ -108,7 +80,7 @@ public class AutomationPlanRepository {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            String sql = "SELECT id, name, rules::text FROM automation_plan";
+            String sql = "SELECT id, name, rules::text AS rules FROM automation_plan";
             ps = Db.conn.prepareStatement(sql);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -137,7 +109,6 @@ public class AutomationPlanRepository {
 
     public Boolean add(AutomationPlan plan) {
         if (plan == null) return false;
-        if (plan.getId() == null) return false;
         return plans.add(plan);
     }
 

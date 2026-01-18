@@ -1,5 +1,6 @@
 package pl.szebi.sterowanie.api;
 
+import pl.szebi.sterowanie.AutomationRule;
 import pl.szebi.sterowanie.DeviceType;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public class ControlDtos {
     // ---- Plans ----
     public static class CreatePlanRequest {
         public String name;
+        public List<AutomationRule> rules;
     }
 
     public static class AddRuleRequest {

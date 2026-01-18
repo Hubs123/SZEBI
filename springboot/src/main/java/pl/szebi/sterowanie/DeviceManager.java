@@ -30,6 +30,8 @@ public class DeviceManager {
     }
 
     public Boolean removeDevice(Integer deviceId) {
+        if (getDevice(deviceId).isOn())
+            return false;
         return deviceRepo.delete(deviceId);
     }
 

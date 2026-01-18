@@ -37,9 +37,13 @@ public class PlansController {
         if (req == null || req.name == null || req.name.isBlank()) {
             return ResponseEntity.badRequest().body("Niepoprawna nazwa planu.");
         }
-        AutomationPlan plan = planManager.createPlan(req.name, new ArrayList<>());
-        planManager.saveToDatabase(plan);
+        if (req.rules == null || req.rules.isEmpty()) {
+            return ResponseEntity.badRequest().body("Plan musi zawierać przynajmniej jedną regułę.");
+        }
+        AutomationPlan plan = planManager.createPlan(req.name, req.rules);
         if (plan == null) return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się utworzyć planu.");
+        boolean res = planManager.saveToDatabase(plan);
+        if (!res) return ResponseEntity.status(HttpStatus.CONFLICT).body("Nie udało się zapisać planu do bazy danych.");
         return ResponseEntity.status(HttpStatus.CREATED).body(plan.getId());
     }
 
