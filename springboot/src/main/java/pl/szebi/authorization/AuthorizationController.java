@@ -78,6 +78,16 @@ public class AuthorizationController {
         }
     }
 
+    public void requireEngineer() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("AUTH = " + auth);
+        System.out.println("AUTHORITIES = " + auth.getAuthorities());
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ENGINEER"))) {
+            throw new RuntimeException("ENGINEER ONLY");
+        }
+    }
+
     static class LoginReq {
         public String username;
         public String password;

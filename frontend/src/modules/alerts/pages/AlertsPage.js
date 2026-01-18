@@ -66,7 +66,7 @@ const AlertsPage = () => {
                             <th style={{ padding: "12px", borderBottom: "2px solid #dee2e6" }}>Wartość</th>
                             <th style={{ padding: "12px", borderBottom: "2px solid #dee2e6" }}>Urządzenie (ID)</th>
                             <th style={{ padding: "12px", borderBottom: "2px solid #dee2e6" }}>Priorytet</th>
-                            <th style={{ padding: "12px", borderBottom: "2px solid #dee2e6" }}>Akcja</th> {/* Nowa kolumna */}
+                            <th style={{ padding: "12px", borderBottom: "2px solid #dee2e6" }}>Akcja</th>
                         </tr>
                         </thead>
                         <tbody>

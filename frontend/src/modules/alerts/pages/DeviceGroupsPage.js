@@ -100,10 +100,17 @@ const DeviceGroupsPage = () => {
     };
 
     const tabStyle = (isActive) => ({
-        padding: "10px 20px", cursor: "pointer",
+        padding: "10px 20px",
+        cursor: "pointer",
         color: isActive ? "#667eea" : "#666",
+        background: "none",
+        fontSize: "1rem",
+        fontWeight: isActive ? "bold" : "normal",
+
+        borderTop: "none",
+        borderLeft: "none",
+        borderRight: "none",
         borderBottom: isActive ? "3px solid #667eea" : "3px solid transparent",
-        background: "none", border: "none", fontSize: "1rem", fontWeight: isActive ? "bold" : "normal"
     });
 
     return (

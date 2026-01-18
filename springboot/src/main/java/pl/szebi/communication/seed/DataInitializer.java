@@ -50,7 +50,18 @@ public class DataInitializer {
                 userRepository.save(userAnna);
                 System.out.println("Dodano użytkownika USER: Anna Nowak");
 
-                List<User> allUsers = List.of(adminPiotr, userAnna);
+
+                User engJulek = new User();
+                engJulek.setFirstName("Julek");
+                engJulek.setLastName("Nowak");
+                engJulek.setUsername("julek.nowak");
+                engJulek.setRole("ROLE_ENGINEER");
+                engJulek.setPassword(passwordEncoder.encode("eng123"));
+                engJulek.setLastLogin(new Date());
+                userRepository.save(engJulek);
+                System.out.println("Dodano użytkownika ENGINEER: Julek Nowak");
+
+                List<User> allUsers = List.of(adminPiotr, userAnna, engJulek);
 
                 for (User u : allUsers) {
                     Chat chat = new Chat();
