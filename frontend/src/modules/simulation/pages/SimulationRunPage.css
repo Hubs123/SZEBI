@@ -1,0 +1,79 @@
+.simulation-info {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 4px solid #667eea;
+}
+
+.simulation-info p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.simulation-info ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: #555;
+}
+
+.simulation-info li {
+  margin: 0.3rem 0;
+}
+
+.simulation-form {
+  margin-top: 2rem;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.results {
+  margin-top: 2rem;
+}
+
+.simulation-result-details {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.result-item:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.result-value {
+  color: #555;
+  font-family: 'Courier New', monospace;
+}
+
+.result-value.success-text {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.result-actions {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #e7f3ff;
+  border-radius: 8px;
+  color: #004085;
+}
