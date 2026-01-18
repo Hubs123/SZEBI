@@ -82,7 +82,7 @@ public class Alert {
     }
 
     public String createMessage() {
-        return "Nowy alert o id: " + getId().toString() + "\nalerty.Priority level: " +
+        return "Nowy alert o id: " + getId().toString() + "\n.Priority level: " +
                 getPriority().toString() + "\nReported at: " + getAlertDate().toString() +
                 "\nComing from the device with id:" + getDeviceId().toString() +
                 "\nThe value of the anomaly equals:" + getAnomalyValue().toString();

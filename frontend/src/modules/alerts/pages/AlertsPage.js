@@ -3,14 +3,17 @@ import { getAlerts } from "../../../services/alertsApi";
 
 const AlertsPage = () => {
     const [alerts, setAlerts] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedAlert, setSelectedAlert] = useState(null);
 
+    // Stan do wyświetlania nazwy roli w nagłówku
     const [userRoleDisplay, setUserRoleDisplay] = useState("");
 
     useEffect(() => {
-        const fetchWithAutoRole = async () => {
-            setLoading(true);
+        const fetchWithAutoRole = async (isBackground = false) => {
+            if (!isBackground) {
+                setLoading(true);
+            }
 
             const token = sessionStorage.getItem("token");
             let apiRole = "RESIDENT";
@@ -32,7 +35,7 @@ const AlertsPage = () => {
                         displayRole = "Mieszkaniec";
                     }
                 } catch (e) {
-                    console.error("Error parsing token:", e);
+                    console.error("Błąd parsowania tokena:", e);
                 }
             }
 
@@ -40,10 +43,20 @@ const AlertsPage = () => {
 
             const data = await getAlerts(apiRole);
             setAlerts(data);
-            setLoading(false);
+
+            if (!isBackground) {
+                setLoading(false);
+            }
         };
 
-        fetchWithAutoRole();
+        fetchWithAutoRole(false);
+
+        const intervalId = setInterval(() => {
+            fetchWithAutoRole(true);
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+
     }, []);
 
     const formatDate = (dateString) => {
