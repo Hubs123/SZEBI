@@ -3,20 +3,48 @@ import { getAlerts } from "../../../services/alertsApi";
 
 const AlertsPage = () => {
     const [alerts, setAlerts] = useState([]);
-    const [role, setRole] = useState("RESIDENT");
     const [loading, setLoading] = useState(false);
-
     const [selectedAlert, setSelectedAlert] = useState(null);
 
+    const [userRoleDisplay, setUserRoleDisplay] = useState("");
+
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchWithAutoRole = async () => {
             setLoading(true);
-            const data = await getAlerts(role);
+
+            const token = sessionStorage.getItem("token");
+            let apiRole = "RESIDENT";
+            let displayRole = "Mieszkaniec";
+
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const userRole = payload.role;
+
+                    if (userRole === "ROLE_ENGINEER") {
+                        apiRole = "ENGINEER";
+                        displayRole = "Inżynier";
+                    } else if (userRole === "ROLE_ADMIN") {
+                        apiRole = "ADMIN";
+                        displayRole = "Administrator";
+                    } else {
+                        apiRole = "RESIDENT";
+                        displayRole = "Mieszkaniec";
+                    }
+                } catch (e) {
+                    console.error("Error parsing token:", e);
+                }
+            }
+
+            setUserRoleDisplay(displayRole);
+
+            const data = await getAlerts(apiRole);
             setAlerts(data);
             setLoading(false);
         };
-        fetchData();
-    }, [role]);
+
+        fetchWithAutoRole();
+    }, []);
 
     const formatDate = (dateString) => {
         if (!dateString) return "-";
@@ -40,16 +68,9 @@ const AlertsPage = () => {
                 <h3 style={{ color: "#333" }}>Przegląd Alertów</h3>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <label style={{ fontWeight: "bold", color: "#555" }}>Widok Roli:</label>
-                    <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        style={{ padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }}
-                    >
-                        <option value="RESIDENT">Mieszkaniec (Wszystkie)</option>
-                        <option value="ENGINEER">Inżynier (Ostrzeżenia/Awarię)</option>
-                        <option value="ADMIN">Administrator (Informacyjne)</option>
-                    </select>
+                    <span style={{ color: "#666", fontSize: "0.9em" }}>
+                        Zalogowany jako: <strong>{userRoleDisplay}</strong>
+                    </span>
                 </div>
             </div>
 
@@ -116,7 +137,7 @@ const AlertsPage = () => {
                         ) : (
                             <tr>
                                 <td colSpan="7" style={{ padding: "20px", textAlign: "center", color: "#888" }}>
-                                    Brak alertów do wyświetlenia dla roli: <strong>{role}</strong>
+                                    Brak alertów dla Twojej roli.
                                 </td>
                             </tr>
                         )}
@@ -134,7 +155,6 @@ const AlertsPage = () => {
                             backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999
                         }}
                     />
-
                     <div style={{
                         position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
                         backgroundColor: "white", padding: "25px", zIndex: 1000,
@@ -144,7 +164,6 @@ const AlertsPage = () => {
                         <h4 style={{ marginTop: 0, color: "#333", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
                             Szczegóły Alertu #{selectedAlert.id}
                         </h4>
-
                         <div style={{
                             padding: "15px",
                             backgroundColor: "#fff7e6",
@@ -156,7 +175,6 @@ const AlertsPage = () => {
                         }}>
                             {selectedAlert.message || "Brak wiadomości systemowej."}
                         </div>
-
                         <div style={{ textAlign: "right", marginTop: "20px" }}>
                             <button
                                 onClick={closeModal}

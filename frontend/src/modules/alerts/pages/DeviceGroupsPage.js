@@ -5,6 +5,22 @@ import {
 } from "../../../services/alertsApi";
 
 const DeviceGroupsPage = () => {
+    const [isAuthorized, setIsAuthorized] = useState(true);
+
+    useEffect(() => {
+        const token = sessionStorage.getItem("token");
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.role === "ROLE_USER") {
+                    setIsAuthorized(false);
+                }
+            } catch (e) {
+                console.error("Auth check failed", e);
+            }
+        }
+    }, []);
+
     const [groups, setGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [thresholds, setThresholds] = useState([]);
@@ -14,18 +30,22 @@ const DeviceGroupsPage = () => {
     const [formData, setFormData] = useState({ thresholdType: "", valueWarning: "", valueEmergency: "" });
 
     useEffect(() => {
+        if (!isAuthorized) return;
+
         getDeviceGroups().then((data) => {
             setGroups(data);
             if (data.length > 0) setSelectedGroup(data[0]);
         });
-    }, []);
+    }, [isAuthorized]);
 
     useEffect(() => {
+        if (!isAuthorized) return;
+
         if (selectedGroup) {
             fetchData(selectedGroup.id);
             cancelEdit();
         }
-    }, [selectedGroup]);
+    }, [selectedGroup, isAuthorized]);
 
     const fetchData = (groupId) => {
         getThresholds(groupId).then(setThresholds);
@@ -35,12 +55,8 @@ const DeviceGroupsPage = () => {
 
     const getReactionLabel = (reactionId) => {
         if (!reactionId) return "Brak (Tylko powiadomienie)";
-
-        if (reactionId % 2 === 0) {
-            return "Włącz urządzenie";
-        } else {
-            return "Wyłącz urządzenie";
-        }
+        if (reactionId % 2 === 0) return "Włącz urządzenie";
+        return "Wyłącz urządzenie";
     };
 
     const startEdit = (threshold) => {
@@ -83,7 +99,6 @@ const DeviceGroupsPage = () => {
         }
     };
 
-
     const handleAssignReaction = async (threshold, reactionName) => {
         const payload = {
             valueWarning: threshold.valueWarning,
@@ -106,12 +121,20 @@ const DeviceGroupsPage = () => {
         background: "none",
         fontSize: "1rem",
         fontWeight: isActive ? "bold" : "normal",
-
         borderTop: "none",
         borderLeft: "none",
         borderRight: "none",
         borderBottom: isActive ? "3px solid #667eea" : "3px solid transparent",
     });
+
+    if (!isAuthorized) {
+        return (
+            <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+                <h2 style={{color: "#dc2626"}}>Brak Dostępu</h2>
+                <p>Jako mieszkaniec nie masz uprawnień do konfiguracji grup urządzeń.</p>
+            </div>
+        );
+    }
 
     return (
         <div style={{ display: "flex", gap: "2rem", minHeight: "500px" }}>
