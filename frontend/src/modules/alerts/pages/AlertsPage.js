@@ -1,4 +1,3 @@
-// modules/alerts/pages/AlertsPage.js
 import React, { useEffect, useState } from "react";
 import { getAlerts } from "../../../services/alertsApi";
 
@@ -7,7 +6,6 @@ const AlertsPage = () => {
     const [role, setRole] = useState("RESIDENT");
     const [loading, setLoading] = useState(false);
 
-    // Stan dla okna modalnego (wybrany alert do wyświetlenia wiadomości)
     const [selectedAlert, setSelectedAlert] = useState(null);
 
     useEffect(() => {
@@ -28,12 +26,10 @@ const AlertsPage = () => {
         });
     };
 
-    // Funkcja otwierająca okno z wiadomością
     const handleReadMessage = (alert) => {
         setSelectedAlert(alert);
     };
 
-    // Funkcja zamykająca okno
     const closeModal = () => {
         setSelectedAlert(null);
     };
@@ -129,10 +125,8 @@ const AlertsPage = () => {
                 </div>
             )}
 
-            {/* OKNO MODALNE (POPUP) */}
             {selectedAlert && (
                 <>
-                    {/* Tło przyciemniające */}
                     <div
                         onClick={closeModal}
                         style={{
@@ -141,7 +135,6 @@ const AlertsPage = () => {
                         }}
                     />
 
-                    {/* Okno komunikatu */}
                     <div style={{
                         position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
                         backgroundColor: "white", padding: "25px", zIndex: 1000,
@@ -152,13 +145,12 @@ const AlertsPage = () => {
                             Szczegóły Alertu #{selectedAlert.id}
                         </h4>
 
-                        {/* Wyświetlanie wiadomości z createMessage() */}
                         <div style={{
                             padding: "15px",
                             backgroundColor: "#fff7e6",
                             borderLeft: "4px solid #ffc107",
                             fontFamily: "monospace",
-                            whiteSpace: "pre-line", // To sprawia, że \n z Javy robi nową linię
+                            whiteSpace: "pre-line",
                             color: "#333",
                             lineHeight: "1.5"
                         }}>
@@ -168,7 +160,7 @@ const AlertsPage = () => {
                         <div style={{ textAlign: "right", marginTop: "20px" }}>
                             <button
                                 onClick={closeModal}
-                                className="btn" // Używamy klasy z App.css
+                                className="btn"
                                 style={{ padding: "8px 20px" }}
                             >
                                 Zamknij

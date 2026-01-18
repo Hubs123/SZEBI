@@ -8,14 +8,9 @@ import java.util.Date;
 
 public class AlertTest {
     public static void main(String[] args) {
-        DeviceGroup  group1 = new DeviceGroup(1, "light", null, null);
-//        STWORZYĆ TO W MAIN
-//        DeviceGroup  group2 = new DeviceGroup(2, "thermometer", null, null);
-//        DeviceGroup  group3 = new DeviceGroup(3, "smokeDetector", null, null);
         DeviceGroupRepository groupRepo = new DeviceGroupRepository();
-        groupRepo.add(group1);
-
         DeviceManager manager = new DeviceManager();
+        DeviceGroup group1 = groupRepo.getById(1);
         // domyślnie żarówka (typ noSimulation) jest włączona - power -> 1.0
         Device device = manager.registerDevice("zarowka2", DeviceType.noSimulation, null);
         if (!manager.saveDeviceToDatabase(device)) {

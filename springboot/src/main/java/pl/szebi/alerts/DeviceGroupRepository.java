@@ -10,7 +10,6 @@ public class DeviceGroupRepository {
         groups.add(new DeviceGroup(1, "Urządzenia Niesymulowane", null, null));
         groups.add(new DeviceGroup(2, "Termometry", null, null));
         groups.add(new DeviceGroup(3, "Czujniki Dymu", null, null));
-        groups.add(new DeviceGroup(4, "Oświetlenie", null, null));
     }
 
     public List<DeviceGroup> getAll() {

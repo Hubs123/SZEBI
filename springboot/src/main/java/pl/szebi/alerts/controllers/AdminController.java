@@ -58,40 +58,32 @@ public class AdminController {
         Threshold threshold = group.getThresholdById(thresholdId);
         if (threshold == null) return false;
 
-        // 1. Aktualizacja liczb
         boolean success = group.modifyThreshold(threshold, request.valueWarning, request.valueEmergency);
 
-        // 2. Obsługa Reakcji z logiką Parzyste/Nieparzyste
         if (success) {
             if (request.reactionName != null && !request.reactionName.isEmpty()) {
 
                 boolean isTurnOn = "turnOn".equals(request.reactionName);
 
-                // Znajdź obecne maksymalne ID w grupie
                 int maxId = group.getAllReactions().stream()
                         .mapToInt(AutomaticReaction::getId)
                         .max().orElse(0);
 
-                // Szukamy następnego wolnego ID, które pasuje do reguły
                 int nextId = maxId + 1;
                 while (true) {
                     boolean isEven = (nextId % 2 == 0);
 
-                    // Jeśli chcemy włączyć (parzyste) i mamy parzyste -> OK
-                    // Jeśli chcemy wyłączyć (nieparzyste) i mamy nieparzyste -> OK
                     if ((isTurnOn && isEven) || (!isTurnOn && !isEven)) {
                         break;
                     }
                     nextId++;
                 }
 
-                // Tworzymy nową reakcję z wyliczonym ID
                 AutomaticReaction newReaction = new AutomaticReaction(nextId, request.reactionName);
                 group.addReaction(newReaction);
                 threshold.setReactionId(nextId);
 
             } else if ("".equals(request.reactionName)) {
-                // Pusty string = usunięcie reakcji
                 threshold.setReactionId(null);
             }
         }

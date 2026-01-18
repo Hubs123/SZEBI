@@ -1,6 +1,3 @@
-// frontend/src/services/alertsApi.js
-
-// Upewnij się, że port jest zgodny z Twoim backendem (zwykle 8080)
 const API_URL = "http://localhost:8080/api";
 
 export const getAlerts = async (role) => {

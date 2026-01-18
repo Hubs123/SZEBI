@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
     getDeviceGroups, getThresholds,
     addThreshold, updateThreshold
-    // Usunięto deleteThreshold z importów
 } from "../../../services/alertsApi";
 
 const DeviceGroupsPage = () => {
@@ -10,12 +9,10 @@ const DeviceGroupsPage = () => {
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [thresholds, setThresholds] = useState([]);
 
-    // UI State
     const [activeTab, setActiveTab] = useState("thresholds");
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ thresholdType: "", valueWarning: "", valueEmergency: "" });
 
-    // 1. Pobierz grupy
     useEffect(() => {
         getDeviceGroups().then((data) => {
             setGroups(data);
@@ -23,7 +20,6 @@ const DeviceGroupsPage = () => {
         });
     }, []);
 
-    // 2. Pobierz thresholdy
     useEffect(() => {
         if (selectedGroup) {
             fetchData(selectedGroup.id);
@@ -37,7 +33,6 @@ const DeviceGroupsPage = () => {
 
     const handleGroupClick = (group) => setSelectedGroup(group);
 
-    // --- LOGIKA DEKODOWANIA ID (Parzyste/Nieparzyste) ---
     const getReactionLabel = (reactionId) => {
         if (!reactionId) return "Brak (Tylko powiadomienie)";
 
@@ -48,7 +43,6 @@ const DeviceGroupsPage = () => {
         }
     };
 
-    // --- TAB 1: PROGI ---
     const startEdit = (threshold) => {
         setEditingId(threshold.id);
         setFormData({
@@ -89,14 +83,12 @@ const DeviceGroupsPage = () => {
         }
     };
 
-    // --- USUNIĘTO FUNKCJĘ handleDelete ---
 
-    // --- TAB 2: PRZYPISYWANIE ---
     const handleAssignReaction = async (threshold, reactionName) => {
         const payload = {
             valueWarning: threshold.valueWarning,
             valueEmergency: threshold.valueEmergency,
-            reactionName: reactionName // "turnOn" lub "turnOff"
+            reactionName: reactionName
         };
 
         const success = await updateThreshold(selectedGroup.id, threshold.id, payload);
@@ -162,7 +154,6 @@ const DeviceGroupsPage = () => {
                                             <td style={{ padding: "10px" }}>{t.valueWarning}</td>
                                             <td style={{ padding: "10px" }}>{t.valueEmergency}</td>
                                             <td style={{ padding: "10px", textAlign: "right" }}>
-                                                {/* Usunięto przycisk USUŃ, zostawiono tylko EDYTUJ */}
                                                 <button onClick={() => startEdit(t)} style={{ cursor: "pointer", border: "1px solid #ccc", background: "white", padding: "5px 15px", borderRadius: "5px" }}>Edytuj</button>
                                             </td>
                                         </tr>

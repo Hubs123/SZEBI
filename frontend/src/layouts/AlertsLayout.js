@@ -1,11 +1,9 @@
-// layouts/AlertsLayout.js
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 
 const AlertsLayout = () => {
     const location = useLocation();
 
-    // Styl zakładek wzorowany na Twoim CSS (nav-tabs)
     const containerStyle = {
         display: "flex",
         justifyContent: "center",
