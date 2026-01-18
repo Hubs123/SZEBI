@@ -13,7 +13,6 @@ export default function PlanAddRulePage() {
   const [deviceId, setDeviceId] = useState("");
   const [key, setKey] = useState("");
   const [val, setVal] = useState("");
-  const [timeWindow, setTimeWindow] = useState("");
 
   const [error, setError] = useState(null);
 
@@ -45,7 +44,7 @@ export default function PlanAddRulePage() {
       await ControlApi.addRule(planId, {
         deviceId: Number(deviceId),
         states: { [key]: Number(val) },
-        timeWindow: timeWindow.trim() ? timeWindow.trim() : null,
+        timeWindow: null,
       });
       nav(`/sterowanie/plany/${planId}`);
     } catch (e) {

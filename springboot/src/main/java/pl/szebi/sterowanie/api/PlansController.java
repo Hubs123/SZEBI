@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-
 @RestController
 @RequestMapping("/api/control/plans")
 @CrossOrigin
@@ -71,9 +69,7 @@ public class PlansController {
         if (req == null || req.deviceId == null || req.states == null || req.states.isEmpty()) {
             return ResponseEntity.badRequest().body("Niepoprawna reguła.");
         }
-
         AutomationRule rule = new AutomationRule(req.deviceId, req.states, req.timeWindow);
-
         boolean ok = planManager.addRule(planId, rule);
         return ok ? ResponseEntity.status(HttpStatus.CREATED).build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nie znaleziono planu.");

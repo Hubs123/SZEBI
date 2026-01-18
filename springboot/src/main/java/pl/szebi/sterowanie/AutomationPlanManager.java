@@ -256,7 +256,8 @@ public class AutomationPlanManager {
     public Boolean addRule(Integer planId, AutomationRule rule) {
         AutomationPlan plan = planRepo.findById(planId);
         if (plan == null || rule == null) return false;
-        plan.getRules().add(rule);
+        if (!plan.addRule(rule))
+            return false;
         return planRepo.save(plan);
     }
 }
