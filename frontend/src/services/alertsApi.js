@@ -1,26 +1,19 @@
-// services/alertsApi.js
+// frontend/src/services/alertsApi.js
+
+// Upewnij się, że port jest zgodny z Twoim backendem (zwykle 8080)
 const API_URL = "http://localhost:8080/api";
 
-// --- Alerts (AlertController) ---
 export const getAlerts = async (role) => {
     try {
-        console.log(`[API] Wysyłanie zapytania: GET ${API_URL}/alerts?role=${role}`);
         const response = await fetch(`${API_URL}/alerts?role=${role}`);
-
-        if (!response.ok) {
-            throw new Error(`Błąd sieci: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log("[API] Otrzymane alerty:", data); // <-- To pokaże Ci w konsoli co dokładnie przyszło
-        return data;
+        if (!response.ok) throw new Error("Błąd sieci");
+        return await response.json();
     } catch (error) {
-        console.error("[API] Błąd pobierania alertów:", error);
-        return []; // Zwracamy pustą tablicę, żeby nie wywalić aplikacji
+        console.error(error);
+        return [];
     }
 };
 
-// --- Admin / Config (AdminController) ---
 export const getDeviceGroups = async () => {
     try {
         const response = await fetch(`${API_URL}/admin/alerts/groups`);
@@ -43,6 +36,17 @@ export const getThresholds = async (groupId) => {
     }
 };
 
+export const getReactions = async (groupId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/reactions`);
+        if (!response.ok) throw new Error("Błąd pobierania reakcji");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
 export const addThreshold = async (groupId, threshold) => {
     try {
         const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds`, {
@@ -50,7 +54,7 @@ export const addThreshold = async (groupId, threshold) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(threshold),
         });
-        if (!response.ok) throw new Error("Błąd dodawania progu");
+        if (!response.ok) throw new Error("Błąd dodawania");
         return await response.json();
     } catch (error) {
         console.error(error);
@@ -65,7 +69,7 @@ export const updateThreshold = async (groupId, thresholdId, thresholdData) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(thresholdData),
         });
-        if (!response.ok) throw new Error("Błąd edycji progu");
+        if (!response.ok) throw new Error("Błąd edycji");
         return await response.json();
     } catch (error) {
         console.error(error);
@@ -78,7 +82,7 @@ export const deleteThreshold = async (groupId, thresholdId) => {
         const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds/${thresholdId}`, {
             method: "DELETE",
         });
-        if (!response.ok) throw new Error("Błąd usuwania progu");
+        if (!response.ok) throw new Error("Błąd usuwania");
         return await response.json();
     } catch (error) {
         console.error(error);

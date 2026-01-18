@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
-// Upewnij się, że masz updateThreshold w imporcie!
-import { getDeviceGroups, getThresholds, addThreshold, deleteThreshold, updateThreshold } from "../../../services/alertsApi";
+import {
+    getDeviceGroups, getThresholds,
+    addThreshold, updateThreshold
+    // Usunięto deleteThreshold z importów
+} from "../../../services/alertsApi";
 
 const DeviceGroupsPage = () => {
-    // ... (stany bez zmian: groups, selectedGroup, thresholds, editingId, formData) ...
     const [groups, setGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [thresholds, setThresholds] = useState([]);
+
+    // UI State
+    const [activeTab, setActiveTab] = useState("thresholds");
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ thresholdType: "", valueWarning: "", valueEmergency: "" });
 
-    // ... (useEffecty bez zmian) ...
+    // 1. Pobierz grupy
     useEffect(() => {
         getDeviceGroups().then((data) => {
             setGroups(data);
@@ -18,16 +23,32 @@ const DeviceGroupsPage = () => {
         });
     }, []);
 
+    // 2. Pobierz thresholdy
     useEffect(() => {
         if (selectedGroup) {
-            fetchThresholds(selectedGroup.id);
+            fetchData(selectedGroup.id);
             cancelEdit();
         }
     }, [selectedGroup]);
 
-    const fetchThresholds = (groupId) => getThresholds(groupId).then(setThresholds);
+    const fetchData = (groupId) => {
+        getThresholds(groupId).then(setThresholds);
+    };
+
     const handleGroupClick = (group) => setSelectedGroup(group);
 
+    // --- LOGIKA DEKODOWANIA ID (Parzyste/Nieparzyste) ---
+    const getReactionLabel = (reactionId) => {
+        if (!reactionId) return "Brak (Tylko powiadomienie)";
+
+        if (reactionId % 2 === 0) {
+            return "Włącz urządzenie";
+        } else {
+            return "Wyłącz urządzenie";
+        }
+    };
+
+    // --- TAB 1: PROGI ---
     const startEdit = (threshold) => {
         setEditingId(threshold.id);
         setFormData({
@@ -42,60 +63,70 @@ const DeviceGroupsPage = () => {
         setFormData({ thresholdType: "", valueWarning: "", valueEmergency: "" });
     };
 
-    // --- TUTAJ ZMIANA: UŻYWAMY UPDATE ZAMIAST DELETE+ADD ---
-    const handleSubmit = async (e) => {
+    const handleThresholdSubmit = async (e) => {
         e.preventDefault();
         if (!selectedGroup) return;
 
         const payload = {
             thresholdType: formData.thresholdType,
             valueWarning: parseFloat(formData.valueWarning),
-            valueEmergency: parseFloat(formData.valueEmergency)
+            valueEmergency: parseFloat(formData.valueEmergency),
+            reactionName: null
         };
 
         let success = false;
-
         if (editingId) {
-            // CZYSTA EDYCJA (Backend modifyThreshold)
-            console.log("Aktualizacja ID:", editingId);
             success = await updateThreshold(selectedGroup.id, editingId, payload);
         } else {
-            // DODAWANIE
-            console.log("Dodawanie nowego...");
             success = await addThreshold(selectedGroup.id, payload);
         }
 
         if (success) {
-            fetchThresholds(selectedGroup.id);
+            fetchData(selectedGroup.id);
             cancelEdit();
         } else {
-            alert("Operacja nieudana. Sprawdź backend.");
+            alert("Błąd zapisu.");
         }
     };
 
-    const handleDelete = async (thresholdId) => {
-        if (!window.confirm("Usunąć?")) return;
-        const success = await deleteThreshold(selectedGroup.id, thresholdId);
-        if (success) fetchThresholds(selectedGroup.id);
+    // --- USUNIĘTO FUNKCJĘ handleDelete ---
+
+    // --- TAB 2: PRZYPISYWANIE ---
+    const handleAssignReaction = async (threshold, reactionName) => {
+        const payload = {
+            valueWarning: threshold.valueWarning,
+            valueEmergency: threshold.valueEmergency,
+            reactionName: reactionName // "turnOn" lub "turnOff"
+        };
+
+        const success = await updateThreshold(selectedGroup.id, threshold.id, payload);
+        if (success) {
+            fetchData(selectedGroup.id);
+        } else {
+            alert("Nie udało się przypisać reakcji.");
+        }
     };
+
+    const tabStyle = (isActive) => ({
+        padding: "10px 20px", cursor: "pointer",
+        color: isActive ? "#667eea" : "#666",
+        borderBottom: isActive ? "3px solid #667eea" : "3px solid transparent",
+        background: "none", border: "none", fontSize: "1rem", fontWeight: isActive ? "bold" : "normal"
+    });
 
     return (
         <div style={{ display: "flex", gap: "2rem", minHeight: "500px" }}>
-            {/* LEWA KOLUMNA (bez zmian) */}
             <div className="panel" style={{ flex: "1", padding: "1.5rem" }}>
-                <h3 style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>Grupy Urządzeń</h3>
+                <h3 style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>Grupy</h3>
                 <ul style={{ listStyle: "none", padding: 0 }}>
                     {groups.map(group => (
-                        <li
-                            key={group.id}
-                            onClick={() => handleGroupClick(group)}
+                        <li key={group.id} onClick={() => handleGroupClick(group)}
                             style={{
                                 padding: "12px 15px", margin: "8px 0", cursor: "pointer", borderRadius: "8px",
                                 backgroundColor: selectedGroup && selectedGroup.id === group.id ? "#e0f2fe" : "white",
                                 border: selectedGroup && selectedGroup.id === group.id ? "1px solid #0284c7" : "1px solid #eee",
                                 color: selectedGroup && selectedGroup.id === group.id ? "#0284c7" : "#333",
                                 fontWeight: selectedGroup && selectedGroup.id === group.id ? "bold" : "normal",
-                                transition: "all 0.2s"
                             }}
                         >
                             {group.groupName}
@@ -104,60 +135,103 @@ const DeviceGroupsPage = () => {
                 </ul>
             </div>
 
-            {/* PRAWA KOLUMNA */}
-            <div className="panel" style={{ flex: "2", padding: "1.5rem" }}>
+            <div className="panel" style={{ flex: "3", padding: "1.5rem" }}>
                 {selectedGroup ? (
                     <>
-                        <h3 style={{ marginBottom: "20px", color: "#333" }}>
-                            Konfiguracja: <span style={{color: "#667eea"}}>{selectedGroup.groupName}</span>
-                        </h3>
-
-                        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
-                            <thead>
-                            <tr style={{ borderBottom: "2px solid #ddd", textAlign: "left", color: "#666" }}>
-                                <th style={{ padding: "10px" }}>Typ</th>
-                                <th style={{ padding: "10px", color: "#d97706" }}>Warning</th>
-                                <th style={{ padding: "10px", color: "#dc2626" }}>Emergency</th>
-                                <th style={{ padding: "10px", textAlign: "right" }}>Akcje</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {thresholds.map(t => (
-                                <tr key={t.id} style={{ borderBottom: "1px solid #eee", backgroundColor: editingId === t.id ? "#fff7ed" : "transparent" }}>
-                                    <td style={{ padding: "10px", fontWeight: "bold" }}>{t.thresholdType}</td>
-                                    <td style={{ padding: "10px" }}>{t.valueWarning}</td>
-                                    <td style={{ padding: "10px" }}>{t.valueEmergency}</td>
-                                    <td style={{ padding: "10px", textAlign: "right" }}>
-                                        <button onClick={() => startEdit(t)} style={{ marginRight: "10px", cursor: "pointer", border: "1px solid #ccc", background: "white", padding: "5px 10px", borderRadius: "5px" }}>Edytuj</button>
-                                        <button onClick={() => handleDelete(t.id)} style={{ color: "red", border: "none", background: "none", cursor: "pointer", fontWeight: "bold" }}>X</button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {thresholds.length === 0 && <tr><td colSpan="4" style={{padding:"20px", textAlign:"center", color:"#888"}}>Brak ustawionych limitów.</td></tr>}
-                            </tbody>
-                        </table>
-
-                        <div style={{ backgroundColor: editingId ? "#fff7ed" : "#f8f9fa", padding: "20px", borderRadius: "10px", border: editingId ? "1px solid #fdba74" : "1px solid #e9ecef" }}>
-                            <h4 style={{ marginTop: 0 }}>{editingId ? "Edytuj progi" : "Dodaj progi"}</h4>
-                            <form onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px" }}>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "0.85em", fontWeight: "bold", marginBottom: "5px" }}>Typ</label>
-                                    <input type="text" placeholder="np. TEMP" value={formData.thresholdType} onChange={e => setFormData({...formData, thresholdType: e.target.value})} required disabled={editingId !== null} style={{ width: "100%", padding: "8px", borderRadius: "5px", border: "1px solid #ccc", background: editingId ? "#eee" : "white" }} />
-                                </div>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "0.85em", fontWeight: "bold", marginBottom: "5px", color: "#d97706" }}>Warning</label>
-                                    <input type="number" step="0.1" value={formData.valueWarning} onChange={e => setFormData({...formData, valueWarning: e.target.value})} required style={{ width: "100%", padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
-                                </div>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "0.85em", fontWeight: "bold", marginBottom: "5px", color: "#dc2626" }}>Emergency</label>
-                                    <input type="number" step="0.1" value={formData.valueEmergency} onChange={e => setFormData({...formData, valueEmergency: e.target.value})} required style={{ width: "100%", padding: "8px", borderRadius: "5px", border: "1px solid #ccc" }} />
-                                </div>
-                                <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                                    {editingId && <button type="button" onClick={cancelEdit} style={{ padding: "10px 20px", border: "1px solid #ccc", background: "white", borderRadius: "8px", cursor: "pointer" }}>Anuluj</button>}
-                                    <button type="submit" className="btn" style={{ padding: "10px 25px" }}>{editingId ? "Zapisz" : "Dodaj"}</button>
-                                </div>
-                            </form>
+                        <h3 style={{ marginBottom: "5px", color: "#333" }}>{selectedGroup.groupName}</h3>
+                        <div style={{ display: "flex", borderBottom: "1px solid #eee", marginBottom: "20px" }}>
+                            <button style={tabStyle(activeTab === "thresholds")} onClick={() => setActiveTab("thresholds")}>1. Progi</button>
+                            <button style={tabStyle(activeTab === "mapping")} onClick={() => setActiveTab("mapping")}>2. Reakcje</button>
                         </div>
+
+                        {activeTab === "thresholds" && (
+                            <>
+                                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
+                                    <thead>
+                                    <tr style={{ borderBottom: "2px solid #ddd", textAlign: "left", color: "#666" }}>
+                                        <th style={{ padding: "10px" }}>Typ</th>
+                                        <th style={{ padding: "10px", color: "orange" }}>Warning</th>
+                                        <th style={{ padding: "10px", color: "red" }}>Emergency</th>
+                                        <th style={{ padding: "10px", textAlign: "right" }}>Edycja</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {thresholds.map(t => (
+                                        <tr key={t.id} style={{ borderBottom: "1px solid #eee", background: editingId === t.id ? "#fff7ed" : "transparent" }}>
+                                            <td style={{ padding: "10px", fontWeight: "bold" }}>{t.thresholdType}</td>
+                                            <td style={{ padding: "10px" }}>{t.valueWarning}</td>
+                                            <td style={{ padding: "10px" }}>{t.valueEmergency}</td>
+                                            <td style={{ padding: "10px", textAlign: "right" }}>
+                                                {/* Usunięto przycisk USUŃ, zostawiono tylko EDYTUJ */}
+                                                <button onClick={() => startEdit(t)} style={{ cursor: "pointer", border: "1px solid #ccc", background: "white", padding: "5px 15px", borderRadius: "5px" }}>Edytuj</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                                <div style={{ backgroundColor: editingId ? "#fff7ed" : "#f8f9fa", padding: "20px", borderRadius: "10px", border: "1px solid #eee" }}>
+                                    <h4>{editingId ? "Edytuj" : "Dodaj"}</h4>
+                                    <form onSubmit={handleThresholdSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px" }}>
+                                        <input type="text" placeholder="Typ" value={formData.thresholdType} onChange={e => setFormData({...formData, thresholdType: e.target.value})} required disabled={editingId !== null} style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
+                                        <input type="number" step="0.1" placeholder="Warning" value={formData.valueWarning} onChange={e => setFormData({...formData, valueWarning: e.target.value})} required style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
+                                        <input type="number" step="0.1" placeholder="Emergency" value={formData.valueEmergency} onChange={e => setFormData({...formData, valueEmergency: e.target.value})} required style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
+                                        <div style={{ gridColumn: "1 / -1", textAlign: "right" }}>
+                                            {editingId && <button type="button" onClick={cancelEdit} style={{ marginRight: "10px", padding: "10px" }}>Anuluj</button>}
+                                            <button type="submit" className="btn" style={{ padding: "10px 25px" }}>{editingId ? "Zapisz" : "Dodaj"}</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === "mapping" && (
+                            <>
+                                <p style={{ color: "#666", marginBottom: "20px" }}>Wybierz automatyczną reakcję.</p>
+                                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                    <thead>
+                                    <tr style={{ borderBottom: "2px solid #ddd", textAlign: "left", color: "#666" }}>
+                                        <th style={{ padding: "10px" }}>Typ Anomalii</th>
+                                        <th style={{ padding: "10px" }}>Aktualna Reakcja</th>
+                                        <th style={{ padding: "10px" }}>Zmień</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {thresholds.map(t => {
+                                        const label = getReactionLabel(t.reactionId);
+                                        const isSet = t.reactionId !== null;
+
+                                        return (
+                                            <tr key={t.id} style={{ borderBottom: "1px solid #eee" }}>
+                                                <td style={{ padding: "15px", fontWeight: "bold" }}>{t.thresholdType}</td>
+
+                                                <td style={{ padding: "15px" }}>
+                                                    <span style={{
+                                                        background: isSet ? (t.reactionId % 2 === 0 ? "#dbeafe" : "#fee2e2") : "#f3f4f6",
+                                                        color: isSet ? (t.reactionId % 2 === 0 ? "#1e40af" : "#991b1b") : "#9ca3af",
+                                                        padding: "5px 12px", borderRadius: "20px", fontSize: "0.9em", fontWeight: "bold"
+                                                    }}>
+                                                        {label}
+                                                    </span>
+                                                </td>
+
+                                                <td style={{ padding: "15px" }}>
+                                                    <select
+                                                        defaultValue=""
+                                                        onChange={(e) => handleAssignReaction(t, e.target.value)}
+                                                        style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc", width: "100%" }}
+                                                    >
+                                                        <option value="">-- Wybierz akcję --</option>
+                                                        <option value="">Brak</option>
+                                                        <option value="turnOn">Włącz (turnOn)</option>
+                                                        <option value="turnOff">Wyłącz (turnOff)</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        )})}
+                                    </tbody>
+                                </table>
+                            </>
+                        )}
                     </>
                 ) : (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#999" }}>Wybierz grupę.</div>

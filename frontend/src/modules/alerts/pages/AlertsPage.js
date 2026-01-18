@@ -1,6 +1,4 @@
-// modules/alerts/pages/AlertsPage.js
 import React, { useEffect, useState } from "react";
-// Pamiętaj o poprawnym imporcie funkcji z pliku utworzonego wyżej
 import { getAlerts } from "../../../services/alertsApi";
 
 const AlertsPage = () => {
