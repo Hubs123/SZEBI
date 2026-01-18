@@ -5,42 +5,30 @@ import pl.szebi.communication.model.Chat;
 import pl.szebi.communication.model.File;
 import pl.szebi.communication.repository.UserRepository;
 import pl.szebi.communication.service.ChatManager;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import pl.szebi.authorization.AuthorizationController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Controller
 @RequestMapping("/api")
 public class ChatRestController {
-
-    private static final String SECRET = "CHANGE_ME_SECRET_1234567890123456";
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-
-    private final ChatManager chatManager;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final ChatManager chatManager;
+    private final AuthorizationController authorizationController;
 
-    public ChatRestController(ChatManager chatManager,
-                              UserRepository userRepository,
-                              PasswordEncoder passwordEncoder) {
-        this.chatManager = chatManager;
+    public ChatRestController(UserRepository userRepository, ChatManager chatManager, AuthorizationController authorizationController) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.chatManager = chatManager;
+        this.authorizationController = authorizationController;
     }
 
     @GetMapping("/")
@@ -63,45 +51,6 @@ public class ChatRestController {
         return "chat.html";
     }
 
-
-    @PostMapping("/szebi/login")
-    @ResponseBody
-    public Map<String, String> login(@RequestBody LoginReq r) {
-
-        User user = userRepository.findByUsername(r.username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!passwordEncoder.matches(r.password, user.getPassword()))
-            throw new RuntimeException("Bad credentials");
-
-        String token = Jwts.builder()
-                .setSubject(user.getId().toString())
-                .claim("role", user.getRole())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
-                .compact();
-
-        return Map.of("token", token);
-    }
-
-    @PostMapping("/szebi/register")
-    @ResponseBody
-    public void register(@RequestBody RegisterReq r) {
-
-        if (userRepository.findByUsername(r.username).isPresent())
-            throw new RuntimeException("Username exists");
-
-        User u = new User();
-        u.setUsername(r.username);
-        u.setPassword(passwordEncoder.encode(r.password));
-        u.setFirstName(r.firstName);
-        u.setLastName(r.lastName);
-        u.setRole("ROLE_USER");
-
-        userRepository.save(u);
-    }
-
     @GetMapping("/chat/searchUsers")
     @ResponseBody
     public List<User> searchUsers(@RequestParam String prefix) {
@@ -111,7 +60,7 @@ public class ChatRestController {
     @PostMapping("/chat/create")
     @ResponseBody
     public Chat createChat(@RequestBody Map<String, Object> body) {
-        requireAdmin();
+        authorizationController.requireAdmin();
 
         String chatName = (String) body.get("chatName");
         List<String> participants = (List<String>) body.get("participants");
@@ -133,7 +82,7 @@ public class ChatRestController {
 
     @DeleteMapping("/chat/{chatId}")
     public void deleteChat(@PathVariable Long chatId) {
-        requireAdmin();
+        authorizationController.requireAdmin();
         chatManager.dbDeleteChat(
                 chatManager.getChat(chatId).orElseThrow()
         );
@@ -144,7 +93,7 @@ public class ChatRestController {
             @PathVariable Long chatId,
             @RequestBody Map<String, String> body
     ) {
-        requireAdmin();
+        authorizationController.requireAdmin();
         String username = body.get("username");
         User user = userRepository.findByUsername(username).orElseThrow();
         chatManager.dbAddUserToChat(chatManager.getChat(chatId).orElseThrow(), user);
@@ -155,7 +104,7 @@ public class ChatRestController {
             @PathVariable Long chatId,
             @PathVariable Long userId
     ) {
-        requireAdmin();
+        authorizationController.requireAdmin();
         chatManager.dbRemoveUserFromChat(
                 chatManager.getChat(chatId).orElseThrow(),
                 chatManager.getUser(userId)
@@ -185,7 +134,7 @@ public class ChatRestController {
     @PostMapping("/chat/addUser")
     @ResponseBody
     public void addUser(@RequestBody Map<String, String> body) {
-        requireAdmin();
+        authorizationController.requireAdmin();
         String username = body.get("username");
         String chatName = body.getOrDefault("chatName", "Testowy czat");
         User user = userRepository.findByUsername(username)
@@ -244,27 +193,5 @@ public class ChatRestController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong(auth.getName());
         return chatManager.getUser(userId);
-    }
-
-    private void requireAdmin() {
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("AUTH = " + auth);
-        System.out.println("AUTHORITIES = " + auth.getAuthorities());
-        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            throw new RuntimeException("ADMIN ONLY");
-        }
-    }
-
-    static class LoginReq {
-        public String username;
-        public String password;
-    }
-
-    static class RegisterReq {
-        public String username;
-        public String password;
-        public String firstName;
-        public String lastName;
     }
 }

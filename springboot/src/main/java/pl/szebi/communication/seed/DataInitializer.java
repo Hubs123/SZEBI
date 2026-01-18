@@ -25,14 +25,14 @@ public class DataInitializer {
         return args -> {
             if (userRepository.count() == 0) {
 
-                Optional<User> oldPiotr = userRepository.findByUsername("piotr.nowak");
+                Optional<User> oldPiotr = userRepository.findByUsername("admin");
                 oldPiotr.ifPresent(userRepository::delete);
 
 
                 User adminPiotr = new User();
                 adminPiotr.setFirstName("Piotr");
                 adminPiotr.setLastName("Nowak");
-                adminPiotr.setUsername("piotr.nowak");
+                adminPiotr.setUsername("admin");
                 adminPiotr.setRole("ROLE_ADMIN");
                 adminPiotr.setPassword(passwordEncoder.encode("admin123"));
                 adminPiotr.setLastLogin(new Date());
