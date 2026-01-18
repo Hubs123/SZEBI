@@ -33,6 +33,9 @@ import PlanActionsPage from "./modules/control/pages/PlanActionsPage";
 import PlanActivatePage from "./modules/control/pages/PlanActivatePage";
 import PlanAddRulePage from "./modules/control/pages/PlanAddRulePage";
 import PlanDeletePage from "./modules/control/pages/PlanDeletePage";
+import AdministrationPage from "./modules/control/pages/AdministrationPage";
+
+import { requireAdmin, requireResident } from "./services/roleGuards";
 
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("token");
@@ -41,6 +44,17 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/login" replace/>;
     }
 
+    return children;
+}
+
+const RoleProtectedRoute = ({ guard, children }) => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+        return <Navigate to="/login" replace/>;
+    }
+    if (!guard || !guard()) {
+        return <Navigate to="/" replace/>;
+    }
     return children;
 }
 
@@ -73,23 +87,96 @@ function App() {
                     {/*  sterowanie */}
                     <Route path="sterowanie" element={<ControlLayout />}>
                       <Route index element={<ControlHomePage />} />
-                      <Route path="urzadzenia" element={<DevicesListPage />} />
-                      <Route path="urzadzenia/nowe" element={<DeviceCreatePage />} />
-                      <Route path="urzadzenia/:deviceId" element={<DeviceActionsPage />} />
-                      <Route path="urzadzenia/:deviceId/parametry" element={<DeviceParamsPage />} />
-                      <Route path="urzadzenia/:deviceId/przypisz" element={<DeviceAssignRoomPage />} />
-                      <Route path="urzadzenia/:deviceId/usun" element={<DeviceDeletePage />} />
-                      <Route path="pokoje" element={<RoomsListPage />} />
-                      <Route path="pokoje/:roomId" element={<RoomActionsPage />} />
-                      <Route path="pokoje/:roomId/urzadzenia" element={<RoomDevicesPage />} />
-                      <Route path="pokoje/:roomId/grupowe" element={<RoomGroupControlPage />} />
 
-                      <Route path="plany" element={<PlansListPage />} />
-                      <Route path="plany/nowy" element={<PlanCreatePage />} />
-                      <Route path="plany/:planId" element={<PlanActionsPage />} />
-                      <Route path="plany/:planId/aktywuj" element={<PlanActivatePage />} />
-                      <Route path="plany/:planId/reguly/dodaj" element={<PlanAddRulePage />} />
-                      <Route path="plany/:planId/usun" element={<PlanDeletePage />} />
+                      {/* Administracja (ROLE_ADMIN) */}
+                      <Route path="administracja" element={
+                        <RoleProtectedRoute guard={requireAdmin}>
+                          <AdministrationPage />
+                        </RoleProtectedRoute>
+                      } />
+
+                      {/* Pozostałe sekcje sterowania (ROLE_USER) */}
+                      <Route path="urzadzenia" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DevicesListPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="urzadzenia/nowe" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DeviceCreatePage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="urzadzenia/:deviceId" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DeviceActionsPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="urzadzenia/:deviceId/parametry" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DeviceParamsPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="urzadzenia/:deviceId/przypisz" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DeviceAssignRoomPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="urzadzenia/:deviceId/usun" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <DeviceDeletePage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="pokoje" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <RoomsListPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="pokoje/:roomId" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <RoomActionsPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="pokoje/:roomId/urzadzenia" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <RoomDevicesPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="pokoje/:roomId/grupowe" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <RoomGroupControlPage />
+                        </RoleProtectedRoute>
+                      } />
+
+                      <Route path="plany" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlansListPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="plany/nowy" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlanCreatePage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="plany/:planId" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlanActionsPage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="plany/:planId/aktywuj" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlanActivatePage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="plany/:planId/reguly/dodaj" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlanAddRulePage />
+                        </RoleProtectedRoute>
+                      } />
+                      <Route path="plany/:planId/usun" element={
+                        <RoleProtectedRoute guard={requireResident}>
+                          <PlanDeletePage />
+                        </RoleProtectedRoute>
+                      } />
                     </Route>
 
                     {/* niedokończone moduły */}

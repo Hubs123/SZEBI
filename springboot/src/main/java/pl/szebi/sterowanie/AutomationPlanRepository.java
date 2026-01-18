@@ -112,9 +112,29 @@ public class AutomationPlanRepository {
         return plans.add(plan);
     }
 
+    // usuniecie z bazy i z listy
     public Boolean delete(Integer planId) {
-        if (plans.isEmpty()) return false;
-        return plans.removeIf(plan -> plan.getId() != null && plan.getId().equals(planId));
+        if (planId == null) return false;
+        PreparedStatement ps = null;
+        try {
+            String sql = "DELETE FROM automation_plan WHERE id = ?";
+            ps = Db.conn.prepareStatement(sql);
+            ps.setInt(1, planId);
+
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                return false;
+            }
+            synchronized (plans) {
+                plans.removeIf(plan -> plan.getId() != null && plan.getId().equals(planId));
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+        }
     }
 
     public AutomationPlan findById(Integer planId) {

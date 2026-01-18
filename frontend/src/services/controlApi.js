@@ -1,9 +1,13 @@
 const BASE = "http://localhost:8080";
 
 async function http(method, path, body) {
+  const token = sessionStorage.getItem("token");
   const res = await fetch(`${BASE}${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: body ? JSON.stringify(body) : undefined,
   });
 
@@ -46,4 +50,10 @@ export const ControlApi = {
   deletePlan: (planId) => http("DELETE", `/api/control/plans/${planId}`),
   activatePlan: (planId) => http("POST", `/api/control/plans/${planId}/activate`),
   addRule: (planId, rule) => http("POST", `/api/control/plans/${planId}/rules`, rule),
+
+  // ---- Admin aliases (surowe operacje) ----
+  // Nazwy zgodne z wymaganiami z modułu Administracja.
+  listAutomationPlans: () => http("GET", "/api/control/plans"),
+  createAutomationPlan: (data) => http("POST", "/api/control/plans", data),
+  deleteAutomationPlan: (id) => http("DELETE", `/api/control/plans/${id}`),
 };
