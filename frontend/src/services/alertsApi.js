@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/alerts";
+const API_URL = "http://localhost:8080/api";
 
 export const getAlerts = async (role) => {
     try {
