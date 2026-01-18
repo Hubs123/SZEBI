@@ -45,6 +45,21 @@ public class AdminController {
         return group.addThreshold(threshold);
     }
 
+    @PutMapping("/groups/{groupId}/thresholds/{thresholdId}")
+    public Boolean updateThreshold(
+            @PathVariable Integer groupId,
+            @PathVariable Integer thresholdId,
+            @RequestBody Threshold updatedValues
+    ) {
+        DeviceGroup group = findGroup(groupId);
+        if (group == null) return false;
+
+        Threshold threshold = group.getThresholdById(thresholdId);
+        if (threshold == null) return false;
+
+        return group.modifyThreshold(threshold, updatedValues.getValueWarning(), updatedValues.getValueEmergency());
+    }
+
     @DeleteMapping("/groups/{groupId}/thresholds/{thresholdId}")
     public Boolean deleteThreshold(
             @PathVariable Integer groupId,

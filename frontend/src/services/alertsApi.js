@@ -58,6 +58,21 @@ export const addThreshold = async (groupId, threshold) => {
     }
 };
 
+export const updateThreshold = async (groupId, thresholdId, thresholdData) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds/${thresholdId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(thresholdData),
+        });
+        if (!response.ok) throw new Error("Błąd edycji progu");
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
+
 export const deleteThreshold = async (groupId, thresholdId) => {
     try {
         const response = await fetch(`${API_URL}/admin/alerts/groups/${groupId}/thresholds/${thresholdId}`, {

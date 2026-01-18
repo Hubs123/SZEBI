@@ -17,6 +17,7 @@ public class DeviceGroup {
         this.groupName = groupName;
         this.thresholds = (thresholds != null) ? thresholds : new ArrayList<>();
         this.reactions = (reactions != null) ? reactions : new ArrayList<>();
+        this.devices = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -39,6 +40,15 @@ public class DeviceGroup {
 
     public Boolean addThreshold(Threshold threshold) {
         try {
+            if (threshold.getId() == null) {
+                int maxId = 0;
+                for (Threshold t : thresholds) {
+                    if (t.getId() != null && t.getId() > maxId) {
+                        maxId = t.getId();
+                    }
+                }
+                threshold.setId(maxId + 1);
+            }
             thresholds.add(threshold);
         } catch (Exception e) {
             return false;
