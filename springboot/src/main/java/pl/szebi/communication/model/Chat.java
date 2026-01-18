@@ -20,7 +20,7 @@ public class Chat {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "chat_users",
             joinColumns = @JoinColumn(name = "chat_id"),

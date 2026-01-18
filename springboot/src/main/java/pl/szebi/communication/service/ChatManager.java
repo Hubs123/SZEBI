@@ -69,11 +69,13 @@ public class ChatManager {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public void dbAddUserToChat(Chat chat, User user) {
         chat.addUser(user);
         chatRepository.save(chat);
     }
 
+    @Transactional
     public void dbRemoveUserFromChat(Chat chat, User user) {
         chat.removeUser(user);
         chatRepository.save(chat);

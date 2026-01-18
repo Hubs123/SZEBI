@@ -10,16 +10,21 @@ const LoginPage = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
+            sessionStorage.clear();
+            localStorage.clear();
+
             const res = await authApi.login(credentials);
             const token = res.data.token;
-            localStorage.setItem("token", token);
-
+            sessionStorage.setItem("token", token);
             const payload = JSON.parse(atob(token.split(".")[1]));
-            localStorage.setItem("userId", payload.sub);
+            sessionStorage.setItem("userId", payload.sub);
 
-            window.location.href = '/komunikacja';
+            const usernameToSave = res.data.username || credentials.username;
+            sessionStorage.setItem("username", usernameToSave);
+
+            window.location.href = '/';
         } catch (err) {
-            alert("Błąd logowania! Sprawdź dane.");
+            alert("Login lub hasło jest niepoprawne.");
         }
     };
 
@@ -47,7 +52,11 @@ const LoginPage = () => {
                             required
                         />
                     </div>
-                    <button className="btn w-100 mb-3" type="submit">Zaloguj się</button>
+
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <button className="btn mb-3" type="submit">Zaloguj się</button>
+                    </div>
+
 
                     <div style={{ textAlign: 'center', marginTop: '1.5rem', color: '#666' }}>
                         <Link to="/register" style={{ color: '#667eea', fontWeight: 'bold', textDecoration: 'none' }}>Zarejestruj się</Link>

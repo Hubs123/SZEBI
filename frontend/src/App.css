@@ -45,7 +45,7 @@
   color: #555;
   font-weight: 500;
   padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  border-radius: 50px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.95rem;
 }
@@ -286,3 +286,70 @@
 .theirs .message-bubble { background: #eee; color: #333; }
 
 .sender-name { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 3px; }
+
+.user-session-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.user-name-display {
+  font-size: 1rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.logout-button-small {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.logout-button-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.logout-button-small:active {
+  transform: translateY(0);
+}
+
+.logout-button-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chat-action-btn {
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.chat-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.chat-action-btn.delete {
+  background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%);
+  box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+}
+
+.chat-action-btn.delete:hover {
+  box-shadow: 0 6px 20px rgba(255, 77, 77, 0.4);
+}

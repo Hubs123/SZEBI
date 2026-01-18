@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -56,7 +56,7 @@ export const chatApi = {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
-    getChatUsers: (chatId) => api.get(`/chat/${chatId}/availableUsers`),
+    getAvailableUsers: (chatId) => api.get(`/chat/${chatId}/availableUsers`),
     searchUsers: (prefix) => api.get('/chat/searchUsers', { params: { prefix } }),
     createChat: (chatName, participants) => api.post('/chat/create', { chatName, participants }),
     deleteChat: (chatId) => api.delete(`/chat/${chatId}`),
