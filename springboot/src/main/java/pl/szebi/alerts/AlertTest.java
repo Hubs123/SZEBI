@@ -40,7 +40,7 @@ public class AlertTest {
 
         AlertManager alertManager = new AlertManager();
         Date today = new Date();
-        Alert alert = alertManager.createAlert(today, 4F, "battery", device.getId());
+        Alert alert = alertManager.createAlert(today, 4F, "battery", deviceId);
         if (manager.getStates(deviceId).get("power") == 0.0f) {
             System.out.println("It slayed");
         }

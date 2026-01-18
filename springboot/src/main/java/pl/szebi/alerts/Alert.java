@@ -88,6 +88,10 @@ public class Alert {
                 "\nThe value of the anomaly equals:" + getAnomalyValue().toString();
     }
 
+    public String getMessage() {
+        return createMessage();
+    }
+
     public void checkAutomaticReaction() {
         List<Threshold> thresholds = deviceGroup.getAllThresholds();
         List<AutomaticReaction> reactions = deviceGroup.getAllReactions();
