@@ -23,11 +23,11 @@ export default function PlanDeletePage() {
   return (
     <Panel title="Usunięcie planu">
       <ErrorBox error={error} />
-      <div style={{ textAlign: "center" }}>
-        Czy na pewno usunąć plan ID: <b>{planId}</b>?
+      <div style={{ textAlign: "center", fontWeight: 600 }}>
+        Czy na pewno usunąć plan?
       </div>
       <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
-        <button onClick={remove}>Usuń plan</button>
+        <button class="btn" onClick={remove}>Usuń plan</button>
       </div>
       <BackCancelBar cancelTo={`/sterowanie/plany/${planId}`} />
     </Panel>

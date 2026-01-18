@@ -10,13 +10,13 @@ export default function PlanActionsPage() {
   return (
     <Panel title="Wybranie planu">
       <div style={{ textAlign: "center", marginBottom: "1rem", opacity: 0.85 }}>
-        Plan ID: {planId}
+        ID planu: {planId}
       </div>
 
       <div style={{ display: "grid", gap: "1rem", maxWidth: 520, margin: "0 auto" }}>
-        <button onClick={() => nav("aktywuj")}>Aktywacja planu</button>
-        <button onClick={() => nav("reguly/dodaj")}>Dodanie reguły</button>
-        <button onClick={() => nav("usun")}>Usunięcie</button>
+        <button class="btn-gray" onClick={() => nav("aktywuj")}>Aktywacja planu</button>
+        <button class="btn-gray" onClick={() => nav("reguly/dodaj")}>Dodanie reguły</button>
+        <button class="btn-gray" onClick={() => nav("usun")}>Usunięcie</button>
       </div>
 
       <BackCancelBar cancelTo="/sterowanie/plany" />

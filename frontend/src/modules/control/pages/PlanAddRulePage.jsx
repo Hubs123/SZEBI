@@ -17,6 +17,17 @@ export default function PlanAddRulePage() {
 
   const [error, setError] = useState(null);
 
+  const selectedDevice = devices.find(d => String(d.id) === String(deviceId));
+  const selectedType = selectedDevice?.type;
+
+  const deviceStatesMap = {
+    noSimulation: ["power"],
+    thermometer: ["power", "temp"],
+    smokeDetector: ["power", "smokeDetected"],
+  };
+
+  const disabledParams = ["temp", "smokeDetected"];
+
   useEffect(() => {
     (async () => {
       try {
@@ -48,7 +59,7 @@ export default function PlanAddRulePage() {
       <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gap: "0.75rem" }}>
         <label>
           Urządzenie:
-          <select value={deviceId} onChange={(e) => setDeviceId(e.target.value)}>
+          <select value={deviceId} onChange={(e) => setDeviceId(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}>
             <option value="">-- wybierz --</option>
             {devices.map((d) => (
               <option key={d.id} value={d.id}>{d.name} (ID: {d.id})</option>
@@ -57,22 +68,36 @@ export default function PlanAddRulePage() {
         </label>
 
         <label>
-          Klucz parametru:
-          <input value={key} onChange={(e) => setKey(e.target.value)} />
+          Nazwa parametru:
+          <select
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              disabled={!selectedType}
+              style={{ padding: "0.4rem", marginLeft: "0.5rem" }}
+            >
+              <option value="">-- wybierz --</option>
+
+              {selectedType &&
+                deviceStatesMap[selectedType]?.map((param) => (
+                  <option
+                    key={param}
+                    value={param}
+                    disabled={disabledParams.includes(param)}
+                  >
+                    {param}
+                    {disabledParams.includes(param) ? " (nieedytowalne)" : ""}
+                  </option>
+                ))}
+            </select>
         </label>
 
         <label>
-          Wartość (float):
-          <input value={val} onChange={(e) => setVal(e.target.value)} />
+          Nowa wartość:
+          <input value={val} onChange={(e) => setVal(e.target.value)} style={{ padding: "0.4rem", marginLeft: "0.5rem" }}/>
         </label>
 
-        <label>
-          Okno czasowe (opcjonalnie, np. 8:00-10:00):
-          <input value={timeWindow} onChange={(e) => setTimeWindow(e.target.value)} />
-        </label>
-
-        <button onClick={add} disabled={!deviceId || !key.trim() || val === ""}>
-          Dodaj regułę
+        <button class="btn" onClick={add} disabled={!deviceId || !key.trim() || val === ""}>
+          Dodaj
         </button>
       </div>
 

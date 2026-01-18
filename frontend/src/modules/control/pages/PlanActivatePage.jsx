@@ -23,11 +23,11 @@ export default function PlanActivatePage() {
   return (
     <Panel title="Aktywacja planu">
       <ErrorBox error={error} />
-      <div style={{ textAlign: "center" }}>
-        Aktywować plan ID: <b>{planId}</b>?
+      <div style={{ textAlign: "center", fontWeight: 600 }}>
+        Czy na pewno aktywować plan?
       </div>
       <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
-        <button onClick={activate}>Aktywuj</button>
+        <button class="btn" onClick={activate}>Aktywuj</button>
       </div>
       <BackCancelBar cancelTo={`/sterowanie/plany/${planId}`} />
     </Panel>

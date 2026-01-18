@@ -18,7 +18,12 @@ import java.util.ArrayList;
 @CrossOrigin
 public class PlansController {
 
-    private final AutomationPlanManager planManager = new AutomationPlanManager();
+    private final AutomationPlanManager planManager;
+
+    public PlansController() {
+        planManager = new AutomationPlanManager();
+        planManager.loadFromDatabase();
+    }
 
     @GetMapping
     public ResponseEntity<?> listPlans() {
