@@ -8,6 +8,9 @@ public class AutomationRule {
     private Map<String, Float> states = new HashMap<>();
     private String timeWindow;
 
+    // musi być dla serializacji jackson
+    public AutomationRule() {}
+
     // bez timeWindow - bezterminowo
     public AutomationRule(Integer deviceId, Map<String, Float> states) {
         this.deviceId = deviceId;
@@ -22,15 +25,12 @@ public class AutomationRule {
         this.timeWindow = timeWindow;
     }
 
-    public Integer getDeviceId() {
-        return deviceId;
-    }
+    public Integer getDeviceId() { return deviceId; }
+    public void setDeviceId(Integer deviceId) { this.deviceId = deviceId; }
 
-    public Map<String, Float> getStates() {
-        return Map.copyOf(states);
-    }
+    public Map<String, Float> getStates() { return states; }
+    public void setStates(Map<String, Float> states) { this.states = states; }
 
-    public String getTimeWindow() {
-        return timeWindow;
-    }
+    public String getTimeWindow() { return timeWindow; }
+    public void setTimeWindow(String timeWindow) { this.timeWindow = timeWindow; }
 }

@@ -107,6 +107,7 @@ public class SecurityConfig {
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
                         .requestMatchers("/api/chat/files/**").permitAll()
                         .requestMatchers("/api/data/**").authenticated()
+                        .requestMatchers("/api/control/**").permitAll()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

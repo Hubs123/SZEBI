@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/alerts")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class AlertController {
 
     private final AlertManager alertManager = new AlertManager();

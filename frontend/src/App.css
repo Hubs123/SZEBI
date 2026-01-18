@@ -353,3 +353,28 @@
 .chat-action-btn.delete:hover {
   box-shadow: 0 6px 20px rgba(255, 77, 77, 0.4);
 }
+
+.btn-gray {
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #999;
+  cursor: pointer;
+  background-color: #d6d6d6;
+  color: #222;
+  transition: all 0.2s ease;
+}
+
+.btn-gray:hover {
+  background-color: #c0c0c0;
+}
+
+.btn-gray:active {
+  background-color: #b0b0b0;
+}
+
+.btn-gray:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

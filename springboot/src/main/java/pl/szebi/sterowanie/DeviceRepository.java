@@ -59,17 +59,62 @@ public class DeviceRepository {
         return devices.add(device);
     }
 
+    //usuniecie z bazy i z listy
     public boolean delete(Integer deviceId) {
-        synchronized (devices) {
-            Iterator<Device> it = devices.iterator();
-            while (it.hasNext()) {
-                Device d = it.next();
-                if (deviceId.equals(d.getId())) {
-                    d.stopTicking();
-                    it.remove();
-                    return true;
+        if (deviceId == null) return false;
+        PreparedStatement ps = null;
+        try {
+            String sql = "DELETE FROM devices WHERE id = ?";
+            ps = Db.conn.prepareStatement(sql);
+            ps.setInt(1, deviceId);
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                return false;
+            }
+            synchronized (devices) {
+                Iterator<Device> it = devices.iterator();
+                while (it.hasNext()) {
+                    Device d = it.next();
+                    if (deviceId.equals(d.getId())) {
+                        d.stopTicking();
+                        it.remove();
+                        break;
+                    }
                 }
             }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    public boolean load() {
+        String sql = "SELECT id, name, type, room_id FROM devices";
+        try (PreparedStatement ps = Db.conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            synchronized (devices) {
+                while (rs.next()) {
+                    Integer id = rs.getInt("id");
+                    boolean exists = devices.stream()
+                            .anyMatch(d -> id.equals(d.getId()));
+                    if (exists) {
+                        continue;
+                    }
+                    Device device = new Device(
+                            rs.getString("name"),
+                            DeviceType.valueOf(rs.getString("type")),
+                            rs.getInt("room_id")
+                    );
+                    device.setId(id);
+                    devices.add(device);
+                }
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }

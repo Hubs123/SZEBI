@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/alerts")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class AdminController {
 
     private final DeviceGroupRepository deviceGroupRepository = new DeviceGroupRepository();

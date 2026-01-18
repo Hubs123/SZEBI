@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/data")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class DataController {
     private final FastApiClient fastApiClient;
 

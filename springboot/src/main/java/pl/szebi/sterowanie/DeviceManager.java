@@ -30,11 +30,21 @@ public class DeviceManager {
     }
 
     public Boolean removeDevice(Integer deviceId) {
+        if (getDevice(deviceId).isOn())
+            return false;
         return deviceRepo.delete(deviceId);
     }
 
     public Boolean removeRoom(Integer roomId) {
         return roomRepo.delete(roomId);
+    }
+
+    public Boolean loadDevicesFromDataBase() {
+        return deviceRepo.load();
+    }
+
+    public Boolean loadRoomsFromDataBase() {
+        return roomRepo.load();
     }
 
     public Boolean saveDeviceToDatabase(Device device) {

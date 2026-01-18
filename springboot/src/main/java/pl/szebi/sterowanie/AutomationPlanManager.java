@@ -152,11 +152,11 @@ public class AutomationPlanManager {
         }
     }
 
-    public Integer createPlan(String name, List<AutomationRule> rules) {
+    public AutomationPlan createPlan(String name, List<AutomationRule> rules) {
         if (rules == null) return null;
         AutomationPlan plan = new AutomationPlan(name, rules);
         boolean added = planRepo.add(plan);
-        return added ? plan.getId() : null;
+        return added ? plan : null;
     }
 
     public Boolean removePlan(Integer planId) {
@@ -183,6 +183,10 @@ public class AutomationPlanManager {
             currentPlan = null;
         }
         return commandApplied;
+    }
+
+    public Boolean loadFromDatabase() {
+        return planRepo.load();
     }
 
     public Boolean saveToDatabase(AutomationPlan plan) {
@@ -252,7 +256,8 @@ public class AutomationPlanManager {
     public Boolean addRule(Integer planId, AutomationRule rule) {
         AutomationPlan plan = planRepo.findById(planId);
         if (plan == null || rule == null) return false;
-        plan.getRules().add(rule);
+        if (!plan.addRule(rule))
+            return false;
         return planRepo.save(plan);
     }
 }

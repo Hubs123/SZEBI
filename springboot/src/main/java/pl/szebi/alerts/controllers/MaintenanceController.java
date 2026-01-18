@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/maintenance/alerts")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class MaintenanceController {
     // access for ENGINEER and ADMIN
     private final DeviceGroupRepository deviceGroupRepository = new DeviceGroupRepository();

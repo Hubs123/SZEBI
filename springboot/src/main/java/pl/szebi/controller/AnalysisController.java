@@ -14,7 +14,7 @@ import pl.szebi.service.FastApiClient;
 
 @RestController
 @RequestMapping("/api/analysis")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class AnalysisController {
     private final FastApiClient fastApiClient;
 

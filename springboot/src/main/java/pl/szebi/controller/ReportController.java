@@ -12,7 +12,7 @@ import pl.szebi.service.FastApiClient;
 
 @RestController
 @RequestMapping("/api/reports")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 public class ReportController {
     private final FastApiClient fastApiClient;
 
