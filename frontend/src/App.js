@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainPageLayout from './layouts/MainPageLayout';
 import AnalysisLayout from './layouts/AnalysisLayout';
 import ControlLayout from './layouts/ControlLayout';
+import SimulationLayout from './layouts/SimulationLayout';
 
 import DashboardPage from './modules/analysis/pages/DashboardPage';
 import AnalysisPage from './modules/analysis/pages/AnalysisPage';
@@ -34,6 +35,10 @@ import PlanActivatePage from "./modules/control/pages/PlanActivatePage";
 import PlanAddRulePage from "./modules/control/pages/PlanAddRulePage";
 import PlanDeletePage from "./modules/control/pages/PlanDeletePage";
 import AdministrationPage from "./modules/control/pages/AdministrationPage";
+
+import SimulationDashboardPage from "./modules/simulation/pages/SimulationDashboardPage";
+import SimulationRunPage from "./modules/simulation/pages/SimulationRunPage";
+import SimulationSettingsPage from "./modules/simulation/pages/SimulationSettingsPage";
 
 import { requireAdmin, requireResident } from "./services/roleGuards";
 
@@ -179,8 +184,14 @@ function App() {
                       } />
                     </Route>
 
+                    {/* symulacja */}
+                    <Route path="symulacja" element={<SimulationLayout />}>
+                        <Route index element={<SimulationDashboardPage />} />
+                        <Route path="uruchom" element={<SimulationRunPage />} />
+                        <Route path="ustawienia" element={<SimulationSettingsPage />} />
+                    </Route>
+
                     {/* niedokończone moduły */}
-                    <Route path="symulacja" element={<Placeholder title="Moduł Symulacji"/>}/>
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji"/>}/>
                     <Route path="alerty" element={<Placeholder title="Moduł Alertów"/>}/>
 

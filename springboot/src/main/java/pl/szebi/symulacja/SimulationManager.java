@@ -1,5 +1,9 @@
 package pl.szebi.symulacja;
 
+import pl.szebi.sterowanie.Device;
+import pl.szebi.sterowanie.DeviceManager;
+import pl.szebi.sterowanie.DeviceType;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -151,16 +155,81 @@ public class SimulationManager {
     }
     
     /**
+     * Oblicza zużycie energii na podstawie wszystkich urządzeń z modułu sterowania.
+     * Każde urządzenie ma przypisaną moc na podstawie typu. Urządzenia włączone (power=1.0f)
+     * zużywają energię, wyłączone (power=0.0f) nie zużywają.
+     * 
+     * @param periodDurationHours czas trwania okresu w godzinach
+     * @return całkowite zużycie energii w kWh dla danego okresu
+     */
+    private Double calculateHouseholdConsumptionFromDevices(double periodDurationHours) {
+        DeviceManager deviceManager = new DeviceManager();
+        List<Device> devices = deviceManager.listDevices();
+        
+        double totalConsumption = 0.0;
+        
+        for (Device device : devices) {
+            // Sprawdzenie czy urządzenie jest włączone
+            if (!device.isOn()) {
+                continue; // Urządzenie wyłączone nie zużywa energii
+            }
+            
+            // Przypisanie mocy (kW) na podstawie typu urządzenia
+            double devicePower = getDevicePowerConsumption(device.getType());
+            
+            // Zużycie energii = moc * czas (kWh)
+            double deviceConsumption = devicePower * periodDurationHours;
+            totalConsumption += deviceConsumption;
+        }
+        
+        // Zapewnienie minimalnego zużycia (np. oświetlenie podstawowe, lodówka)
+        // Minimum 0.5 kWh na okres (4h) dla podstawowych urządzeń
+        double baseConsumption = 0.5;
+        return Math.max(baseConsumption, totalConsumption);
+    }
+    
+    /**
+     * Zwraca moc zużycia (kW) dla danego typu urządzenia.
+     * 
+     * @param deviceType typ urządzenia
+     * @return moc zużycia w kW
+     */
+    private double getDevicePowerConsumption(DeviceType deviceType) {
+        switch (deviceType) {
+            case thermometer:
+                return 0.001; // 1W - bardzo małe zużycie
+            case smokeDetector:
+                return 0.005; // 5W - małe zużycie
+            case noSimulation:
+                // Dla urządzeń typu noSimulation (żarówki, okna smart itp.)
+                // używamy średniego zużycia, np. żarówka LED ~10W
+                return 0.010; // 10W
+            default:
+                return 0.010; // Domyślne 10W dla nieznanych typów
+        }
+    }
+    
+    /**
      * Generuje zużycie energii w gospodarstwie dla danego okresu.
-     * Symuluje większe zużycie w godzinach aktywności (dzień 6-22h).
-     * Analogicznie do pliku Python: więcej w dzień (2.5-4.5 kWh), mniej w nocy (0.8-1.2 kWh).
+     * Używa rzeczywistego zużycia energii z urządzeń pobranych z modułu sterowania.
+     * Jeśli nie ma urządzeń, używa wartości domyślnych opartych na okresie dnia.
      * 
      * @param periodNumber numer okresu (1-6)
      * @return zużycie energii w kWh
      */
     private Double generateHouseholdConsumption(Integer periodNumber) {
+        // Obliczenie zużycia na podstawie urządzeń z modułu sterowania
+        double consumptionFromDevices = calculateHouseholdConsumptionFromDevices(4.0); // okres 4h
+        
+        // Jeśli mamy urządzenia i zużycie jest znaczące, używamy go
+        if (consumptionFromDevices > 0.5) {
+            // Dodanie małej losowej zmienności (±5%) dla realizmu
+            double variation = 1.0 + (random.nextDouble() - 0.5) * 0.1; // 0.95 - 1.05
+            return consumptionFromDevices * variation;
+        }
+        
+        // Fallback: jeśli brak urządzeń lub bardzo małe zużycie, użyj wartości domyślnych
         // Okresy: 1 (0-4h), 2 (4-8h), 3 (8-12h), 4 (12-16h), 5 (16-20h), 6 (20-24h)
-        // Symulacja podobna do Python: więcej w dzień (6-22h), mniej w nocy
         double baseConsumption;
         
         switch (periodNumber) {
