@@ -5,27 +5,29 @@ import {
 } from "../../../services/alertsApi";
 
 const DeviceGroupsPage = () => {
-    const [isAuthorized, setIsAuthorized] = useState(true);
 
-    useEffect(() => {
+    const getUserRole = () => {
         const token = sessionStorage.getItem("token");
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                if (payload.role === "ROLE_USER") {
-                    setIsAuthorized(false);
-                }
-            } catch (e) {
-                console.error("Auth check failed", e);
-            }
+        if (!token) return "";
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.role || "";
+        } catch (e) {
+            console.error("Błąd dekodowania tokena", e);
+            return "";
         }
-    }, []);
+    };
+
+    const userRole = getUserRole();
+    const isAuthorized = userRole !== "ROLE_USER";
+
+    const initialTab = userRole === "ROLE_ENGINEER" ? "mapping" : "thresholds";
 
     const [groups, setGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [thresholds, setThresholds] = useState([]);
 
-    const [activeTab, setActiveTab] = useState("thresholds");
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ thresholdType: "", valueWarning: "", valueEmergency: "" });
 
@@ -130,7 +132,7 @@ const DeviceGroupsPage = () => {
     if (!isAuthorized) {
         return (
             <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
-                <h2 style={{color: "#dc2626"}}>Brak Dostępu</h2>
+                <h2 style={{color: "#dc2626"}}>Brak dostępu</h2>
                 <p>Jako mieszkaniec nie masz uprawnień do konfiguracji grup urządzeń.</p>
             </div>
         );
@@ -161,12 +163,16 @@ const DeviceGroupsPage = () => {
                 {selectedGroup ? (
                     <>
                         <h3 style={{ marginBottom: "5px", color: "#333" }}>{selectedGroup.groupName}</h3>
+
                         <div style={{ display: "flex", borderBottom: "1px solid #eee", marginBottom: "20px" }}>
-                            <button style={tabStyle(activeTab === "thresholds")} onClick={() => setActiveTab("thresholds")}>1. Progi</button>
-                            <button style={tabStyle(activeTab === "mapping")} onClick={() => setActiveTab("mapping")}>2. Reakcje</button>
+                            {userRole !== "ROLE_ENGINEER" && (
+                                <button style={tabStyle(activeTab === "thresholds")} onClick={() => setActiveTab("thresholds")}>Progi</button>
+                            )}
+
+                            <button style={tabStyle(activeTab === "mapping")} onClick={() => setActiveTab("mapping")}>Reakcje</button>
                         </div>
 
-                        {activeTab === "thresholds" && (
+                        {activeTab === "thresholds" && userRole !== "ROLE_ENGINEER" && (
                             <>
                                 <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
                                     <thead>
