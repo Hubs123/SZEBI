@@ -2,29 +2,85 @@ package pl.szebi.optimization;
 
 
 import org.springframework.stereotype.Service; // Opcjonalnie, jeśli używasz Springa
+
+import java.sql.SQLException;
 import java.util.Date;
 import pl.szebi.time.TimeControl;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OptimizationManager {
     private final OptimizationPlanRepository planRepo;
     private Thread currentSimulationThread;
 
-    OptimizationManager() {
-
+    public OptimizationManager() {
         planRepo = new OptimizationPlanRepository();
     }
 
+//    public OptimizationPlan generatePlan(int userId, Date startDate, Date endDate, String strategyType) {
+//        Connection conn = Db.conn;
+//        int newId = 1; // Domyślne ID, jeśli tabela jest pusta
+//
+//        // KROK 1: Pobranie następnego dostępnego ID
+//        String getMaxIdSql = "SELECT MAX(id) FROM optimization_plan";
+//
+//        try (Statement stmt = conn.createStatement();
+//             ResultSet rs = stmt.executeQuery(getMaxIdSql)) {
+//
+//            if (rs.next()) {
+//                // Pobieramy MAX(id). Jeśli tabela pusta, zwróci 0 (lub null w zależnosci od drivera),
+//                // więc +1 da nam ID = 1.
+//                int maxId = rs.getInt(1);
+//                newId = maxId + 1;
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return null; // Błąd przy pobieraniu ID
+//        }
+//
+//        // KROK 2: Utworzenie i zapisanie nowego planu
+//        String insertSql = "INSERT INTO optimization_plan " +
+//                "(id, user_id, start_date, end_date, strategy, status) " +
+//                "VALUES (?, ?, ?, ?, ?, ?)";
+//
+//        try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+//
+//            pstmt.setInt(1, newId);
+//            pstmt.setInt(2, userId);
+//            // Konwersja java.util.Date na java.sql.Timestamp
+//            pstmt.setTimestamp(3, new java.sql.Timestamp(startDate.getTime()));
+//            pstmt.setTimestamp(4, new java.sql.Timestamp(endDate.getTime()));
+//            pstmt.setString(5, strategyType);
+//            pstmt.setString(6, "DRAFT"); [cite_start]// Domyślny status po utworzeniu [cite: 99]
+//
+//            int rowsAffected = pstmt.executeUpdate();
+//
+//            if (rowsAffected > 0) {
+//                // Tworzymy obiekt Java do zwrócenia w aplikacji
+//                // (Zakładam, że masz odpowiedni konstruktor w OptimizationPlan)
+//                OptimizationPlan plan = new OptimizationPlan();
+//                plan.setId(newId);
+//                plan.setUserId(userId);
+//                // Tutaj logika ustawiania strategii na podstawie stringa
+//                // plan.setStrategy(StrategyFactory.get(strategyType));
+//                return plan;
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null; // Zwracamy null jeśli zapis się nie powiódł
+//    }
+
     // Uruchomienie planu z ustawieniem wątku oczekującego na dane symulacji z bazy danych
-    public boolean runPlan(Integer userId, Integer planId) {
+    public boolean runPlan(Integer planId) {
         OptimizationPlan plan = planRepo.findById(planId);
         if (plan == null) return false;
 
         // Zatrzymanie innego działającego planu
         if (this.currentSimulationThread != null && this.currentSimulationThread.isAlive()) {
-            stopPlan(userId, planId);
+            stopPlan(planId);
         }
 
         // Ustaw status ACTIVE
@@ -64,33 +120,27 @@ public class OptimizationManager {
 
                 // Sprawdzenie statusu planu (dopiero gdy czas się zmienił lub to pierwszy raz)
                 OptimizationPlan plan = planRepo.findById(planId);
+                System.out.println(plan);
 
                 if (plan == null || plan.getStatus() != PlanStatus.Active) {
                     System.out.println("Plan zakończony lub zatrzymany. Zamykam wątek.");
                     break;
                 }
 
-                optimizationData.loadFromDatabase(currentSimDate);
+                optimizationData.loadFromDatabase();
 
                 // 4. Sprawdzenie danych (tylko jeśli mamy "nową" datę w symulacji)
-                if (has6RecordsForDate(currentSimDate)) {
-                    System.out.println("   [SIM] Dane kompletne dla: " + currentSimDate + ". Przeliczam...");
 
-                    OptimizationData data = loadFromDatabase(currentSimDate);
-                    plan.getStrategy().calculate(plan, data, getCurrentRules());
+                System.out.println("   [SIM] Dane kompletne dla: " + currentSimDate + ". Przeliczam...");
 
-                    // --- WAŻNE: Oznaczamy tę datę jako "załatwioną" ---
-                    lastProcessedDate = currentSimDate;
+                plan.getStrategy().calculate(plan, optimizationData, plan.getRules());
 
-                    System.out.println("   [SIM] Obliczenia zakończone. Czekam na zmianę czasu.");
+                // --- WAŻNE: Oznaczamy tę datę jako "załatwioną" ---
+                lastProcessedDate = currentSimDate;
 
-                } else {
-                    // Brak danych - logujemy to rzadziej lub czekamy
-                    // Tutaj NIE ustawiamy lastProcessedDate, bo chcemy spróbować znowu za chwilę
-                    System.out.println("   [WAIT] Brak kompletu danych dla: " + currentSimDate);
+                System.out.println("   [SIM] Obliczenia zakończone. Czekam na zmianę czasu.");
 
-                    Thread.sleep(2000); // Czekamy 2s na pojawienie się danych w bazie
-                }
+
 
             } catch (InterruptedException e) {
                 System.out.println("Wątek przerwany (Interrupt).");
@@ -105,8 +155,10 @@ public class OptimizationManager {
         }
     }
 
+//    private void loadRulesFromDatabase()
+
     // --- METODA WYWOŁYWANA Z KONTROLERA ---
-    public boolean stopPlan(Integer userId, Integer planId) {
+    public boolean stopPlan(Integer planId) {
         OptimizationPlan plan = planRepo.findById(planId);
         if (plan != null) {
             // 1. Zmieniamy status na STOPPED

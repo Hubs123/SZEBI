@@ -19,6 +19,11 @@ public class AutomationRule {
         return timeWindow;
     }
 
+    public AutomationRule(Integer deviceId, Map<String, Float> states) {
+        this.deviceId = deviceId;
+        this.states = states;
+    }
+
     public AutomationRule(Integer deviceId, Map<String, Float> states, String timeWindow) {
         this.deviceId = deviceId;
         this.states = states;

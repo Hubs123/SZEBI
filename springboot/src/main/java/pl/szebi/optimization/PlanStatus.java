@@ -5,5 +5,5 @@ public enum PlanStatus {
     Active,
     Completed,
     Pending,
-    Stopped
+    DRAFT, Stopped
 }

@@ -11,7 +11,7 @@ import java.util.List;
  * Integruje logikę biznesową z interfejsem użytkownika.
  */
 @RestController
-@RequestMapping("api/optimization")
+@RequestMapping("/api/optimization")
 @CrossOrigin(origins = "http://localhost:3000") // Umożliwia komunikację z aplikacją React.
 public class OptimizationController {
 
@@ -22,9 +22,9 @@ public class OptimizationController {
      * Konstruktor wstrzykujący menedżera optymalizacji.
      * Repozytorium jest inicjalizowane wewnętrznie dla spójności z modelem danych.
      */
-    @Autowired
-    public OptimizationController(OptimizationManager optimizationManager) {
-        this.optimizationManager = optimizationManager;
+
+    public OptimizationController() {
+        this.optimizationManager = new OptimizationManager();
         this.planRepo = new OptimizationPlanRepository();
     }
 
@@ -43,23 +43,24 @@ public class OptimizationController {
      */
     @PostMapping("/generate")
     public OptimizationPlan generatePlan(@RequestParam Integer userId, @RequestParam String strategyType) {
-        OptimizationStrategy strategy;
+//        OptimizationStrategy strategy;
+//
+//        // Mapowanie tekstowego parametru na konkretną klasę strategii.
+//        switch (strategyType) {
+//            case "Costs_reduction" -> strategy = new CostReductionStrategy(); //
+//            case "Co2_reduction" -> strategy = new Co2ReductionStrategy();   //
+//            case "Load_reduction" -> strategy = new LoadReductionStrategy(); //
+//            default -> throw new IllegalArgumentException("Nieznany typ strategii: " + strategyType);
+//        }
 
-        // Mapowanie tekstowego parametru na konkretną klasę strategii.
-        switch (strategyType) {
-            case "Costs_reduction" -> strategy = new CostReductionStrategy(); //
-            case "Co2_reduction" -> strategy = new Co2ReductionStrategy();   //
-            case "Load_reduction" -> strategy = new LoadReductionStrategy(); //
-            default -> throw new IllegalArgumentException("Nieznany typ strategii: " + strategyType);
-        }
-
-        OptimizationPlan newPlan = new OptimizationPlan(userId, strategy); // Tworzy obiekt planu w statusie Draft.
+//        OptimizationPlan newPlan = new OptimizationPlan(userId, strategy); // Tworzy obiekt planu w statusie Draft.
 
         // Inicjalizacja planu domyślnymi regułami automatyzacji przed zapisem.
-        newPlan.setRules(OptimizationMockData.generateMockAutomationRules());
-
-        planRepo.save(newPlan); // Zapisuje plan do bazy danych.
-        return newPlan;
+//        newPlan.setRules(OptimizationMockData.generateMockAutomationRules());
+//
+//        planRepo.save(newPlan); // Zapisuje plan do bazy danych.
+//        return newPlan;
+        return null;
     }
 
     /**
@@ -67,9 +68,9 @@ public class OptimizationController {
      * Powoduje zmianę statusu na 'Active' i start dedykowanego wątku symulacji.
      */
     @PostMapping("/plans/{id}/run")
-    public boolean runPlan(@PathVariable Integer id, @RequestParam Integer userId) {
+    public boolean runPlan(@PathVariable Integer id) {
         // Wywołuje logikę managera odpowiedzialną za Thread.start().
-        return optimizationManager.runPlan(userId, id);
+        return optimizationManager.runPlan(id);
     }
 
     /**
@@ -77,9 +78,9 @@ public class OptimizationController {
      * Zmienia status na 'Stopped', co przerywa pętlę simulationLoop w wątku.
      */
     @PostMapping("/plans/{id}/stop")
-    public boolean stopPlan(@PathVariable Integer id, @RequestParam Integer userId) {
+    public boolean stopPlan(@PathVariable Integer id) {
         // Wywołuje logikę managera odpowiedzialną za zatrzymanie wątku.
-        return optimizationManager.stopPlan(userId, id);
+        return optimizationManager.stopPlan(id);
     }
 
     /**

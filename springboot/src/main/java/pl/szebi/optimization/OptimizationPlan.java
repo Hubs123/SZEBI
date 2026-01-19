@@ -14,7 +14,8 @@ public class OptimizationPlan {
     private final OptimizationStrategyType strategyType;
     private List<AutomationRule> rules;
 
-    public OptimizationPlan(Integer userId, OptimizationStrategy strategy) {
+    public OptimizationPlan(Integer id, Integer userId, OptimizationStrategy strategy) {
+        this.id = id;
         this.userId = userId;
         this.strategy = strategy;
 
