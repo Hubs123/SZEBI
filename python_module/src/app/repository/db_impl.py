@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import os
+from urllib.parse import urlparse
 import psycopg2
 from psycopg2.extras import RealDictCursor, Json
 from dotenv import load_dotenv
@@ -16,7 +17,11 @@ from app.prediction.models import Prediction
 from app.reporting.reporting_service import Report
 
 # Załaduj zmienne środowiskowe z .env
-load_dotenv()
+# Szukaj pliku .env w głównym katalogu projektu (SZEBI), nie w python_module/src
+# Oblicz ścieżkę do głównego katalogu projektu (2 poziomy w górę od tego pliku)
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
+_env_path = os.path.join(_project_root, '.env')
+load_dotenv(_env_path)
 
 # URL Spring Boot backendu
 SPRINGBOOT_URL = os.getenv("SPRINGBOOT_URL", "http://localhost:8080")
@@ -49,12 +54,23 @@ def get_db_connection():
     # Przykład: jdbc:postgresql://host:port/dbname
     if db_url.startswith("jdbc:"):
         db_url = db_url[len("jdbc:") :]
+    
+    # Jeśli URL zawiera już dane logowania (postgresql://user:pass@host:port/db), użyj go bezpośrednio
+    # W przeciwnym razie zbuduj pełny URL z osobnych zmiennych
+    if "@" not in db_url:
+        # Wyciągnij host, port i database z URL
+        # Format: postgresql://host:port/database lub postgresql://host/database
+        parsed = urlparse(db_url)
+        host = parsed.hostname or "localhost"
+        port = parsed.port or 5432
+        database = parsed.path.lstrip("/") if parsed.path else "szebi"
+        
+        # Zbuduj pełny URL z danymi logowania
+        db_url = f"postgresql://{db_user}:{db_password}@{host}:{port}/{database}"
 
     try:
         conn = psycopg2.connect(
-            db_url, 
-            user=db_user, 
-            password=db_password, 
+            db_url,
             cursor_factory=RealDictCursor
         )
         return conn
