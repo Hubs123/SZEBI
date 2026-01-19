@@ -15,6 +15,12 @@ class MeasurementRepositoryProtocol:
     def get_measurements(self, sensor_id: int, start: datetime, end: datetime) -> List[Measurement]:  # pragma: no cover - interfejs
         raise NotImplementedError
 
+    def get_all_for_sensor(self, sensor_id: int) -> List[Measurement]:  # pragma: no cover - interfejs
+        raise NotImplementedError
+
+    def get_simulation_results(self) -> List[Measurement]:  # pragma: no cover - interfejs - pobiera wyniki z SimulationManager
+        raise NotImplementedError
+
 
 @dataclass
 class DataManager:
@@ -33,4 +39,3 @@ class DataManager:
         """Pobiera dane z bazy wspólnej z modułami w Javie."""
         tr = self._validate_range(start, end)
         return self.measurement_repo.get_measurements(self.id_sensor, tr.start, tr.end)
-

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 import pandas as pd
@@ -35,8 +34,23 @@ class EnergyAnalyzer:
             start=time_range.start,
             end=time_range.end,
         )
+        print(measurements)
         if not measurements:
-            raise NoDataError("No measurements in given range")
+            # If no measurements in requested range, try to provide diagnostic info
+            try:
+                all_measurements = self.measurement_repo.get_all_for_sensor(self.sensor_id)
+            except Exception:
+                all_measurements = []
+
+            if all_measurements:
+                timestamps = [m.timestamp for m in all_measurements]
+                min_ts = min(timestamps)
+                max_ts = max(timestamps)
+                raise NoDataError(
+                    f"No measurements in given range. Available data for sensor {self.sensor_id} from {min_ts.isoformat()} to {max_ts.isoformat()}"
+                )
+            else:
+                raise NoDataError("No measurements in given range and no data for sensor")
 
         df = self._to_dataframe(measurements)
 
@@ -104,4 +118,3 @@ class EnergyAnalyzer:
             min=max_val,
             max=max_val,
         )
-

@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, HTTPException
 
 from app.analysis.data_manager import DataManager, InvalidTimeRangeError
@@ -59,7 +58,11 @@ def run_analysis(request: AnalysisRequest):
 
         try:
             stats = analyzer.averageConsumption(time_range)
+            print(stats)
+            print(f"Average consumption for sensor {request.sensorId} in time range {time_range}: {stats.avg}")
         except NoDataError as e:
+            print(f"No data for sensor {request.sensorId} in time range {time_range}")
+            print(f"NoDataError: {e}")
             raise HTTPException(status_code=404, detail={"code": "NO_DATA", "message": str(e)})
 
         # zapis statystyk do bazy
@@ -87,4 +90,3 @@ def run_analysis(request: AnalysisRequest):
             status_code=500,
             detail={"code": "INTERNAL_ERROR", "message": f"Internal server error: {str(e)}"}
         )
-
