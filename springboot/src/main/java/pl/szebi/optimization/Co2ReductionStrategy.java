@@ -16,7 +16,7 @@ public class Co2ReductionStrategy extends OptimizationStrategy {
         if (data == null || data.getForecastGenerated() == null || data.getForecastGenerated().size() < 24) {
             return false;
         }
-        List<Float> generated = data.getForecastGenerated();
+        List<Double> generated = data.getForecastGenerated();
 
         // okno czasowe dot. przedziału największej generacji
         String peakGenerateWindow = findMaxWindow(generated);

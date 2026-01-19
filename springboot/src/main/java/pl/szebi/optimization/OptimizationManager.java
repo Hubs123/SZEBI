@@ -17,7 +17,6 @@ public class OptimizationManager {
         planRepo = new OptimizationPlanRepository();
     }
 
-
     // Uruchomienie planu z ustawieniem wątku oczekującego na dane symulacji z bazy danych
     public boolean runPlan(Integer userId, Integer planId) {
         OptimizationPlan plan = planRepo.findById(planId);
@@ -117,10 +116,6 @@ public class OptimizationManager {
             return true;
         }
         return false;
-    }
-
-    public boolean loadFromDatabase() {
-        
     }
 
     // getPlans, removePlan - implementacja analogiczna do repo

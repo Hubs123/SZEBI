@@ -67,10 +67,10 @@ public abstract class OptimizationStrategy {
     /**
      * Znajduje jedno-godzinne okno z maksymalną wartością w danych (np. maksymalne zużycie/generacja).
      */
-    String findMaxWindow(List<Float> data) {
+    String findMaxWindow(List<Double> data) {
         if (data == null || data.isEmpty()) return "00:00-01:00";
 
-        Float maxConsumption = Collections.max(data);
+        Double maxConsumption = Collections.max(data);
         int maxIndex = data.indexOf(maxConsumption);
 
         int peakStartHour = maxIndex;
@@ -84,10 +84,10 @@ public abstract class OptimizationStrategy {
     /**
      * Znajduje jedno-godzinne okno z minimalną wartością w danych (np. minimalne zużycie/generacja).
      */
-    String findMinWindow(List<Float> data) {
+    String findMinWindow(List<Double> data) {
         if (data == null || data.isEmpty()) return "00:00-01:00";
 
-        Float minConsumption = Collections.min(data);
+        Double minConsumption = Collections.min(data);
         int minIndex = data.indexOf(minConsumption);
 
         int offPeakStartHour = minIndex;

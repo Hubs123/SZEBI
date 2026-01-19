@@ -21,7 +21,7 @@ public class OptimizationMockData {
         // Symulacja generacji (tylko w słoneczne godziny, max w 11:00-13:00)
         List<Float> generated = Arrays.asList(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.5f, 1.5f, 2.5f, 3.5f, 4.0f, 4.0f, 3.5f, 3.0f, 2.0f, 1.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-        data.loadForecast(now, consumed, sold, stored, generated);
+//        data.loadForecast(now, consumed, sold, stored, generated);
         return data;
     }
 

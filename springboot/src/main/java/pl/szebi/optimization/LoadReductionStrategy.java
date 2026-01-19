@@ -12,7 +12,7 @@ public class LoadReductionStrategy extends OptimizationStrategy {
             return false;
         }
 
-        List<Float> consumed = data.getForecastConsumed();
+        List<Double> consumed = data.getForecastConsumed();
 
         // Okno czasowe dot. przedziału najmniejszego zużycia
         String offPeakLoadWindow = findMinWindow(consumed);

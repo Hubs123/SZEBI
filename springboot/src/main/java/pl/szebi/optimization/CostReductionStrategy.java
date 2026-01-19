@@ -13,8 +13,8 @@ public class CostReductionStrategy extends OptimizationStrategy {
             return false;
         }
 
-        List<Float> consumed = data.getForecastConsumed();
-        List<Float> generated = data.getForecastGenerated();
+        List<Double> consumed = data.getForecastConsumed();
+        List<Double> generated = data.getForecastGenerated();
 
         // 1. Znalezienie najtańszego okna czasowego
         Map<String, String> lowestCostInfo = findLowestCostWindow(consumed, generated);
@@ -24,7 +24,7 @@ public class CostReductionStrategy extends OptimizationStrategy {
         }
 
         String lowestCostWindow = lowestCostInfo.get("timeWindow");
-        float minCost = Float.parseFloat(lowestCostInfo.get("minCost"));
+        Double minCost = Double.parseDouble(lowestCostInfo.get("minCost"));
 
         double costSavings = 0.0;
         List<AutomationRule> calculatedRules = new ArrayList<>();
@@ -74,8 +74,8 @@ public class CostReductionStrategy extends OptimizationStrategy {
 
                 // Koszt (bilans) starego i nowego przedziału
                 // CostBefore = (Consumed(oldStartHour) - Generated(oldStartHour))
-                Float costBeforeOptimization = consumed.get(oldStartHour) - generated.get(oldStartHour);
-                Float costAfterOptimization = minCost;
+                Double costBeforeOptimization = consumed.get(oldStartHour) - generated.get(oldStartHour);
+                Double costAfterOptimization = minCost;
 
                 // Jeśli opłaca się przenieść
                 if (costAfterOptimization < costBeforeOptimization) {
@@ -101,7 +101,7 @@ public class CostReductionStrategy extends OptimizationStrategy {
     }
 
     //Znajduje jedno-godzinne okno czasowe o najniższym koszcie energetycznym.
-    private Map<String, String> findLowestCostWindow(List<Float> consumed, List<Float> generated) {
+    private Map<String, String> findLowestCostWindow(List<Double> consumed, List<Double> generated) {
         if (consumed == null || generated == null || consumed.size() != 24 || generated.size() != 24) {
             return null;
         }
@@ -109,12 +109,12 @@ public class CostReductionStrategy extends OptimizationStrategy {
         // minCost to Net Load (Bilans) dla danej godziny
         int minIndex = 0;
         // Obliczenie bilansu dla godziny 0
-        float minCost = consumed.get(0) - generated.get(0);
+        Double minCost = consumed.get(0) - generated.get(0);
 
         // Iteracja przez wszystkie 24 godziny
         for (int i = 1; i < consumed.size(); i++) {
             // TUTAJ NASTĘPUJE OBLICZENIE KOSZTU (BILANSU)
-            float currentCost = consumed.get(i) - generated.get(i);
+            Double currentCost = consumed.get(i) - generated.get(i);
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -136,7 +136,7 @@ public class CostReductionStrategy extends OptimizationStrategy {
         return lowestCostInfo;
     }
 
-    private Float savingsCost(Float beforeOptimization, Float afterOptimization) {
+    private Double savingsCost(Double beforeOptimization, Double afterOptimization) {
         return beforeOptimization - afterOptimization;
     }
 }
