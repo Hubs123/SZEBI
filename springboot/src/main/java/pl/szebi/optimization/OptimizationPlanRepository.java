@@ -7,62 +7,97 @@ import java.util.List;
 
 public class OptimizationPlanRepository {
 
-    public List<OptimizationPlan> findAll(){
-        System.out.println("Metoda findAll jeszcze nie łączy się z bazą danych na potrzeby symulacji.");
-        return new ArrayList<>();
+    public List<OptimizationPlan> findAll() {
+        List<OptimizationPlan> plans = new ArrayList<>();
+        String sql = "SELECT * FROM optimization_plan ORDER BY id DESC";
+
+        try (Connection conn = Db.conn;
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                plans.add(mapResultSetToPlan(rs)); // Korzystamy z logiki mapowania
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return plans;
     }
 
     public boolean save(OptimizationPlan plan) {
-        String sql = "INSERT INTO optimization_plan (user_id, status, cost_savings, co2_savings, rules, optimization_strategy) " +
-                "VALUES (?, ?::plan_status_enum, ?, ?, ?::jsonb, ?::plan_strategy_enum) RETURNING id";
+        // Twoja metoda save z rzutowaniem na typy PostgreSQL jest poprawna
+        String sql = "INSERT INTO optimization_plan (user_id, status, cost_savings, co2_savings, rules, optimization_strategy, name) " +
+                "VALUES (?, ?::plan_status_enum, ?, ?, ?::jsonb, ?::plan_strategy_enum, ?) RETURNING id";
 
         try (Connection conn = Db.conn;
              PreparedStatement statement = conn.prepareStatement(sql)) {
-            // 1. Ustawienie parametrów
             statement.setInt(1, plan.getUserId());
             statement.setString(2, plan.getStatus().name());
             statement.setDouble(3, plan.getCostSavings());
             statement.setDouble(4, plan.getCo2Savings());
             statement.setString(5, plan.getRulesAsJson());
             statement.setString(6, plan.getStrategyName());
+            statement.setString(7, plan.getName()); // Dodano zapis nazwy
 
-            // 2. Wykonanie i pobranie wygenerowanego ID
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     plan.setId(rs.getInt(1));
-                    System.out.printf("   [DB] Zapisano Plan ID: %d do bazy danych.%n", plan.getId());
                     return true;
                 }
             }
-
         } catch (SQLException e) {
-            System.err.println("Błąd zapisu planu optymalizacji do bazy danych:");
             e.printStackTrace();
-            plan.setStatus(PlanStatus.Stopped);
-            return false;
-        } catch (IllegalStateException e) {
-            System.err.println("Błąd połączenia z bazą: " + e.getMessage());
-            plan.setStatus(PlanStatus.Stopped);
-            return false;
-        } catch (Exception e) {
-            System.err.println("Nieoczekiwany błąd: " + e.getMessage());
-            plan.setStatus(PlanStatus.Stopped);
             return false;
         }
         return false;
     }
 
-    // Naprawa błędu z obrazka image_33d59b.png
     public OptimizationPlan findById(Integer id) {
+        // Implementacja findById jest poprawna i naprawia błąd w OptimizationManager
         String sql = "SELECT * FROM optimization_plan WHERE id = ?";
-        // Logika pobierania z bazy danych...
-        return null; // Zwróć obiekt planu po zmapowaniu z ResultSet
+        try (Connection conn = Db.conn;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPlan(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    // Metoda obsługująca endpoint zmiany nazwy
     public boolean updateName(Integer id, String name) {
         String sql = "UPDATE optimization_plan SET name = ? WHERE id = ?";
-        // Wykonaj update w DB...
-        return true;
+        try (Connection conn = Db.conn;
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setInt(2, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 3. Wydzielona metoda mapowania - unika powielania kodu w findAll i findById
+    private OptimizationPlan mapResultSetToPlan(ResultSet rs) throws SQLException {
+        String strategyType = rs.getString("optimization_strategy");
+        OptimizationStrategy strategy = switch (strategyType) {
+            case "Costs_reduction" -> new CostReductionStrategy();
+            case "Co2_reduction" -> new Co2ReductionStrategy();
+            default -> new LoadReductionStrategy();
+        };
+
+        OptimizationPlan plan = new OptimizationPlan(rs.getInt("user_id"), strategy);
+        plan.setId(rs.getInt("id"));
+        plan.setName(rs.getString("name"));
+        plan.setStatus(PlanStatus.valueOf(rs.getString("status")));
+        plan.setCostSavings(rs.getDouble("cost_savings"));
+        plan.setCo2Savings(rs.getDouble("co2_savings"));
+        plan.setRules(strategy.parseRules(rs.getString("rules")));
+        return plan;
     }
 }

@@ -71,4 +71,20 @@ export const authApi = {
     register: (userData) => api.post('/szebi/register', userData),
 };
 
+export const optimizationApi = {
+    // Pobieranie listy planów
+    getPlans: () => api.get('/optimization/plans'),
+
+    // Generowanie nowego planu (Administrator)
+    generatePlan: (userId, strategyType) => api.post('/optimization/generate', null, { params: { userId, strategyType } }),
+
+    // Sterowanie wątkami symulacji
+    runPlan: (id, userId) => api.post(`/optimization/plans/${id}/run`, null, { params: { userId } }),
+
+    stopPlan: (id, userId) => api.post(`/optimization/plans/${id}/stop`, null, { params: { userId } }),
+
+    // Zmiana nazwy planu
+    renamePlan: (id, newName) => api.patch(`/optimization/plans/${id}/rename`, newName),
+};
+
 export default api;
