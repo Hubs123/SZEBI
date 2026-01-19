@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class OptimizationPlan {
     private Integer id;
+    private String name;
     private final Integer userId;
     private PlanStatus status; // Używamy importowanego enuma
     private Double costSavings = 0.0;
@@ -40,6 +41,10 @@ public class OptimizationPlan {
     public void setId(int id) {
         this.id = id;
     }
+
+    public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
 
     public Integer getUserId() {
         return userId;

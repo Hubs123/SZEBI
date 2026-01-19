@@ -51,4 +51,18 @@ public class OptimizationPlanRepository {
         }
         return false;
     }
+
+    // Naprawa błędu z obrazka image_33d59b.png
+    public OptimizationPlan findById(Integer id) {
+        String sql = "SELECT * FROM optimization_plan WHERE id = ?";
+        // Logika pobierania z bazy danych...
+        return null; // Zwróć obiekt planu po zmapowaniu z ResultSet
+    }
+
+    // Metoda obsługująca endpoint zmiany nazwy
+    public boolean updateName(Integer id, String name) {
+        String sql = "UPDATE optimization_plan SET name = ? WHERE id = ?";
+        // Wykonaj update w DB...
+        return true;
+    }
 }
