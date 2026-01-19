@@ -1,7 +1,7 @@
 package pl.szebi.alerts;
 
 public class Threshold {
-    private final Integer id;
+    private Integer id;
     private String thresholdType;
     private Float valueWarning;
     private Float valueEmergency;
@@ -47,6 +47,8 @@ public class Threshold {
         this.valueWarning = valueWarning;
         this.valueEmergency = valueEmergency;
     }
+
+    public void setId(Integer id) {this.id = id;}
 
     public Integer getReactionId() {
         return reactionId;

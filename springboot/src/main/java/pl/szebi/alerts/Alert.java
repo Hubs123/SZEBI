@@ -59,7 +59,7 @@ public class Alert {
     }
 
     public void findPriorityLevel() {
-        List<Threshold> thresholds = deviceGroup.getThresholds();
+        List<Threshold> thresholds = deviceGroup.getAllThresholds();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAnomalyType())) {
                 if(threshold.getValueWarning()>threshold.getValueEmergency()) {
@@ -82,15 +82,19 @@ public class Alert {
     }
 
     public String createMessage() {
-        return "New alert with id: " + getId().toString() + "\nalerty.Priority level: " +
+        return "Nowy alert o id: " + getId().toString() + "\n.Priority level: " +
                 getPriority().toString() + "\nReported at: " + getAlertDate().toString() +
                 "\nComing from the device with id:" + getDeviceId().toString() +
                 "\nThe value of the anomaly equals:" + getAnomalyValue().toString();
     }
 
+    public String getMessage() {
+        return createMessage();
+    }
+
     public void checkAutomaticReaction() {
-        List<Threshold> thresholds = deviceGroup.getThresholds();
-        List<AutomaticReaction> reactions = deviceGroup.getReactions();
+        List<Threshold> thresholds = deviceGroup.getAllThresholds();
+        List<AutomaticReaction> reactions = deviceGroup.getAllReactions();
         for (Threshold threshold : thresholds) {
             if (threshold.getThresholdType().equals(getAnomalyType())) {
                 if (threshold.getReactionId() != null) {

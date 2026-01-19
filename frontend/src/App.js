@@ -37,6 +37,10 @@ import AdministrationPage from "./modules/control/pages/AdministrationPage";
 
 import { requireAdmin, requireResident } from "./services/roleGuards";
 
+import AlertsLayout from './layouts/AlertsLayout';
+import AlertsPage from './modules/alerts/pages/AlertsPage';
+import DeviceGroupsPage from './modules/alerts/pages/DeviceGroupsPage';
+
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("token");
 
@@ -179,11 +183,15 @@ function App() {
                       } />
                     </Route>
 
+                    {/* alerty */}
+                    <Route path="alerty" element={<AlertsLayout />}>
+                        <Route index element={<AlertsPage />} />
+                        <Route path="konfiguracja" element={<DeviceGroupsPage />} />
+                    </Route>
+
                     {/* niedokończone moduły */}
                     <Route path="symulacja" element={<Placeholder title="Moduł Symulacji"/>}/>
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji"/>}/>
-                    <Route path="alerty" element={<Placeholder title="Moduł Alertów"/>}/>
-
                     <Route path="*" element={<Navigate to="/" replace/>}/>
                 </Route>
             </Routes>

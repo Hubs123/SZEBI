@@ -108,6 +108,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/chat/files/**").permitAll()
                         .requestMatchers("/api/data/**").authenticated()
                         .requestMatchers("/api/control/**").permitAll()
+                        .requestMatchers("/api/alerts/**", "/api/admin/alerts/**").authenticated()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

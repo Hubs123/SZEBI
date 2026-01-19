@@ -11,20 +11,9 @@ import java.util.List;
 public class AlertManager {
     static public final AlertRepository alertRepo = new AlertRepository();
 
-    public Alert createAlert(Date date, Float anomalyValue, String anomalyType, Integer deviceId) {
-        DeviceGroup deviceGroup = null;
-        DeviceType type = DeviceManager.getDevice(deviceId).getType();
-        switch (type) {
-            case noSimulation:
-                deviceGroup = new DeviceGroup(1, "light", null, null);
-                break;
-            case thermometer:
-                deviceGroup = new DeviceGroup(2, "thermometer", null, null);
-                break;
-            case smokeDetector:
-                deviceGroup = new DeviceGroup(3, "smokeDetector", null, null);
-        }
-        Alert a = new Alert(date, anomalyValue, anomalyType, deviceGroup, deviceId);
+    public Alert createAlert(Date alertDate, Float anomalyValue, String anomalyType, Integer deviceId) {
+        DeviceGroup deviceGroup = findDeviceGroup(deviceId);
+        Alert a = new Alert(alertDate, anomalyValue, anomalyType, deviceGroup, deviceId);
         try {
             a.findPriorityLevel();
         } catch (Exception e) {
@@ -42,6 +31,26 @@ public class AlertManager {
             return a;
         }
         return null;
+    }
+
+    private DeviceGroup findDeviceGroup(Integer deviceId) {
+        DeviceGroup deviceGroup = null;
+        Device device = DeviceManager.getDevice(deviceId);
+        switch (device.getType()) {
+            case noSimulation:
+                deviceGroup = DeviceGroupRepository.getById(1);
+                break;
+            case thermometer:
+                deviceGroup = DeviceGroupRepository.getById(2);
+                break;
+            case smokeDetector:
+                deviceGroup = DeviceGroupRepository.getById(3);
+        }
+        assert deviceGroup != null;
+        if (deviceGroup.getDeviceById(deviceId) == null) {
+            deviceGroup.addDevice(device);
+        }
+        return deviceGroup;
     }
 
     public Boolean removeAlert(Integer alertId) {
