@@ -20,47 +20,44 @@ load_dotenv()
 
 # URL Spring Boot backendu
 SPRINGBOOT_URL = os.getenv("SPRINGBOOT_URL", "http://localhost:8080")
-
+_db_conn = None
 
 def get_db_connection():
-    """Tworzy nowe połączenie do bazy PostgreSQL na podstawie zmiennych środowiskowych.
-
-    Oczekujemy, że w środowisku są ustawione zmienne:
-    - DB_URL (JDBC / lub klasyczny URL PostgreSQL)
-    - DB_USER
-    - DB_PASSWORD
-    
-    Zmienne mogą być w pliku .env lub w środowisku systemowym.
     """
+    get connection (Supabase-safe).
+    """
+    global _db_conn
+
+    # jeśli połączenie już istnieje i jest otwarte → reuse
+    if _db_conn is not None and _db_conn.closed == 0:
+        return _db_conn
+
     db_url = os.getenv("DB_URL")
     db_user = os.getenv("DB_USER")
     db_password = os.getenv("DB_PASSWORD")
 
     if not db_url or not db_user or not db_password:
         raise RuntimeError(
-            "Brak konfiguracji bazy danych. Ustaw zmienne środowiskowe:\n"
-            "  - DB_URL (np. postgresql://host:port/dbname)\n"
-            "  - DB_USER\n"
-            "  - DB_PASSWORD\n"
-            "Lub utwórz plik .env w katalogu SZEBI z tymi zmiennymi."
+            "Brak konfiguracji bazy danych. Ustaw zmienne:\n"
+            "DB_URL, DB_USER, DB_PASSWORD"
         )
 
-    # Dopuszczamy format JDBC z .env i wyciągamy właściwy fragment dla psycopg2
-    # Przykład: jdbc:postgresql://host:port/dbname
+    # usunięcie jdbc:
     if db_url.startswith("jdbc:"):
-        db_url = db_url[len("jdbc:") :]
+        db_url = db_url[len("jdbc:"):]
 
     try:
-        conn = psycopg2.connect(
-            db_url, 
-            user=db_user, 
-            password=db_password, 
+        _db_conn = psycopg2.connect(
+            db_url,
+            user=db_user,
+            password=db_password,
+            sslmode="require",          # WAŻNE dla Supabase
             cursor_factory=RealDictCursor
         )
-        return conn
+        return _db_conn
+
     except psycopg2.Error as e:
         raise RuntimeError(f"Nie można połączyć się z bazą danych: {e}") from e
-
 
 class DbMeasurementRepository:
     """Repozytorium pomiarów oparte o tabelę measurements w PostgreSQL.
