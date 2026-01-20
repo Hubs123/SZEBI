@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor, Json
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import httpx
 
 from app.analysis.models import Measurement, EnergyStats
 from app.prediction.models import Prediction
 from app.reporting.reporting_service import Report
 
-# Załaduj zmienne środowiskowe z .env
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # URL Spring Boot backendu
 SPRINGBOOT_URL = os.getenv("SPRINGBOOT_URL", "http://localhost:8080")

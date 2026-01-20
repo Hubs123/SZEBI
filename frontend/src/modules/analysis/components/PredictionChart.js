@@ -31,16 +31,41 @@ const PredictionChart = ({ measurements, prediction }) => {
     new Date(a.timestamp) - new Date(b.timestamp)
   );
 
-  // Dodaj punkt prognozy
-  const predictionDate = new Date(prediction.predictedForDate);
-  
+  // Determine prediction value safely
+  const predValue = prediction?.value ?? prediction?.prediction?.value ?? null;
+
+  // Compute prediction timestamp from measurements (last + interval)
+  const len = sortedMeasurements.length;
+  const last = new Date(sortedMeasurements[len - 1].timestamp);
+  let predictionDate = null;
+  if (len >= 2) {
+    const prev = new Date(sortedMeasurements[len - 2].timestamp);
+    const interval = last.getTime() - prev.getTime();
+    const safeInterval = interval > 0 ? interval : 60 * 60 * 1000;
+    predictionDate = new Date(last.getTime() + safeInterval);
+  } else {
+    predictionDate = new Date(last.getTime() + 60 * 60 * 1000);
+  }
+
   const labels = [
     ...sortedMeasurements.map(m => format(new Date(m.timestamp), 'dd.MM HH:mm')),
     format(predictionDate, 'dd.MM HH:mm'),
   ];
 
   const historicalData = sortedMeasurements.map(m => m.gridConsumption);
-  const predictionData = [...historicalData, null, prediction.value];
+
+  // Make prediction dataset null for historical points and set only the predicted value at the final label
+  const predictionData = new Array(historicalData.length).fill(null).concat(predValue != null ? predValue : null);
+
+  // Debugging info (visible in browser console) to help verify alignment
+  // eslint-disable-next-line no-console
+  console.debug('PredictionChart:', {
+    lastMeasurements: sortedMeasurements.slice(-3).map(m => m.timestamp),
+    predictionDate: predictionDate && predictionDate.toISOString(),
+    labelsCount: labels.length,
+    historicalLength: historicalData.length,
+    predictionDataLength: predictionData.length,
+  });
 
   const data = {
     labels,
@@ -62,6 +87,7 @@ const PredictionChart = ({ measurements, prediction }) => {
         tension: 0.4,
         pointRadius: 6,
         pointHoverRadius: 8,
+        spanGaps: false,
       },
     ],
   };

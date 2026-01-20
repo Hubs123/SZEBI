@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { predictionApi, dataApi } from '../../../services/api';
-import PredictionChart from '../components/PredictionChart';
-import './PredictionPage.css';
+import { predictionApi, dataApi } from '../services/api';
+import PredictionChart from './PredictionChart';
+import './PredictionPanel.css';
 
 const PredictionPanel = () => {
   const [sensorId, setSensorId] = useState(1);
@@ -20,56 +20,29 @@ const PredictionPanel = () => {
     setResult(null);
 
     try {
-      // Pobierz dane historyczne do wykresu first so we can compute next timestamp
-      const end = new Date();
-      const start = new Date();
-      start.setDate(start.getDate() - historyDays);
-
-      const measurementsResponse = await dataApi.getMeasurements(
-        sensorId,
-        start.toISOString(),
-        end.toISOString()
-      );
-      const fetchedMeasurements = measurementsResponse.data || [];
-      setMeasurements(fetchedMeasurements);
-
-      // Run prediction
       const response = await predictionApi.runPrediction(
         sensorId,
         modelId,
         modelType,
         historyDays
       );
+      setResult(response.data);
 
-      // prepare result and align prediction timestamp to next measurement period
-      const apiResult = response.data;
-      if (apiResult && apiResult.prediction) {
-        const pred = { ...apiResult.prediction };
+      // Dane do wykresu bierzemy z wyników symulacji (getSimulationResults), a nie z tabeli measurements.
+      const simResponse = await dataApi.getSimulationResults();
+      const rawData = simResponse.data || [];
 
-        // compute next timestamp from measurements: use interval between last two measurements or default 1 hour
-        if (fetchedMeasurements && fetchedMeasurements.length > 0) {
-          const sorted = [...fetchedMeasurements].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-          const len = sorted.length;
-          const last = new Date(sorted[len - 1].timestamp);
-          let nextTs = null;
-          if (len >= 2) {
-            const prev = new Date(sorted[len - 2].timestamp);
-            const interval = last.getTime() - prev.getTime();
-            const safeInterval = interval > 0 ? interval : 60 * 60 * 1000;
-            nextTs = new Date(last.getTime() + safeInterval);
-          } else {
-            nextTs = new Date(last.getTime() + 60 * 60 * 1000);
-          }
-          // set predictedForDate to next timestamp in ISO format (chart will read it)
-          pred.predictedForDate = nextTs.toISOString();
-        }
+      const transformedData = rawData.map((record, index) => ({
+        timestamp: record.periodStart ? (record.periodStart.includes(':') ? record.periodStart + ':00' : record.periodStart) : `Okres ${index + 1}`,
+        gridConsumption: record.gridConsumption || 0,
+        gridFeedIn: record.gridFeedIn || 0,
+        pvProduction: record.pvProduction || 0,
+        batteryLevel: record.batteryLevel || 0,
+        periodNumber: record.periodNumber,
+        ...record
+      }));
 
-        // set the modified result into state
-        setResult({ ...apiResult, prediction: pred });
-      } else {
-        // fallback: set raw response
-        setResult(apiResult);
-      }
+      setMeasurements(transformedData);
     } catch (err) {
       console.error('Błąd prognozy:', err);
       setError(err.response?.data?.message || err.message || 'Wystąpił błąd podczas prognozowania');
@@ -80,8 +53,8 @@ const PredictionPanel = () => {
 
   return (
     <div className="panel">
-      <h2>Prognozowanie Zużycia Energii</h2>
-      
+      <h2>🔮 Prognozowanie Zużycia Energii</h2>
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>ID Sensora</label>
@@ -139,15 +112,15 @@ const PredictionPanel = () => {
       {result && (
         <div className="results">
           <div className="success">Prognoza wygenerowana pomyślnie!</div>
-          
+
           <div className="stats-grid">
             <div className="stat-card">
               <h3>Prognozowane zużycie</h3>
-              <div className="value">{result.prediction?.value?.toFixed ? result.prediction.value.toFixed(2) : String(result.prediction?.value ?? '-') } kWh</div>
+              <div className="value">{result.prediction.value.toFixed(2)} kWh</div>
             </div>
             <div className="stat-card">
               <h3>Data prognozy</h3>
-              <div className="value">{result.prediction?.predictedForDate ? new Date(result.prediction.predictedForDate).toLocaleString('pl-PL') : '-'}</div>
+              <div className="value">{new Date(result.prediction.predictedForDate).toLocaleDateString('pl-PL')}</div>
             </div>
             <div className="stat-card">
               <h3>Typ modelu</h3>
@@ -158,8 +131,8 @@ const PredictionPanel = () => {
           {measurements.length > 0 && result.prediction && (
             <div className="chart-container">
               <h3>Wykres prognozy</h3>
-              <PredictionChart 
-                measurements={measurements} 
+              <PredictionChart
+                measurements={measurements}
                 prediction={result.prediction}
               />
             </div>
@@ -171,4 +144,3 @@ const PredictionPanel = () => {
 };
 
 export default PredictionPanel;
-
