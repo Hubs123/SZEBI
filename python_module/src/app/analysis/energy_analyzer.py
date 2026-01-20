@@ -56,15 +56,15 @@ class EnergyAnalyzer:
 
         measurements = self.measurement_repo.get_simulation_results()
         if not measurements:
-            raise NoDataError("No measurements in given range")
-
+            raise NoDataError("No measurements in given range - simulation results missing")
+        print(measurements)
         measurements = [
             m
             for m in measurements
             if time_range.contains(self._normalize_dt_to_range(m.timestamp, time_range))
         ]
         if not measurements:
-            raise NoDataError("No measurements in given range")
+            raise NoDataError("No measurements in given range - filtered out")
 
         df = self._to_dataframe(measurements)
 

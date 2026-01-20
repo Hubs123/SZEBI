@@ -17,7 +17,7 @@ from app.repository.db_impl import (
     DbPredictionRepository,
     DbReportRepository,
     DbPlotGenerator,
-    get_db_connection,
+    get_db_pool as get_db_connection,  # alias pool factory to expected name
 )
 
 
