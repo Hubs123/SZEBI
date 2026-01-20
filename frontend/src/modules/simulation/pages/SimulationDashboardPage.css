@@ -1,12 +1,95 @@
-.simulation-header {
+/* Górny panel podsumowania symulacji */
+.simulation-dashboard .simulation-summary-panel {
+  border-top: none;
+  background: #ffffff;
+}
+
+.simulation-summary-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
 }
 
-.simulation-header h2 {
+.simulation-summary-header h2 {
   margin: 0;
+}
+
+.simulation-summary-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #5f6368;
+}
+
+.simulation-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.simulation-kpi-card {
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.simulation-kpi-card.primary {
+  border-color: #0f9d58;
+  background: linear-gradient(135deg, #0f9d58 0%, #34a853 100%);
+  color: #ffffff;
+}
+
+.simulation-kpi-card.muted {
+  background: #f8f9fa;
+}
+
+.simulation-kpi-card .kpi-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.simulation-kpi-card .kpi-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.simulation-chart-and-info {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+  align-items: flex-start;
+}
+
+.simulation-side-info {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  background: #f5f8ff;
+  border: 1px solid #d2e3fc;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.simulation-side-info h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.simulation-side-info ul {
+  padding-left: 1.1rem;
+  margin: 0;
+}
+
+.simulation-side-info li + li {
+  margin-top: 0.25rem;
 }
 
 .loading-indicator {
@@ -118,6 +201,14 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .simulation-chart-and-info {
+    grid-template-columns: 1fr;
+  }
+
+  .simulation-dashboard .simulation-summary-panel {
+    border-top-width: 3px;
+  }
+
   .simulation-table {
     font-size: 0.85rem;
   }
@@ -125,12 +216,6 @@
   .simulation-table th,
   .simulation-table td {
     padding: 0.75rem 0.5rem;
-  }
-  
-  .simulation-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
 }
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { dataApi } from '../../../services/api';
 import { ControlApi } from '../../../services/controlApi';
-import EnergyChart from '../../analysis/components/EnergyChart';
 import './SimulationDashboardPage.css';
 
 const SimulationDashboardPage = () => {
@@ -160,68 +159,82 @@ const SimulationDashboardPage = () => {
     return <div className="panel loading">Ładowanie danych...</div>;
   }
 
-  const stats = measurements.length > 0 ? {
-    avg: measurements.reduce((sum, m) => sum + (m.gridConsumption || 0), 0) / measurements.length,
-    min: Math.min(...measurements.map(m => m.gridConsumption || 0)),
-    max: Math.max(...measurements.map(m => m.gridConsumption || 0)),
-    total: measurements.reduce((sum, m) => sum + (m.gridConsumption || 0), 0),
-    totalPV: measurements.reduce((sum, m) => sum + (m.pvProduction || 0), 0),
-    totalFeedIn: measurements.reduce((sum, m) => sum + (m.gridFeedIn || 0), 0),
-  } : null;
+  const stats = measurements.length > 0 ? (() => {
+    const totalGrid = measurements.reduce((sum, m) => sum + (m.gridConsumption || 0), 0);
+    const totalPV = measurements.reduce((sum, m) => sum + (m.pvProduction || 0), 0);
+    const totalFeedIn = measurements.reduce((sum, m) => sum + (m.gridFeedIn || 0), 0);
+
+    // Przybliżona autokonsumpcja: ile z produkcji PV zostało zużyte lokalnie
+    const selfConsumption = Math.max(totalPV - totalFeedIn, 0);
+    const pvShare = (totalPV + totalGrid) > 0 ? (totalPV / (totalPV + totalGrid)) * 100 : 0;
+    const selfUseShare = totalPV > 0 ? (selfConsumption / totalPV) * 100 : 0;
+
+    return {
+      periods: measurements.length,
+      avgGrid: measurements.length > 0 ? totalGrid / measurements.length : 0,
+      totalGrid,
+      totalPV,
+      totalFeedIn,
+      pvShare,
+      selfUseShare,
+    };
+  })() : null;
 
   return (
-    <div>
-      <div className="panel">
-        <h2>📊 Dashboard Symulacji</h2>
+    <div className="simulation-dashboard">
+      <div className="panel simulation-summary-panel">
+        <div className="simulation-summary-header">
+          <div>
+            <h2>Panel symulacji</h2>
+            <p className="simulation-summary-subtitle">
+              Podsumowanie ostatniego przebiegu symulacji (na poziomie całego budynku)
+            </p>
+          </div>
+        </div>
         {stats && (
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>Średnie zużycie</h3>
-              <div className="value">{stats.avg.toFixed(2)} kWh</div>
+          <div className="simulation-kpi-grid">
+            <div className="simulation-kpi-card primary">
+              <span className="kpi-label">Okresy symulacji</span>
+              <span className="kpi-value">{stats.periods}</span>
             </div>
-            <div className="stat-card">
-              <h3>Minimum</h3>
-              <div className="value">{stats.min.toFixed(2)} kWh</div>
+            <div className="simulation-kpi-card">
+              <span className="kpi-label">Średnie zużycie z sieci</span>
+              <span className="kpi-value">{stats.avgGrid.toFixed(2)} kWh</span>
             </div>
-            <div className="stat-card">
-              <h3>Maximum</h3>
-              <div className="value">{stats.max.toFixed(2)} kWh</div>
+            <div className="simulation-kpi-card">
+              <span className="kpi-label">Udział energii z PV</span>
+              <span className="kpi-value">{stats.pvShare.toFixed(1)}%</span>
             </div>
-            <div className="stat-card">
-              <h3>Całkowite zużycie</h3>
-              <div className="value">{stats.total.toFixed(2)} kWh</div>
+            <div className="simulation-kpi-card">
+              <span className="kpi-label">Autokonsumpcja produkcji PV</span>
+              <span className="kpi-value">{stats.selfUseShare.toFixed(1)}%</span>
             </div>
-            <div className="stat-card">
-              <h3>Produkcja PV</h3>
-              <div className="value">{stats.totalPV.toFixed(2)} kWh</div>
+            <div className="simulation-kpi-card muted">
+              <span className="kpi-label">Całkowite zużycie z sieci</span>
+              <span className="kpi-value">{stats.totalGrid.toFixed(2)} kWh</span>
             </div>
-            <div className="stat-card">
-              <h3>Oddanie do sieci</h3>
-              <div className="value">{stats.totalFeedIn.toFixed(2)} kWh</div>
+            <div className="simulation-kpi-card muted">
+              <span className="kpi-label">Całkowita produkcja PV</span>
+              <span className="kpi-value">{stats.totalPV.toFixed(2)} kWh</span>
             </div>
           </div>
         )}
 
-        {measurements.length > 0 && (
-          <div className="chart-container">
-            <h3>Zużycie energii - wyniki symulacji</h3>
-            <EnergyChart measurements={measurements} />
-          </div>
-        )}
+
       </div>
 
       {/* Tabela danych symulacji */}
-      <div className="panel">
+      <div className="panel simulation-data-panel">
         <div className="simulation-header">
-          <h2>⚡ Dane Symulacji (Odświeżanie co 3s)</h2>
+          <h2>Dane Symulacji (Odświeżanie co 3s)</h2>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {simulationLoading && <span className="loading-indicator">🔄 Ładowanie...</span>}
+            {simulationLoading && <span className="loading-indicator">Ładowanie...</span>}
             <button 
               onClick={runSimulation} 
               disabled={simulationRunning}
               className="btn"
             >
-              {simulationRunning ? 'Uruchamianie...' : '▶ Uruchom Symulację'}
+              {simulationRunning ? 'Uruchamianie...' : 'Uruchom Symulację'}
             </button>
           </div>
         </div>
@@ -280,7 +293,7 @@ const SimulationDashboardPage = () => {
 
       {/* Lista urządzeń z zużyciem energii */}
       <div className="panel">
-        <h2>🔌 Urządzenia i Zużycie Energii</h2>
+        <h2>Urządzenia i Zużycie Energii</h2>
         {deviceConsumption.length > 0 ? (
           <div className="devices-table-container">
             <table className="devices-table">

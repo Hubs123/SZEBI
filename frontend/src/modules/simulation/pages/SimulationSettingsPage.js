@@ -38,7 +38,7 @@ const SimulationSettingsPage = () => {
 
   return (
     <div className="panel">
-      <h2>⚙️ Ustawienia Symulacji</h2>
+      <h2>Ustawienia Symulacji</h2>
       
       <div className="settings-info">
         <p>Konfiguracja parametrów systemu energetycznego używanych w symulacji.</p>
@@ -92,7 +92,7 @@ const SimulationSettingsPage = () => {
       </form>
 
       {error && <div className="error">{error}</div>}
-      {saved && <div className="success">✅ Ustawienia zostały zapisane!</div>}
+      {saved && <div className="success">Ustawienia zostały zapisane!</div>}
 
       <div className="settings-summary">
         <h3>Podsumowanie konfiguracji</h3>
