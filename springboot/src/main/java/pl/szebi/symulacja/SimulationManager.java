@@ -1,5 +1,12 @@
 package pl.szebi.symulacja;
 
+import pl.szebi.sterowanie.Device;
+import pl.szebi.sterowanie.DeviceManager;
+import pl.szebi.sterowanie.DeviceType;
+import pl.szebi.alerts.Alert;
+import pl.szebi.alerts.AlertManager;
+import java.sql.Timestamp;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +71,9 @@ public class SimulationManager {
             );
             
             records.add(record);
+            
+            // Sprawdzenie czy należy wygenerować alert
+            checkAndGenerateAlert(record);
             
             // Zapisanie wyniku do tablicy
             simulationResults[period - 1] = record;
@@ -151,16 +161,81 @@ public class SimulationManager {
     }
     
     /**
+     * Oblicza zużycie energii na podstawie wszystkich urządzeń z modułu sterowania.
+     * Każde urządzenie ma przypisaną moc na podstawie typu. Urządzenia włączone (power=1.0f)
+     * zużywają energię, wyłączone (power=0.0f) nie zużywają.
+     * 
+     * @param periodDurationHours czas trwania okresu w godzinach
+     * @return całkowite zużycie energii w kWh dla danego okresu
+     */
+    private Double calculateHouseholdConsumptionFromDevices(double periodDurationHours) {
+        DeviceManager deviceManager = new DeviceManager();
+        List<Device> devices = deviceManager.listDevices();
+        
+        double totalConsumption = 0.0;
+        
+        for (Device device : devices) {
+            // Sprawdzenie czy urządzenie jest włączone
+            if (!device.isOn()) {
+                continue; // Urządzenie wyłączone nie zużywa energii
+            }
+            
+            // Przypisanie mocy (kW) na podstawie typu urządzenia
+            double devicePower = getDevicePowerConsumption(device.getType());
+            
+            // Zużycie energii = moc * czas (kWh)
+            double deviceConsumption = devicePower * periodDurationHours;
+            totalConsumption += deviceConsumption;
+        }
+        
+        // Zapewnienie minimalnego zużycia (np. oświetlenie podstawowe, lodówka)
+        // Minimum 0.5 kWh na okres (4h) dla podstawowych urządzeń
+        double baseConsumption = 0.5;
+        return Math.max(baseConsumption, totalConsumption);
+    }
+    
+    /**
+     * Zwraca moc zużycia (kW) dla danego typu urządzenia.
+     * 
+     * @param deviceType typ urządzenia
+     * @return moc zużycia w kW
+     */
+    private double getDevicePowerConsumption(DeviceType deviceType) {
+        switch (deviceType) {
+            case thermometer:
+                return 0.001; // 1W - bardzo małe zużycie
+            case smokeDetector:
+                return 0.005; // 5W - małe zużycie
+            case noSimulation:
+                // Dla urządzeń typu noSimulation (żarówki, okna smart itp.)
+                // używamy średniego zużycia, np. żarówka LED ~10W
+                return 0.010; // 10W
+            default:
+                return 0.010; // Domyślne 10W dla nieznanych typów
+        }
+    }
+    
+    /**
      * Generuje zużycie energii w gospodarstwie dla danego okresu.
-     * Symuluje większe zużycie w godzinach aktywności (dzień 6-22h).
-     * Analogicznie do pliku Python: więcej w dzień (2.5-4.5 kWh), mniej w nocy (0.8-1.2 kWh).
+     * Używa rzeczywistego zużycia energii z urządzeń pobranych z modułu sterowania.
+     * Jeśli nie ma urządzeń, używa wartości domyślnych opartych na okresie dnia.
      * 
      * @param periodNumber numer okresu (1-6)
      * @return zużycie energii w kWh
      */
     private Double generateHouseholdConsumption(Integer periodNumber) {
+        // Obliczenie zużycia na podstawie urządzeń z modułu sterowania
+        double consumptionFromDevices = calculateHouseholdConsumptionFromDevices(4.0); // okres 4h
+        
+        // Jeśli mamy urządzenia i zużycie jest znaczące, używamy go
+        if (consumptionFromDevices > 0.5) {
+            // Dodanie małej losowej zmienności (±5%) dla realizmu
+            double variation = 1.0 + (random.nextDouble() - 0.5) * 0.1; // 0.95 - 1.05
+            return consumptionFromDevices * variation;
+        }
+        
+        // Fallback: jeśli brak urządzeń lub bardzo małe zużycie, użyj wartości domyślnych
         // Okresy: 1 (0-4h), 2 (4-8h), 3 (8-12h), 4 (12-16h), 5 (16-20h), 6 (20-24h)
-        // Symulacja podobna do Python: więcej w dzień (6-22h), mniej w nocy
         double baseConsumption;
         
         switch (periodNumber) {
@@ -203,5 +278,106 @@ public class SimulationManager {
             throw new IllegalArgumentException("Ustawienia nie mogą być null");
         }
         this.settings = settings;
+    }
+
+    /**
+     * Sprawdza warunki i generuje alerty jeśli to konieczne.
+     * Wykorzystuje moduł alertów do utworzenia i zapisania alertu.
+     * 
+     * @param record rekord symulacji do sprawdzenia
+     */
+    private void checkAndGenerateAlert(SimulationRecord record) {
+        // Próg dla wysokiego zużycia z sieci - np. 3.0 kWh na okres (4h)
+        // Wartość dobrana tak, by czasem się wyzwoliła (baseConsumption to ok 0.5-4.5)
+        Double highGridConsumptionThreshold = 3.0;
+        
+        if (record.getGridConsumption() != null && record.getGridConsumption() > highGridConsumptionThreshold) {
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    // Wybieramy pierwsze urządzenie jako zgłaszające alert
+                    // W rzeczywistości powinien to być np. inteligentny licznik
+                    Integer deviceId = devices.get(0).getId();
+                    
+                    // Konwersja LocalDateTime na Date
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    // Stworzenie alertu - wykorzystanie createAlert z modułu alertów
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getGridConsumption().floatValue(), 
+                        "HighGridConsumption", 
+                        deviceId
+                    );
+                    
+                    // Zapisanie alertu do bazy - wykorzystanie saveAlertToDataBase
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                // Ignorujemy błędy generowania alertów, aby nie przerwać symulacji
+                System.err.println("Nie udało się wygenerować alertu: " + e.getMessage());
+            }
+        }
+
+        // Sprawdzenie czy magazyn energii jest pełny
+        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
+            record.getBatteryLevel() >= record.getBatteryCapacity() * 0.99) { // 99% uznajemy za pełny
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    Integer deviceId = devices.get(0).getId();
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getBatteryLevel().floatValue(), 
+                        "BatteryFull", 
+                        deviceId
+                    );
+                    
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Nie udało się wygenerować alertu baterii: " + e.getMessage());
+            }
+        }
+
+        // Sprawdzenie czy poziom baterii jest niski (poniżej 20%)
+        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
+            record.getBatteryLevel() < record.getBatteryCapacity() * 0.20) {
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    Integer deviceId = devices.get(0).getId();
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getBatteryLevel().floatValue(), 
+                        "BatteryLow", 
+                        deviceId
+                    );
+                    
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Nie udało się wygenerować alertu niskiego poziomu baterii: " + e.getMessage());
+            }
+        }
     }
 }
