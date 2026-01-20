@@ -287,97 +287,52 @@ public class SimulationManager {
      * @param record rekord symulacji do sprawdzenia
      */
     private void checkAndGenerateAlert(SimulationRecord record) {
-        // Próg dla wysokiego zużycia z sieci - np. 3.0 kWh na okres (4h)
-        // Wartość dobrana tak, by czasem się wyzwoliła (baseConsumption to ok 0.5-4.5)
-        Double highGridConsumptionThreshold = 3.0;
-        
-        if (record.getGridConsumption() != null && record.getGridConsumption() > highGridConsumptionThreshold) {
-            try {
-                AlertManager alertManager = new AlertManager();
-                DeviceManager deviceManager = new DeviceManager();
-                List<Device> devices = deviceManager.listDevices();
-                
-                if (devices != null && !devices.isEmpty()) {
-                    // Wybieramy pierwsze urządzenie jako zgłaszające alert
-                    // W rzeczywistości powinien to być np. inteligentny licznik
-                    Integer deviceId = devices.get(0).getId();
-                    
-                    // Konwersja LocalDateTime na Date
-                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
-                    
-                    // Stworzenie alertu - wykorzystanie createAlert z modułu alertów
-                    Alert alert = alertManager.createAlert(
-                        date, 
-                        record.getGridConsumption().floatValue(), 
-                        "HighGridConsumption", 
-                        deviceId
-                    );
-                    
-                    // Zapisanie alertu do bazy - wykorzystanie saveAlertToDataBase
-                    if (alert != null) {
-                        alertManager.saveAlertToDataBase(alert);
-                    }
-                }
-            } catch (Exception e) {
-                // Ignorujemy błędy generowania alertów, aby nie przerwać symulacji
-                System.err.println("Nie udało się wygenerować alertu: " + e.getMessage());
-            }
-        }
+        // Integracja z modułem alertów:
+        // - My tylko przekazujemy "co to za problem" (anomalyType) + wartość anomalii.
+        // - NIE decydujemy o priorytecie ani nie obsługujemy progów (thresholdów) tutaj.
+        // - Nie rozbijamy baterii na Low/Full – po prostu "Battery", a wartość sugeruje stan.
 
-        // Sprawdzenie czy magazyn energii jest pełny
-        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
-            record.getBatteryLevel() >= record.getBatteryCapacity() * 0.99) { // 99% uznajemy za pełny
-            try {
-                AlertManager alertManager = new AlertManager();
-                DeviceManager deviceManager = new DeviceManager();
-                List<Device> devices = deviceManager.listDevices();
-                
-                if (devices != null && !devices.isEmpty()) {
-                    Integer deviceId = devices.get(0).getId();
-                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
-                    
-                    Alert alert = alertManager.createAlert(
-                        date, 
-                        record.getBatteryLevel().floatValue(), 
-                        "BatteryFull", 
-                        deviceId
-                    );
-                    
-                    if (alert != null) {
-                        alertManager.saveAlertToDataBase(alert);
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Nie udało się wygenerować alertu baterii: " + e.getMessage());
-            }
-        }
+        try {
+            AlertManager alertManager = new AlertManager();
+            DeviceManager deviceManager = new DeviceManager();
+            List<Device> devices = deviceManager.listDevices();
 
-        // Sprawdzenie czy poziom baterii jest niski (poniżej 20%)
-        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
-            record.getBatteryLevel() < record.getBatteryCapacity() * 0.20) {
-            try {
-                AlertManager alertManager = new AlertManager();
-                DeviceManager deviceManager = new DeviceManager();
-                List<Device> devices = deviceManager.listDevices();
-                
-                if (devices != null && !devices.isEmpty()) {
-                    Integer deviceId = devices.get(0).getId();
-                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
-                    
-                    Alert alert = alertManager.createAlert(
-                        date, 
-                        record.getBatteryLevel().floatValue(), 
-                        "BatteryLow", 
-                        deviceId
-                    );
-                    
-                    if (alert != null) {
-                        alertManager.saveAlertToDataBase(alert);
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println("Nie udało się wygenerować alertu niskiego poziomu baterii: " + e.getMessage());
+            if (devices == null || devices.isEmpty()) {
+                return;
             }
+
+            // Wybieramy pierwsze urządzenie jako źródło alertu (jak wcześniej).
+            Integer deviceId = devices.get(0).getId();
+            java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+
+            // Alert dot. zużycia z sieci – przekazujemy surową wartość z symulacji.
+            if (record.getGridConsumption() != null) {
+                Alert gridAlert = alertManager.createAlert(
+                        date,
+                        record.getGridConsumption().floatValue(),
+                        "Grid",
+                        deviceId
+                );
+                if (gridAlert != null) {
+                    alertManager.saveAlertToDataBase(gridAlert);
+                }
+            }
+
+            // Alert dot. baterii – przekazujemy surowy poziom baterii (kWh) z symulacji.
+            if (record.getBatteryLevel() != null) {
+                Alert batteryAlert = alertManager.createAlert(
+                        date,
+                        record.getBatteryLevel().floatValue(),
+                        "Battery",
+                        deviceId
+                );
+                if (batteryAlert != null) {
+                    alertManager.saveAlertToDataBase(batteryAlert);
+                }
+            }
+        } catch (Exception e) {
+            // Nie przerywamy symulacji błędami integracji alertów
+            System.err.println("Nie udało się wysłać alertu z symulacji: " + e.getMessage());
         }
     }
 }
