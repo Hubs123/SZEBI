@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { dataApi } from '../../../services/api';
 import { ControlApi } from '../../../services/controlApi';
-import EnergyChart from '../../analysis/components/EnergyChart';
 import './SimulationDashboardPage.css';
 
 const SimulationDashboardPage = () => {
@@ -160,54 +159,13 @@ const SimulationDashboardPage = () => {
     return <div className="panel loading">Ładowanie danych...</div>;
   }
 
-  const stats = measurements.length > 0 ? {
-    avg: measurements.reduce((sum, m) => sum + (m.gridConsumption || 0), 0) / measurements.length,
-    min: Math.min(...measurements.map(m => m.gridConsumption || 0)),
-    max: Math.max(...measurements.map(m => m.gridConsumption || 0)),
-    total: measurements.reduce((sum, m) => sum + (m.gridConsumption || 0), 0),
-    totalPV: measurements.reduce((sum, m) => sum + (m.pvProduction || 0), 0),
-    totalFeedIn: measurements.reduce((sum, m) => sum + (m.gridFeedIn || 0), 0),
-  } : null;
+  // Dane szczegółowe są prezentowane w tabelach poniżej –
+  // nie pokazujemy już osobnej siatki KPI w nagłówku.
 
   return (
     <div>
       <div className="panel">
-        <h2>Dashboard Symulacji</h2>
-        {stats && (
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>Średnie zużycie</h3>
-              <div className="value">{stats.avg.toFixed(2)} kWh</div>
-            </div>
-            <div className="stat-card">
-              <h3>Minimum</h3>
-              <div className="value">{stats.min.toFixed(2)} kWh</div>
-            </div>
-            <div className="stat-card">
-              <h3>Maximum</h3>
-              <div className="value">{stats.max.toFixed(2)} kWh</div>
-            </div>
-            <div className="stat-card">
-              <h3>Całkowite zużycie</h3>
-              <div className="value">{stats.total.toFixed(2)} kWh</div>
-            </div>
-            <div className="stat-card">
-              <h3>Produkcja PV</h3>
-              <div className="value">{stats.totalPV.toFixed(2)} kWh</div>
-            </div>
-            <div className="stat-card">
-              <h3>Oddanie do sieci</h3>
-              <div className="value">{stats.totalFeedIn.toFixed(2)} kWh</div>
-            </div>
-          </div>
-        )}
-
-        {measurements.length > 0 && (
-          <div className="chart-container">
-            <h3>Zużycie energii - wyniki symulacji</h3>
-            <EnergyChart measurements={measurements} />
-          </div>
-        )}
+        <h2>Panel symulacji energetycznej</h2>
       </div>
 
       {/* Tabela danych symulacji */}
