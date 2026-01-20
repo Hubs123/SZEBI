@@ -172,7 +172,7 @@ const SimulationDashboardPage = () => {
   return (
     <div>
       <div className="panel">
-        <h2>📊 Dashboard Symulacji</h2>
+        <h2>Dashboard Symulacji</h2>
         {stats && (
           <div className="stats-grid">
             <div className="stat-card">
@@ -213,7 +213,7 @@ const SimulationDashboardPage = () => {
       {/* Tabela danych symulacji */}
       <div className="panel">
         <div className="simulation-header">
-          <h2>⚡ Dane Symulacji (Odświeżanie co 3s)</h2>
+          <h2>Dane Symulacji (Odświeżanie co 3s)</h2>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {simulationLoading && <span className="loading-indicator">🔄 Ładowanie...</span>}
             <button 
@@ -221,7 +221,7 @@ const SimulationDashboardPage = () => {
               disabled={simulationRunning}
               className="btn"
             >
-              {simulationRunning ? 'Uruchamianie...' : '▶ Uruchom Symulację'}
+              {simulationRunning ? 'Uruchamianie...' : 'Uruchom Symulację'}
             </button>
           </div>
         </div>
@@ -280,7 +280,7 @@ const SimulationDashboardPage = () => {
 
       {/* Lista urządzeń z zużyciem energii */}
       <div className="panel">
-        <h2>🔌 Urządzenia i Zużycie Energii</h2>
+        <h2>Urządzenia i Zużycie Energii</h2>
         {deviceConsumption.length > 0 ? (
           <div className="devices-table-container">
             <table className="devices-table">

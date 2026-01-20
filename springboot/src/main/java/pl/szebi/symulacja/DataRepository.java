@@ -105,7 +105,10 @@ public class DataRepository {
         if (records == null || records.isEmpty()) {
             return false;
         }
-        
+
+        LocalDate date = records.get(0).getSimulationDate();
+        deleteByDate(date);
+
         boolean allSuccess = true;
         for (SimulationRecord record : records) {
             if (!save(record)) {
@@ -260,5 +263,60 @@ public class DataRepository {
         record.setBatteryCapacity(rs.getDouble("battery_capacity"));
         
         return record;
+    }
+
+    public Boolean saveToEnergyStats(SimulationRecord record) {
+        if (record == null) {
+            return false;
+        }
+
+        String sql = "insert into energy_stats (device_id, start_time, end_time, avg_power_w, daily_kwh, annual_kwh, min_power_w, max_power_w)"
+                    + "values (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = Db.conn.prepareStatement(sql)) {
+            ps.setInt(1, 71);
+            ps.setTimestamp(2, Timestamp.valueOf(record.getPeriodStart()));
+            ps.setTimestamp(3, Timestamp.valueOf(record.getPeriodEnd()));
+
+            double avgPowerW = (record.getGridConsumption() / 4.0) * 1000.0;
+            ps.setDouble(4, avgPowerW);
+
+            ps.setDouble(5, record.getGridConsumption());
+
+            ps.setDouble(6, record.getGridConsumption());
+            ps.setDouble(7, avgPowerW * 0.9);
+            ps.setDouble(8, avgPowerW * 1.1);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Błąd zapisu do energy_stats: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Boolean saveToMeasurements(SimulationRecord record) {
+        if (record == null) {
+            return false;
+        }
+
+        String sql = "insert into measurements (device_id, timestamp, power_output_w, grid_feed_in_kwh, grid_consumption_kwh) " +
+                "values (?, ?, ?, ?, ?)";
+
+
+        try (PreparedStatement ps = Db.conn.prepareStatement(sql)) {
+            ps.setInt(1, 71);
+            ps.setTimestamp(2, Timestamp.valueOf(record.getPeriodStart()));
+
+            double powerW = (record.getPvProduction() / 4.0) * 1000.0;
+            ps.setDouble(3, powerW);
+
+            ps.setDouble(4, record.getGridFeedIn());
+            ps.setDouble(5, record.getGridConsumption());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Błąd zapisu do measurements: " + e.getMessage());
+            return false;
+        }
     }
 }

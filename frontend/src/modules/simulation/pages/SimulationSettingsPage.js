@@ -38,7 +38,7 @@ const SimulationSettingsPage = () => {
 
   return (
     <div className="panel">
-      <h2>⚙️ Ustawienia Symulacji</h2>
+      <h2>Ustawienia Symulacji</h2>
       
       <div className="settings-info">
         <p>Konfiguracja parametrów systemu energetycznego używanych w symulacji.</p>

@@ -34,7 +34,7 @@ const SimulationRunPage = () => {
 
   return (
     <div className="panel">
-      <h2>▶️ Uruchom Symulację</h2>
+      <h2>Uruchom Symulację</h2>
       
       <div className="simulation-info">
         <p>Symulacja generuje dane dla 6 okresów po 4 godziny każdy (łącznie 24h).</p>
@@ -61,7 +61,7 @@ const SimulationRunPage = () => {
         </div>
 
         <button type="submit" className="btn" disabled={loading}>
-          {loading ? 'Uruchamianie symulacji...' : '▶ Uruchom Symulację'}
+          {loading ? 'Uruchamianie symulacji...' : 'Uruchom Symulację'}
         </button>
       </form>
 
@@ -70,7 +70,7 @@ const SimulationRunPage = () => {
       {result && (
         <div className="results">
           <div className="success">
-            ✅ Symulacja zakończona pomyślnie!
+            Symulacja zakończona pomyślnie!
           </div>
           
           <div className="simulation-result-details">

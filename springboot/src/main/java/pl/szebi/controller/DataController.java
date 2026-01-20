@@ -174,6 +174,13 @@ public ResponseEntity<?> runSimulation(@RequestParam(required = false) String da
         pl.szebi.symulacja.DataRepository repository = new pl.szebi.symulacja.DataRepository();
         boolean saved = repository.saveAll(records);
 
+        if (saved) {
+            for (SimulationRecord record : records) {
+                repository.saveToEnergyStats(record);
+                repository.saveToMeasurements(record);
+            }
+        }
+
         Map<String, Object> response = new java.util.HashMap<>();
         response.put("success", saved);
         response.put("message", "Symulacja zakończona dla daty: " + localDate);
