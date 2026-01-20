@@ -55,7 +55,10 @@ public class SecurityConfig {
                         path.endsWith(".js") ||
                         path.endsWith(".css") ||
                         path.startsWith("/api/szebi/login") ||
-                        path.startsWith("/api/szebi/register")) {
+                        path.startsWith("/api/szebi/register") ||
+                        path.startsWith("/api/analysis") ||
+                        path.startsWith("/api/control") ||
+                        path.startsWith("/api/data")) {
 
                     chain.doFilter(req, res);
                     return;
@@ -99,17 +102,15 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/index.html", "/login.html", "/register.html",
                                 "/script.js", "/auth.js", "/styles.css",
-                                "/js/**", "/css/**", "/images/**",
-                                "/api/chat/files/**"
+                                "/js/**", "/css/**", "/images/**"
                         ).permitAll()
                         .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
+                        .requestMatchers("/api/analysis/**").permitAll()
+                        .requestMatchers("/api/control/**").permitAll()
+                        .requestMatchers("/api/data/**").permitAll()
                         .requestMatchers("/api/chat/addUser", "/api/chat/create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
-                        .requestMatchers("/api/chat/files/**").permitAll()
-                        .requestMatchers("/api/data/**").authenticated()
-                        .requestMatchers("/api/control/**").permitAll()
-                        .requestMatchers("/api/alerts/**", "/api/admin/alerts/**").permitAll()
-                        .anyRequest().denyAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -123,16 +124,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // Zezwól na wszystkie źródła
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*")); // Zezwól na wszystkie nagłówki
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type")); // Udostępnij nagłówki
-        configuration.setAllowCredentials(false); // Nie używamy credentials (cookies) przy "*" origins
-        configuration.setMaxAge(3600L); // Cache preflight requests przez 1 godzinę
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Zastosuj do wszystkich ścieżek
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
-
