@@ -3,6 +3,9 @@ package pl.szebi.symulacja;
 import pl.szebi.sterowanie.Device;
 import pl.szebi.sterowanie.DeviceManager;
 import pl.szebi.sterowanie.DeviceType;
+import pl.szebi.alerts.Alert;
+import pl.szebi.alerts.AlertManager;
+import java.sql.Timestamp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -68,6 +71,9 @@ public class SimulationManager {
             );
             
             records.add(record);
+            
+            // Sprawdzenie czy należy wygenerować alert
+            checkAndGenerateAlert(record);
             
             // Zapisanie wyniku do tablicy
             simulationResults[period - 1] = record;
@@ -272,5 +278,106 @@ public class SimulationManager {
             throw new IllegalArgumentException("Ustawienia nie mogą być null");
         }
         this.settings = settings;
+    }
+
+    /**
+     * Sprawdza warunki i generuje alerty jeśli to konieczne.
+     * Wykorzystuje moduł alertów do utworzenia i zapisania alertu.
+     * 
+     * @param record rekord symulacji do sprawdzenia
+     */
+    private void checkAndGenerateAlert(SimulationRecord record) {
+        // Próg dla wysokiego zużycia z sieci - np. 3.0 kWh na okres (4h)
+        // Wartość dobrana tak, by czasem się wyzwoliła (baseConsumption to ok 0.5-4.5)
+        Double highGridConsumptionThreshold = 3.0;
+        
+        if (record.getGridConsumption() != null && record.getGridConsumption() > highGridConsumptionThreshold) {
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    // Wybieramy pierwsze urządzenie jako zgłaszające alert
+                    // W rzeczywistości powinien to być np. inteligentny licznik
+                    Integer deviceId = devices.get(0).getId();
+                    
+                    // Konwersja LocalDateTime na Date
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    // Stworzenie alertu - wykorzystanie createAlert z modułu alertów
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getGridConsumption().floatValue(), 
+                        "HighGridConsumption", 
+                        deviceId
+                    );
+                    
+                    // Zapisanie alertu do bazy - wykorzystanie saveAlertToDataBase
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                // Ignorujemy błędy generowania alertów, aby nie przerwać symulacji
+                System.err.println("Nie udało się wygenerować alertu: " + e.getMessage());
+            }
+        }
+
+        // Sprawdzenie czy magazyn energii jest pełny
+        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
+            record.getBatteryLevel() >= record.getBatteryCapacity() * 0.99) { // 99% uznajemy za pełny
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    Integer deviceId = devices.get(0).getId();
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getBatteryLevel().floatValue(), 
+                        "BatteryFull", 
+                        deviceId
+                    );
+                    
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Nie udało się wygenerować alertu baterii: " + e.getMessage());
+            }
+        }
+
+        // Sprawdzenie czy poziom baterii jest niski (poniżej 20%)
+        if (record.getBatteryLevel() != null && record.getBatteryCapacity() != null && 
+            record.getBatteryLevel() < record.getBatteryCapacity() * 0.20) {
+            try {
+                AlertManager alertManager = new AlertManager();
+                DeviceManager deviceManager = new DeviceManager();
+                List<Device> devices = deviceManager.listDevices();
+                
+                if (devices != null && !devices.isEmpty()) {
+                    Integer deviceId = devices.get(0).getId();
+                    java.util.Date date = Timestamp.valueOf(record.getPeriodStart());
+                    
+                    Alert alert = alertManager.createAlert(
+                        date, 
+                        record.getBatteryLevel().floatValue(), 
+                        "BatteryLow", 
+                        deviceId
+                    );
+                    
+                    if (alert != null) {
+                        alertManager.saveAlertToDataBase(alert);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Nie udało się wygenerować alertu niskiego poziomu baterii: " + e.getMessage());
+            }
+        }
     }
 }

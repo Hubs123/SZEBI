@@ -22,6 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -50,15 +51,14 @@ public class SecurityConfig {
 
                 if (path.equals("/") ||
                         path.equals("/index.html") ||
-                        path.equals("/login.html") ||
-                        path.equals("/register.html") ||
-                        path.endsWith(".js") ||
-                        path.endsWith(".css") ||
                         path.startsWith("/api/szebi/login") ||
                         path.startsWith("/api/szebi/register") ||
                         path.startsWith("/api/analysis") ||
                         path.startsWith("/api/control") ||
-                        path.startsWith("/api/data")) {
+                        path.startsWith("/api/data/simulation") ||
+                        path.startsWith("/api/data") ||
+                        path.endsWith(".js") ||
+                        path.endsWith(".css")) {
 
                     chain.doFilter(req, res);
                     return;
@@ -95,18 +95,15 @@ public class SecurityConfig {
         };
 
         return http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Wyłączenie CSRF jest niezbędne dla POST z Reacta
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/", "/index.html", "/login.html", "/register.html",
-                                "/script.js", "/auth.js", "/styles.css",
-                                "/js/**", "/css/**", "/images/**"
-                        ).permitAll()
+                        .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/js/**", "/css/**", "/images/**").permitAll()
                         .requestMatchers("/api/szebi/login", "/api/szebi/register").permitAll()
                         .requestMatchers("/api/analysis/**").permitAll()
                         .requestMatchers("/api/control/**").permitAll()
+                        .requestMatchers("/api/data/simulation/**").permitAll() // Musi być PRZED /api/data/**
                         .requestMatchers("/api/data/**").permitAll()
                         .requestMatchers("/api/chat/addUser", "/api/chat/create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
