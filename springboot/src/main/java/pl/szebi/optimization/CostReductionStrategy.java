@@ -1,142 +1,80 @@
 package pl.szebi.optimization;
 
-//import pl.szebi.sterowanie.AutomationPlanManager;
+import pl.szebi.sterowanie.AutomationPlanManager;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CostReductionStrategy extends OptimizationStrategy {
+
     @Override
     public boolean calculate(OptimizationPlan plan, OptimizationData data, List<AutomationRule> currentRules) {
-        if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().size() < 24
-                || data.getForecastGenerated() == null || data.getForecastGenerated().size() < 24) {
+        if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().isEmpty()) {
             return false;
         }
 
-        List<Double> consumed = data.getForecastConsumed();
-        List<Double> generated = data.getForecastGenerated();
+        List<AutomationRule> dbRules = loadRulesFromDatabase();
+        if (dbRules.isEmpty()) return false;
 
-        // 1. Znalezienie najtańszego okna czasowego
-        Map<String, String> lowestCostInfo = findLowestCostWindow(consumed, generated);
+        List<Double> consumption = data.getForecastConsumed();
+        List<Double> production = data.getForecastGenerated();
 
-        if (lowestCostInfo == null || !lowestCostInfo.containsKey("timeWindow") || !lowestCostInfo.containsKey("minCost")) {
-            return false;
+        int bestWindowIndex = -1;
+        double maxBalance = -Double.MAX_VALUE;
+
+        int iterations = Math.min(consumption.size(), production.size());
+        for (int i = 0; i < iterations; i++) {
+            double balance = production.get(i) - consumption.get(i);
+            if (balance > maxBalance) {
+                maxBalance = balance;
+                bestWindowIndex = i;
+            }
         }
 
-        String lowestCostWindow = lowestCostInfo.get("timeWindow");
-        Double minCost = Double.parseDouble(lowestCostInfo.get("minCost"));
+        if (bestWindowIndex == -1) return false;
+        String bestTimeWindowStr = getWindowString(data.getTimestamp(), bestWindowIndex);
 
-        double costSavings = 0.0;
-        List<AutomationRule> calculatedRules = new ArrayList<>();
+        List<AutomationRule> optimizedRules = new ArrayList<>();
+        double totalSavings = 0.0;
 
-        // Klonowanie reguł, aby nie modyfikować oryginalnej listy (ważne w symulacjach)
-        List<AutomationRule> rules = currentRules.stream()
-                .map(AutomationRule::clone)
-                .toList();
-
-        // Parsowanie nowego okna czasowego (jedno godzinne)
-        List<Integer> newWindow = parseOffTimeWindow(lowestCostWindow);
-        if (newWindow.get(0) == -1) return false;
-
-        //generowanie regul dla urządzeń
-        for (AutomationRule rule : rules) {
+        // 2. Przeanalizuj i przesuń plany
+        for (AutomationRule rule : dbRules) {
             Map<String, Float> states = rule.getStates();
-            Float power = states.get("power");
-            if (power == null) {
-                return false;
-            }
-            // Pomijamy urządzenia wyłączone
-            if (power == 0.0f) {
-                continue;
-            }
 
-            // Optymalizacja dla uruchomionych urządzeń (zakładamy, że power == 1.0f oznacza działanie)
-            if (power >= 1.0f) {
-                List<Integer> timeWindowOld = parseOffTimeWindow(rule.getTimeWindow());
+            if (states.containsKey("power") && states.get("power") >= 1.0f) {
 
-                if (timeWindowOld.get(0) == -1) {
-                    continue;
+                AutomationRule optimizedRule = new AutomationRule();
+                optimizedRule.setDeviceId(rule.getDeviceId());
+
+                Map<String, Float> newStates = new HashMap<>(states);
+
+                if (maxBalance > 0 && newStates.containsKey("temp")) {
+                    float currentTemp = newStates.get("temp");
+                    if (currentTemp < 24.0f) {
+                        newStates.put("temp", currentTemp + 1.0f);
+                    }
                 }
 
-                // Sprawdzamy, czy urządzenie jest już w najlepszym oknie
-                if (timeWindowOld.get(0).equals(newWindow.get(0))) {
-                    continue;
-                }
+                optimizedRule.setStates(newStates);
+                optimizedRule.setTimeWindow(bestTimeWindowStr);
 
-                // Obliczamy koszt dla starego okna
-                // Wartość bilansu dla starej godziny
-                int oldStartHour = timeWindowOld.get(0);
+                optimizedRules.add(optimizedRule);
 
-                // Zabezpieczenie indeksu
-                if (oldStartHour < 0 || oldStartHour >= consumed.size()) {
-                    continue;
-                }
-
-                // Koszt (bilans) starego i nowego przedziału
-                // CostBefore = (Consumed(oldStartHour) - Generated(oldStartHour))
-                Double costBeforeOptimization = consumed.get(oldStartHour) - generated.get(oldStartHour);
-                Double costAfterOptimization = minCost;
-
-                // Jeśli opłaca się przenieść
-                if (costAfterOptimization < costBeforeOptimization) {
-                    // Używamy nazwy zmiennej z lokalnego scope
-                    rule.setTimeWindow(lowestCostWindow);
-                    // Obliczamy oszczędność
-                    costSavings += savingsCost(costBeforeOptimization, costAfterOptimization);
-                    // Dodajemy do zoptymalizowanych nastaw
-                    calculatedRules.add(rule);
+                String currentWindow = rule.getTimeWindow();
+                if (currentWindow == null || !currentWindow.equals(bestTimeWindowStr)) {
+                    totalSavings += 1.5;
                 }
             }
         }
 
-        //zapisanie wyniku
-        plan.setRules(calculatedRules);
-        plan.setCostSavings(costSavings);
-//        List<pl.szebi.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
-//        for (AutomationRule rule : calculatedRules) {
-//            rulesSterowanie.add(rule.convertAutomationRule(rule));
-//        }
-//        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+        plan.setRules(optimizedRules);
+        plan.setCostSavings(totalSavings);
+
+        List<pl.szebi.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+        for (AutomationRule rule : optimizedRules) {
+            rulesSterowanie.add(rule.convertAutomationRule(rule));
+        }
+        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+
         return true;
-    }
-
-    //Znajduje jedno-godzinne okno czasowe o najniższym koszcie energetycznym.
-    private Map<String, String> findLowestCostWindow(List<Double> consumed, List<Double> generated) {
-        if (consumed == null || generated == null || consumed.size() != 24 || generated.size() != 24) {
-            return null;
-        }
-
-        // minCost to Net Load (Bilans) dla danej godziny
-        int minIndex = 0;
-        // Obliczenie bilansu dla godziny 0
-        Double minCost = consumed.get(0) - generated.get(0);
-
-        // Iteracja przez wszystkie 24 godziny
-        for (int i = 1; i < consumed.size(); i++) {
-            // TUTAJ NASTĘPUJE OBLICZENIE KOSZTU (BILANSU)
-            Double currentCost = consumed.get(i) - generated.get(i);
-
-            if (currentCost < minCost) {
-                minCost = currentCost;
-                minIndex = i;
-            }
-        }
-
-        // Jednogodzinne okno kończy się o następnej pełnej godzinie
-        int offPeakStartHour = minIndex;
-        int offPeakEndHour = (minIndex + 1) % 24;
-
-        // Zabezpieczenie na wypadek minIndex=23, gdzie (23+1)%24 = 0 (00:00)
-        String timeWindowStr = String.format("%02d:00-%02d:00", offPeakStartHour, offPeakEndHour == 0 ? 24 : offPeakEndHour);
-
-        HashMap<String, String> lowestCostInfo = new HashMap<>();
-        lowestCostInfo.put("minCost", String.valueOf(minCost));
-        lowestCostInfo.put("timeWindow", timeWindowStr);
-
-        return lowestCostInfo;
-    }
-
-    private Double savingsCost(Double beforeOptimization, Double afterOptimization) {
-        return beforeOptimization - afterOptimization;
     }
 }

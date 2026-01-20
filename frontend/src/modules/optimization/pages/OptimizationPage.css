@@ -1,0 +1,241 @@
+/* Kontenery */
+.generate-container {
+  text-align: center;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.simulation-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.simulation-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.simulation-table th {
+  background: #f4f6f8;
+  color: #555;
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.simulation-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+  vertical-align: middle;
+}
+
+.simulation-table tr:hover {
+  background-color: #fafafa;
+}
+
+.value-cell {
+  font-family: "Consolas", monospace;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Statusy */
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-pill.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.status-pill.stopped {
+  background: #ffebee;
+  color: #c62828;
+}
+.status-pill.draft {
+  background: #f5f5f5;
+  color: #757575;
+}
+
+/* Przyciski Akcji */
+.actions-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.action-btn {
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.action-btn.start {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+.action-btn.start:hover {
+  background: #bbdefb;
+  transform: scale(1.05);
+}
+
+.action-btn.stop {
+  background: #ffebee;
+  color: #c62828;
+}
+.action-btn.stop:hover {
+  background: #ffcdd2;
+  transform: scale(1.05);
+}
+
+.action-btn.delete {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #d32f2f;
+}
+.action-btn.delete:hover {
+  background: #ffebee;
+  border-color: #d32f2f;
+}
+
+.action-btn.edit {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #f57c00;
+}
+.action-btn.edit:hover {
+  background: #fff3e0;
+  border-color: #f57c00;
+}
+
+.action-btn.info {
+  background: #f3f3f3;
+  color: #555;
+}
+.action-btn.info:hover {
+  background: #e0e0e0;
+}
+
+/* Sekcja Reguł (Expanded) */
+.expanded-row-parent {
+  background-color: #f8fbff !important;
+  border-bottom: none !important;
+}
+
+.rules-row td {
+  background-color: #f8fbff;
+  border-top: none;
+  padding: 0 1rem 1.5rem 1rem;
+}
+
+.rules-container {
+  background: #fff;
+  border: 1px solid #dae1e7;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.rules-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rules-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rule-badge {
+  background: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.rule-time {
+  font-weight: bold;
+  color: #333;
+  background: #eef2f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.rule-dev {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.rule-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.rule-states span {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* Karty zablokowane (Admin lock) */
+.disabled-card {
+  background: linear-gradient(135deg, #e0e0e0 0%, #cfcfcf 100%) !important;
+  color: #888 !important;
+  opacity: 0.9;
+  position: relative;
+  overflow: hidden;
+}
+
+.locked-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}

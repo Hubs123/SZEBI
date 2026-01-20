@@ -57,7 +57,6 @@ public class OptimizationManager {
         Future<?> task = executorService.submit(() -> simulationLoop(planId));
         activeTasks.put(planId, task);
 
-        System.out.println("Uruchomiono plan ID: " + planId);
         return true;
     }
 
@@ -71,7 +70,6 @@ public class OptimizationManager {
         if (plan != null) {
             plan.setStatus(PlanStatus.Stopped);
             planRepo.save(plan);
-            System.out.println("Zatrzymano plan ID: " + planId);
             return true;
         }
         return false;
@@ -87,8 +85,6 @@ public class OptimizationManager {
         Date lastProcessed = null;
         String threadName = Thread.currentThread().getName();
 
-        System.out.println("[" + threadName + "] Start pętli dla planu: " + planId);
-
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -101,14 +97,11 @@ public class OptimizationManager {
                     // 3. Sprawdzenie czy plan nadal istnieje i jest aktywny
                     OptimizationPlan plan = planRepo.findById(planId);
                     if (plan == null || plan.getStatus() != PlanStatus.Active) {
-                        System.out.println("[" + threadName + "] Plan nieaktywny lub usunięty. Koniec.");
                         break;
                     }
 
                     // 4. Pobranie danych i obliczenia
                     if (data.loadFromDatabase()) {
-                        System.out.println("[SIM " + planId + "] Przeliczanie dla: " + data.getTimestamp());
-
                         boolean success = plan.getStrategy().calculate(plan, data, plan.getRules());
 
                         if (success) {
@@ -133,7 +126,6 @@ public class OptimizationManager {
             Thread.currentThread().interrupt();
         } finally {
             activeTasks.remove(planId);
-            System.out.println("[" + threadName + "] Koniec pętli dla planu: " + planId);
         }
     }
 }

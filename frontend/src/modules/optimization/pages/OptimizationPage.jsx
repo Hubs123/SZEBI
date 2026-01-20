@@ -1,162 +1,330 @@
 import React, { useState, useEffect } from "react";
-import { optimizationApi } from "../../../services/api";
+import * as optimizationApi from "../../../services/optimizationApi";
+import { getUserRole } from "../../../services/roleGuards";
+import "../../../App.css";
+import "./OptimizationPage.css";
 
 const OptimizationPage = () => {
-  // Zarządzanie widokiem: 'menu', 'generate', 'table'
   const [view, setView] = useState("menu");
   const [plans, setPlans] = useState([]);
   const [strategyType, setStrategyType] = useState("Costs_reduction");
-  const userId = 1; // Pobierane z sesji użytkownika
+  const [expandedPlanId, setExpandedPlanId] = useState(null);
+
+  // --- POPRAWIONE SPRAWDZANIE ROLI ---
+  const userRole = getUserRole();
+  const isAdmin = userRole === "ROLE_ADMIN";
+  const userId = 1;
 
   const loadPlans = async () => {
     try {
-      const response = await optimizationApi.getPlans();
-      setPlans(response.data || []);
+      const data = await optimizationApi.fetchPlans();
+      setPlans(data || []);
     } catch (err) {
       console.error("Błąd pobierania planów:", err);
     }
   };
 
-  // Automatyczne odświeżanie danych w widoku tabeli, aby śledzić zmiany statusu
   useEffect(() => {
     if (view === "table") {
       loadPlans();
-      const interval = setInterval(loadPlans, 5000); //
+      const interval = setInterval(loadPlans, 3000);
       return () => clearInterval(interval);
     }
   }, [view]);
 
+  // --- AKCJE ---
+
   const handleGenerate = async () => {
+    if (!isAdmin) return alert("Brak uprawnień. Tylko administrator.");
     try {
-      // Administrator wybiera parametry i generuje plan
       await optimizationApi.generatePlan(userId, strategyType);
-      alert("Nowy plan został wygenerowany.");
-      setView("table"); // Przejdź do tabeli po wygenerowaniu
+      alert("✅ Plan wygenerowany.");
+      setView("table");
     } catch (err) {
-      alert("Błąd generowania planu.");
+      alert("❌ Błąd generowania.");
     }
   };
 
   const handleToggleStatus = async plan => {
     try {
-      // Zmiana statusu planu (Start/Stop)
-      const action = plan.status === "Active" ? "stop" : "run";
-      await optimizationApi[action === "run" ? "runPlan" : "stopPlan"](
-        plan.id,
-        userId,
-      );
+      if (plan.status === "Active") {
+        await optimizationApi.stopPlan(plan.id);
+      } else {
+        await optimizationApi.runPlan(plan.id);
+      }
       loadPlans();
     } catch (err) {
-      console.error("Błąd zmiany statusu:", err);
+      alert("Błąd zmiany statusu.");
     }
   };
 
+  // Usuwanie
+  const handleDelete = async id => {
+    if (!isAdmin) return;
+    if (window.confirm("Czy na pewno trwale usunąć ten plan?")) {
+      try {
+        await optimizationApi.deletePlan(id);
+        loadPlans();
+      } catch (e) {
+        alert("Błąd usuwania planu.");
+      }
+    }
+  };
+
+  // Zmiana nazwy
+  const handleRename = async (id, currentName) => {
+    const newName = prompt("Wpisz nową nazwę planu:", currentName || "");
+    if (newName && newName !== currentName) {
+      try {
+        await optimizationApi.renamePlan(id, newName);
+        loadPlans();
+      } catch (e) {
+        alert("Nie udało się zmienić nazwy.");
+      }
+    }
+  };
+
+  const toggleRules = id => {
+    setExpandedPlanId(expandedPlanId === id ? null : id);
+  };
+
   return (
-    <div className="panel">
-      <div className="simulation-header">
-        <h2>🧠 Moduł Optymalizacji Energii</h2>
-        {view !== "menu" && (
-          <button className="btn" onClick={() => setView("menu")}>
-            ⬅ Powrót do menu
-          </button>
-        )}
-      </div>
-
-      {/* SEKCOJA 1: Menu Główne */}
-      {view === "menu" && (
-        <div className="dashboard-stats" style={{ marginTop: "2rem" }}>
-          <div
-            className="stat-card"
-            style={{ cursor: "pointer" }}
-            onClick={() => setView("generate")}
-          >
-            <h3>➕ Wygeneruj nowy plan</h3>
-            <p>Wybierz parametry i stwórz nową strategię.</p>
-          </div>
-          <div
-            className="stat-card"
-            style={{ cursor: "pointer" }}
-            onClick={() => setView("table")}
-          >
-            <h3>📋 Przeglądaj plany</h3>
-            <p>Zobacz listę wszystkich planów i ich statusy.</p>
-          </div>
-          <div className="stat-card" style={{ opacity: 0.7 }}>
-            <h3>⚡ Zmień status planu</h3>
-            <p>Funkcja dostępna wewnątrz tabeli planów.</p>
-          </div>
-        </div>
-      )}
-
-      {/* SEKCJA 2: Formularz Generowania */}
-      {view === "generate" && (
+    <div className="module-container">
+      <div className="panel" style={{ width: "100%", maxWidth: "1100px" }}>
         <div
-          className="results"
-          style={{ padding: "2rem", textAlign: "center" }}
+          className="module-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          <h3>Wybierz typ strategii</h3>
-          <select
-            className="input-style"
-            value={strategyType}
-            onChange={e => setStrategyType(e.target.value)}
-            style={{ margin: "1rem 0", width: "300px" }}
-          >
-            <option value="Costs_reduction">Redukcja Kosztów</option>
-            <option value="Co2_reduction">Redukcja CO2</option>
-            <option value="Load_reduction">Redukcja Obciążenia</option>
-          </select>
-          <br />
-          <button className="btn" onClick={handleGenerate}>
-            Potwierdź i Generuj
-          </button>
-        </div>
-      )}
-
-      {/* SEKCJA 3: Tabela Planów */}
-      {view === "table" && (
-        <div className="simulation-table-container">
-          <table className="simulation-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nazwa / Strategia</th>
-                <th>Oszczędność</th>
-                <th>Status</th>
-                <th>Akcja</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plans.map(plan => (
-                <tr key={plan.id}>
-                  <td>#{plan.id}</td>
-                  <td>{plan.name || plan.strategyType}</td>
-                  <td className="value-cell">
-                    {plan.costSavings.toFixed(2)} PLN
-                  </td>
-                  <td>
-                    <span
-                      className={`battery-level ${plan.status === "Active" ? "high" : "low"}`}
-                    >
-                      {plan.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className={plan.status === "Active" ? "btn-stop" : "btn"}
-                      onClick={() => handleToggleStatus(plan)}
-                    >
-                      {plan.status === "Active" ? "⏹ Zatrzymaj" : "▶ Uruchom"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {plans.length === 0 && (
-            <div className="no-data-message">Brak dostępnych planów.</div>
+          <div>
+            <h2 style={{ margin: 0 }}>🧠 Optymalizacja Energii</h2>
+          </div>
+          {view !== "menu" && (
+            <button className="btn btn-gray" onClick={() => setView("menu")}>
+              ⬅ Menu
+            </button>
           )}
         </div>
-      )}
+
+        {view === "menu" && (
+          <div className="stats-grid">
+            <div
+              className={`stat-card ${!isAdmin ? "disabled-card" : ""}`}
+              style={{
+                cursor: isAdmin ? "pointer" : "not-allowed",
+                position: "relative",
+              }}
+              onClick={() => isAdmin && setView("generate")}
+            >
+              <h3>➕ Wygeneruj Plan</h3>
+              <p>Stwórz nową strategię optymalizacji.</p>
+              {!isAdmin && <div className="locked-overlay">🔒 Tylko Admin</div>}
+            </div>
+
+            <div
+              className="stat-card"
+              style={{
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+              }}
+              onClick={() => setView("table")}
+            >
+              <h3>📋 Przeglądaj Plany</h3>
+              <p>Lista aktywnych i archiwalnych planów.</p>
+            </div>
+          </div>
+        )}
+
+        {view === "generate" && isAdmin && (
+          <div className="generate-container">
+            <h3>Konfiguracja strategii</h3>
+            <div
+              className="form-group"
+              style={{ maxWidth: "400px", margin: "2rem auto" }}
+            >
+              <label>Typ optymalizacji:</label>
+              <select
+                value={strategyType}
+                onChange={e => setStrategyType(e.target.value)}
+              >
+                <option value="Costs_reduction">
+                  💰 Redukcja Kosztów (PLN)
+                </option>
+                <option value="Load_reduction">
+                  ⚡ Redukcja Obciążenia (Peak Shaving)
+                </option>
+              </select>
+            </div>
+
+            <div className="actions-row">
+              <button className="btn btn-gray" onClick={() => setView("menu")}>
+                Anuluj
+              </button>
+              <button className="btn" onClick={handleGenerate}>
+                🚀 Generuj
+              </button>
+            </div>
+          </div>
+        )}
+
+        {view === "table" && (
+          <div className="simulation-table-container">
+            <table className="simulation-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nazwa / Strategia</th>
+                  <th>Oszczędność</th>
+                  <th>Status</th>
+                  <th>Akcje</th>
+                </tr>
+              </thead>
+              <tbody>
+                {plans.length > 0 ? (
+                  plans.map(plan => (
+                    <React.Fragment key={plan.id}>
+                      <tr
+                        className={
+                          expandedPlanId === plan.id
+                            ? "expanded-row-parent"
+                            : ""
+                        }
+                      >
+                        <td>
+                          <strong>#{plan.id}</strong>
+                        </td>
+                        <td>
+                          {plan.name || (
+                            <span
+                              style={{ fontStyle: "italic", color: "#999" }}
+                            >
+                              Bez nazwy
+                            </span>
+                          )}
+                          <div style={{ fontSize: "0.75rem", color: "#666" }}>
+                            {plan.strategyType}
+                          </div>
+                        </td>
+                        <td className="value-cell">
+                          {plan.costSavings?.toFixed(2)} PLN
+                        </td>
+                        <td>
+                          <span
+                            className={`status-pill ${plan.status.toLowerCase()}`}
+                          >
+                            {plan.status === "Active"
+                              ? "W toku"
+                              : plan.status === "Stopped"
+                                ? "Stop"
+                                : "Szkic"}
+                          </span>
+                        </td>
+                        <td className="actions-cell">
+                          {/* Info (Rules) */}
+                          <button
+                            className="action-btn info"
+                            onClick={() => toggleRules(plan.id)}
+                            title="Pokaż/Ukryj Reguły"
+                          >
+                            {expandedPlanId === plan.id ? "▲" : "▼"}
+                          </button>
+
+                          {/* Edycja Nazwy */}
+                          <button
+                            className="action-btn edit"
+                            onClick={() => handleRename(plan.id, plan.name)}
+                            title="Zmień nazwę"
+                          >
+                            ✎
+                          </button>
+
+                          {/* Start/Stop */}
+                          <button
+                            className={`action-btn ${plan.status === "Active" ? "stop" : "start"}`}
+                            onClick={() => handleToggleStatus(plan)}
+                            title={
+                              plan.status === "Active" ? "Zatrzymaj" : "Uruchom"
+                            }
+                          >
+                            {plan.status === "Active" ? "⏹" : "▶"}
+                          </button>
+
+                          {/* Usuwanie (Tylko Admin) */}
+                          {isAdmin && (
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDelete(plan.id)}
+                              title="Usuń plan"
+                            >
+                              🗑
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+
+                      {/* --- ROZWINIĘTE REGUŁY --- */}
+                      {expandedPlanId === plan.id && (
+                        <tr className="rules-row">
+                          <td colSpan="5">
+                            <div className="rules-container">
+                              <h4>📅 Harmonogram Automatyzacji</h4>
+                              {plan.rules && plan.rules.length > 0 ? (
+                                <div className="rules-grid">
+                                  {plan.rules.map((rule, idx) => (
+                                    <div key={idx} className="rule-badge">
+                                      <span className="rule-time">
+                                        🕒 {rule.timeWindow}
+                                      </span>
+                                      <span className="rule-dev">
+                                        Urządzenie #{rule.deviceId}
+                                      </span>
+                                      <div className="rule-states">
+                                        {Object.entries(rule.states).map(
+                                          ([k, v]) => (
+                                            <span key={k}>
+                                              {k}: <strong>{v}</strong>
+                                            </span>
+                                          ),
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p
+                                  style={{ color: "#999", fontStyle: "italic" }}
+                                >
+                                  Brak wygenerowanych reguł.
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      style={{
+                        textAlign: "center",
+                        padding: "2rem",
+                        color: "#888",
+                      }}
+                    >
+                      Brak planów.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

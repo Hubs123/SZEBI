@@ -56,6 +56,10 @@ public class AutomationRule {
         this.timeWindow = timeWindow;
     }
 
+    public pl.szebi.sterowanie.AutomationRule convertAutomationRule(AutomationRule rule) {
+        return new pl.szebi.sterowanie.AutomationRule(rule.getDeviceId(), rule.getStates(), rule.getTimeWindow());
+    }
+
     @Override
     public String toString() {
         return "Rule{dev=" + deviceId + ", win='" + timeWindow + "'}";
