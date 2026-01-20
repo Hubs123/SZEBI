@@ -10,7 +10,6 @@ const OptimizationPage = () => {
   const [strategyType, setStrategyType] = useState("Costs_reduction");
   const [expandedPlanId, setExpandedPlanId] = useState(null);
 
-  // --- POPRAWIONE SPRAWDZANIE ROLI ---
   const userRole = getUserRole();
   const isAdmin = userRole === "ROLE_ADMIN";
   const userId = 1;
@@ -32,16 +31,15 @@ const OptimizationPage = () => {
     }
   }, [view]);
 
-  // --- AKCJE ---
 
   const handleGenerate = async () => {
     if (!isAdmin) return alert("Brak uprawnień. Tylko administrator.");
     try {
       await optimizationApi.generatePlan(userId, strategyType);
-      alert("✅ Plan wygenerowany.");
+      alert("Plan wygenerowany.");
       setView("table");
     } catch (err) {
-      alert("❌ Błąd generowania.");
+      alert("łąd generowania.");
     }
   };
 
@@ -58,7 +56,6 @@ const OptimizationPage = () => {
     }
   };
 
-  // Usuwanie
   const handleDelete = async id => {
     if (!isAdmin) return;
     if (window.confirm("Czy na pewno trwale usunąć ten plan?")) {
@@ -71,7 +68,6 @@ const OptimizationPage = () => {
     }
   };
 
-  // Zmiana nazwy
   const handleRename = async (id, currentName) => {
     const newName = prompt("Wpisz nową nazwę planu:", currentName || "");
     if (newName && newName !== currentName) {
@@ -100,11 +96,11 @@ const OptimizationPage = () => {
           }}
         >
           <div>
-            <h2 style={{ margin: 0 }}>🧠 Optymalizacja Energii</h2>
+            <h2 style={{ margin: 0 }}>Optymalizacja Energii</h2>
           </div>
           {view !== "menu" && (
             <button className="btn btn-gray" onClick={() => setView("menu")}>
-              ⬅ Menu
+              Menu
             </button>
           )}
         </div>
@@ -119,7 +115,7 @@ const OptimizationPage = () => {
               }}
               onClick={() => isAdmin && setView("generate")}
             >
-              <h3>➕ Wygeneruj Plan</h3>
+              <h3>Wygeneruj Plan</h3>
               <p>Stwórz nową strategię optymalizacji.</p>
               {!isAdmin && <div className="locked-overlay">🔒 Tylko Admin</div>}
             </div>
@@ -132,7 +128,7 @@ const OptimizationPage = () => {
               }}
               onClick={() => setView("table")}
             >
-              <h3>📋 Przeglądaj Plany</h3>
+              <h3>Przeglądaj Plany</h3>
               <p>Lista aktywnych i archiwalnych planów.</p>
             </div>
           </div>
@@ -151,10 +147,10 @@ const OptimizationPage = () => {
                 onChange={e => setStrategyType(e.target.value)}
               >
                 <option value="Costs_reduction">
-                  💰 Redukcja Kosztów (PLN)
+                  Redukcja Kosztów (PLN)
                 </option>
                 <option value="Load_reduction">
-                  ⚡ Redukcja Obciążenia (Peak Shaving)
+                  Redukcja Obciążenia (Peak Shaving)
                 </option>
               </select>
             </div>
@@ -164,7 +160,7 @@ const OptimizationPage = () => {
                 Anuluj
               </button>
               <button className="btn" onClick={handleGenerate}>
-                🚀 Generuj
+                Generuj
               </button>
             </div>
           </div>
@@ -270,13 +266,13 @@ const OptimizationPage = () => {
                         <tr className="rules-row">
                           <td colSpan="5">
                             <div className="rules-container">
-                              <h4>📅 Harmonogram Automatyzacji</h4>
+                              <h4>Harmonogram Automatyzacji</h4>
                               {plan.rules && plan.rules.length > 0 ? (
                                 <div className="rules-grid">
                                   {plan.rules.map((rule, idx) => (
                                     <div key={idx} className="rule-badge">
                                       <span className="rule-time">
-                                        🕒 {rule.timeWindow}
+                                        {rule.timeWindow}
                                       </span>
                                       <span className="rule-dev">
                                         Urządzenie #{rule.deviceId}
