@@ -1,37 +1,34 @@
 package pl.szebi.optimization;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OptimizationPlan {
     private Integer id;
     private String name;
-    private final Integer userId;
-    private PlanStatus status; // Używamy importowanego enuma
+    private Integer userId;
+    private PlanStatus status;
     private Double costSavings = 0.0;
     private Double co2Savings = 0.0;
-    private final OptimizationStrategy strategy;
-    private final OptimizationStrategyType strategyType;
-    private List<AutomationRule> rules;
+
+    // Ignorujemy obiekt strategii przy wysyłaniu do JSON (zapobiega błędowi pustego obiektu)
+    @JsonIgnore
+    private OptimizationStrategy strategy;
+
+    private OptimizationStrategyType strategyType;
+    private List<AutomationRule> rules = new ArrayList<>();
+
+    public OptimizationPlan() {
+    }
 
     public OptimizationPlan(Integer id, Integer userId, OptimizationStrategy strategy) {
         this.id = id;
         this.userId = userId;
-        this.strategy = strategy;
-
-        String strategyClassName = strategy.getClass().getSimpleName().replace("Strategy", "");
-        strategy.getClass().getSimpleName().replace("Strategy", "");
-        if (strategyClassName.equals("LoadReduction")) {
-            strategyClassName = "Load_reduction";
-        }
-        if (strategyClassName.equals("Co2Reduction")) {
-            strategyClassName = "Co2_reduction";
-        }
-        if (strategyClassName.equals("CostReduction")) {
-            strategyClassName = "Costs_reduction";
-        }
-        this.strategyType = OptimizationStrategyType.valueOf(strategyClassName);
-
+        setStrategy(strategy);
         this.status = PlanStatus.Draft;
     }
 
@@ -39,98 +36,103 @@ public class OptimizationPlan {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Integer getUserId() {
         return userId;
     }
 
-    public Double getCostSavings() {
-        return costSavings;
-    }
-
-    public Double getCo2Savings() {
-        return co2Savings;
-    }
-
-    public OptimizationStrategy getStrategy() {
-        return strategy;
-    }
-
-    public String getStrategyName() {
-        return strategyType.name();
-    }
-
-    public OptimizationStrategyType getStrategyType() {
-        return strategyType;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public PlanStatus getStatus() {
         return status;
     }
 
-    public List<AutomationRule> getRules() {
-        return rules;
-    }
-
     public void setStatus(PlanStatus status) {
         this.status = status;
+    }
+
+    public Double getCostSavings() {
+        return costSavings;
     }
 
     public void setCostSavings(Double costSavings) {
         this.costSavings = costSavings;
     }
 
+    public Double getCo2Savings() {
+        return co2Savings;
+    }
+
     public void setCo2Savings(Double co2Savings) {
         this.co2Savings = co2Savings;
     }
 
-    public void setRules(List<AutomationRule> rules) {
-        this.rules = rules;
-        if (rules != null && this.status == PlanStatus.Draft) {
-            this.status = PlanStatus.Pending;
+    public OptimizationStrategyType getStrategyType() {
+        return strategyType;
+    }
+
+    public void setStrategyType(OptimizationStrategyType strategyType) {
+        this.strategyType = strategyType;
+    }
+
+    public OptimizationStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(OptimizationStrategy strategy) {
+        this.strategy = strategy;
+        if (strategy != null) {
+            // Automatyczne ustawienie typu na podstawie klasy
+            String cleanName = strategy.getClass().getSimpleName().replace("Strategy", "");
+            if (cleanName.equalsIgnoreCase("CostReduction") || cleanName.contains("Cost"))
+                this.strategyType = OptimizationStrategyType.Costs_reduction;
+            else if (cleanName.equalsIgnoreCase("LoadReduction") || cleanName.contains("Load"))
+                this.strategyType = OptimizationStrategyType.Load_reduction;
         }
     }
 
-    // lista AutomationRule's -> json do bazy
+    public List<AutomationRule> getRules() {
+        if (rules == null) return new ArrayList<>();
+        return rules;
+    }
+
+    public void setRules(List<AutomationRule> rules) {
+        this.rules = rules;
+    }
+
+    // Metoda pomocnicza dla bazy danych - ukryta przed JSON frontendu
+    @JsonIgnore
     public String getRulesAsJson() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < rules.size(); i++) {
-            AutomationRule r = rules.get(i);
-            sb.append("{");
-            sb.append("\"deviceId\":").append(r.getDeviceId()).append(",");
-            sb.append("\"timeWindow\":\"").append(r.getTimeWindow()).append("\",");
-            sb.append("\"states\":{");
-            int cnt = 0;
-            for (Map.Entry<String, Float> e : r.getStates().entrySet()) {
-                sb.append("\"").append(e.getKey()).append("\":").append(e.getValue());
-                if (++cnt < r.getStates().size()) sb.append(",");
-            }
-            sb.append("}");
-            sb.append("}");
-            if (i < rules.size() - 1) sb.append(",");
+        if (rules == null || rules.isEmpty()) {
+            return "[]";
         }
-        sb.append("]");
-        return sb.toString();
+        try {
+            return new ObjectMapper().writeValueAsString(rules);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "[]";
+        }
     }
 
     @Override
     public String toString() {
         return "OptimizationPlan{" +
                 "id=" + id +
-                ", userId=" + userId +
                 ", status=" + status +
-                ", costSavings=" + costSavings +
-                ", co2Savings=" + co2Savings +
-                ", strategy=" + strategyType.name() +
-                ", rulesSize=" + (rules != null ? rules.size() : 0) +
+                ", strategy=" + strategyType +
                 '}';
     }
 }

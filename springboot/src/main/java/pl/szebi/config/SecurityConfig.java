@@ -110,6 +110,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/control/**").permitAll()
                         .requestMatchers("/api/optimization/**").permitAll()
                         .requestMatchers("/api/alerts/**", "/api/admin/alerts/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
