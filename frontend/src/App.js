@@ -46,6 +46,8 @@ import AlertsLayout from './layouts/AlertsLayout';
 import AlertsPage from './modules/alerts/pages/AlertsPage';
 import DeviceGroupsPage from './modules/alerts/pages/DeviceGroupsPage';
 
+import OptimizationPage from "./modules/optimization/pages/OptimizationPage";
+
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("token");
 
@@ -202,7 +204,7 @@ function App() {
                     </Route>
 
                     {/* niedokończone moduły */}
-                    <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji"/>}/>
+                    <Route path="optymalizacja" element={<OptimizationPage />}/>
 
                     <Route path="*" element={<Navigate to="/" replace/>}/>
                 </Route>

@@ -33,3 +33,6 @@ __pycache__/
 
 #DS_Store
 .DS_Store
+
+# wirtualne srodowisko pythona
+.venv

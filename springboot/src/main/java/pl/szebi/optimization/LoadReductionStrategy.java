@@ -1,71 +1,72 @@
 package pl.szebi.optimization;
 
+import pl.szebi.sterowanie.AutomationPlanManager;
+
 import java.util.*;
-import java.util.stream.Collectors;
-//import pl.szebi.sterowanie.AutomationPlanManager;
 
 public class LoadReductionStrategy extends OptimizationStrategy {
 
     @Override
     public boolean calculate(OptimizationPlan plan, OptimizationData data, List<AutomationRule> currentRules) {
-        if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().size() < 24) {
+        if (data == null || data.getForecastConsumed() == null || data.getForecastConsumed().isEmpty()) {
             return false;
         }
 
-        List<Float> consumed = data.getForecastConsumed();
+        List<AutomationRule> dbRules = loadRulesFromDatabase();
+        if (dbRules.isEmpty()) return false;
 
-        // Okno czasowe dot. przedziału najmniejszego zużycia
-        String offPeakLoadWindow = findMinWindow(consumed);
+        List<Double> consumption = data.getForecastConsumed();
 
-        List<AutomationRule> calculatedRules = new ArrayList<>();
+        // 1. Znajdź okno z NAJMNIEJSZYM obciążeniem sieci
+        int bestWindowIndex = -1;
+        double minLoad = Double.MAX_VALUE;
 
-        // Klonowanie reguł, aby nie modyfikować oryginalnej listy
-        List<AutomationRule> rules = currentRules.stream()
-                .map(AutomationRule::clone)
-                .toList();
-
-        List<Integer> timeWindowNew = parseOffTimeWindow(offPeakLoadWindow);
-        if (timeWindowNew.get(0) == -1) return false;
-
-        //generowanie regul dla urządzeń
-        for (AutomationRule rule : rules) {
-            Map<String, Float> states = rule.getStates();
-            Float power = states.get("power");
-            if (power == null) {
-                return false;
-            }
-
-            // Pomijamy urządzenia wyłączone
-            if (power == 0.0f) {
-                continue;
-            }
-
-            // Optymalizacja dla uruchomionych urządzeń
-            if (power >= 1.0f) {
-                List<Integer> timeWindowOld = parseOffTimeWindow(rule.getTimeWindow());
-
-                if (timeWindowOld.get(0) == -1) {
-                    continue;
-                }
-
-                if (timeWindowNew.get(0).equals(timeWindowOld.get(0))) {
-                    continue;
-                }
-
-                rule.setTimeWindow(offPeakLoadWindow);
-                calculatedRules.add(rule);
-
+        for (int i = 0; i < consumption.size(); i++) {
+            if (consumption.get(i) < minLoad) {
+                minLoad = consumption.get(i);
+                bestWindowIndex = i;
             }
         }
 
-        //zapisanie wyniku
-        plan.setRules(calculatedRules);
+        if (bestWindowIndex == -1) return false;
+        String bestTimeWindowStr = getWindowString(data.getTimestamp(), bestWindowIndex);
 
-//        List<pl.szebi.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
-//        for (AutomationRule rule : calculatedRules) {
-//            rulesSterowanie.add(rule.convertAutomationRule(rule));
-//        }
-//        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+        List<AutomationRule> optimizedRules = new ArrayList<>();
+        double estimatedPeakShaving = 0.0;
+
+        // 2. Przesuń energochłonne zadania do doliny
+        for (AutomationRule rule : dbRules) {
+            Map<String, Float> states = rule.getStates();
+
+            if (states.containsKey("power") && states.get("power") >= 1.0f) {
+
+                AutomationRule optimizedRule = new AutomationRule();
+                optimizedRule.setDeviceId(rule.getDeviceId());
+
+                Map<String, Float> newStates = new HashMap<>(states);
+                optimizedRule.setStates(newStates);
+
+                // Ustawiamy czas na moment najniższego obciążenia sieci
+                optimizedRule.setTimeWindow(bestTimeWindowStr);
+
+                optimizedRules.add(optimizedRule);
+
+                String currentWindow = rule.getTimeWindow();
+                if (currentWindow == null || !currentWindow.equals(bestTimeWindowStr)) {
+                    estimatedPeakShaving += 0.5;
+                }
+            }
+        }
+
+        plan.setRules(optimizedRules);
+        plan.setCostSavings(estimatedPeakShaving);
+
+        List<pl.szebi.sterowanie.AutomationRule> rulesSterowanie = new ArrayList<>();
+        for (AutomationRule rule : optimizedRules) {
+            rulesSterowanie.add(rule.convertAutomationRule(rule));
+        }
+        AutomationPlanManager.applyModifications(rulesSterowanie,0);
+
         return true;
     }
 }

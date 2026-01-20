@@ -107,6 +107,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/data/**").permitAll()
                         .requestMatchers("/api/chat/addUser", "/api/chat/create").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/chat/**", "/api/chat/**").authenticated()
+                        .requestMatchers("/api/optimization/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
