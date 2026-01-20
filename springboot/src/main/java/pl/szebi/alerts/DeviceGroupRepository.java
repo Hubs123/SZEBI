@@ -7,7 +7,12 @@ public class DeviceGroupRepository {
     private static List<DeviceGroup> groups = new ArrayList<>();
 
     static {
-        groups.add(new DeviceGroup(1, "Urządzenia Niesymulowane", null, null));
+        Threshold progTest = new Threshold(1, "Battery",50.f, 20.f);
+        Threshold progTest2 = new Threshold(2, "Grid",0.8f, 1.3f);
+        List<Threshold> thresholds = new ArrayList<>();
+        thresholds.add(progTest);
+        thresholds.add(progTest2);
+        groups.add(new DeviceGroup(1, "Urządzenia Niesymulowane", thresholds, null));
         groups.add(new DeviceGroup(2, "Termometry", null, null));
         groups.add(new DeviceGroup(3, "Czujniki Dymu", null, null));
     }
