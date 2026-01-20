@@ -49,7 +49,7 @@ const PredictionPanel = () => {
 
   return (
     <div className="panel">
-      <h2>🔮 Prognozowanie Zużycia Energii</h2>
+      <h2>Prognozowanie Zużycia Energii</h2>
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">

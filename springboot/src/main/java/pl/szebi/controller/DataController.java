@@ -36,16 +36,16 @@ public class DataController {
             // Buduj URL z parametrami
             UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/data/measurements")
                 .queryParam("sensorId", sensorId);
-            
+
             if (start != null && !start.isEmpty()) {
                 builder.queryParam("start", start);
             }
             if (end != null && !end.isEmpty()) {
                 builder.queryParam("end", end);
             }
-            
+
             String endpoint = builder.toUriString();
-            
+
             // Wywołanie FastAPI endpointu
             List<?> measurements = fastApiClient.get(endpoint, List.class);
             return ResponseEntity.ok(measurements);
@@ -97,33 +97,101 @@ public class DataController {
         }
     }
 
-    @PostMapping("/simulation/run")
-    public ResponseEntity<?> runSimulation() {
-        try {
-            // Utworzenie ustawień systemu
-            Settings settings = new Settings();
-            settings.setPanelPower(5.0);
-            settings.setBatteryCapacity(100.0);
+//    @PostMapping("/simulation/run")
+//    public ResponseEntity<?> runSimulation(@RequestBody Map<String, String> payload) {
+//        try {
+//            String dateStr = payload.get("date");
+//            java.time.LocalDate date = java.time.LocalDate.parse(dateStr);
+//
+//            Settings settings = new Settings();
+//            settings.setPanelPower(5.0);
+//            settings.setBatteryCapacity(100.0);
+//
+//            SimulationManager manager = new SimulationManager(settings);
+//            java.util.List<SimulationRecord> records = manager.simulateDay(date);
+//
+//            pl.szebi.symulacja.DataRepository repository = new pl.szebi.symulacja.DataRepository();
+//            boolean saved = repository.saveAll(records);
+//
+//            Map<String, Object> response = new java.util.HashMap<>();
+//            response.put("success", saved);
+//            response.put("message", saved ? "Simulation completed and saved to database" : "Simulation completed but failed to save");
+//            response.put("recordCount", records.size());
+//            response.put("date", date.toString());
+//
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(new pl.szebi.dto.ErrorResponse("SIMULATION_ERROR", "Failed: " + e.getMessage()));
+//        }
+//    }
 
-            // Utworzenie managera symulacji
-            SimulationManager manager = new SimulationManager(settings);
-
-            // Wykonanie symulacji dla dzisiejszej daty
-            java.time.LocalDate today = java.time.LocalDate.now();
-            java.util.List<SimulationRecord> records = manager.simulateDay(today);
-
-            // Zwróć informację o sukcesie
-            Map<String, Object> response = new java.util.HashMap<>();
-            response.put("success", true);
-            response.put("message", "Simulation completed successfully");
-            response.put("recordCount", records.size());
-            response.put("date", today.toString());
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("SIMULATION_ERROR", "Failed to run simulation: " + e.getMessage()));
+//    @PostMapping("/simulation/run")
+//    public ResponseEntity<?> runSimulation(@RequestParam String date) { // Zmieniono z @RequestBody Map na @RequestParam
+//        try {
+//            java.time.LocalDate localDate = java.time.LocalDate.parse(date);
+//
+//            Settings settings = new Settings();
+//            settings.setPanelPower(5.0);
+//            settings.setBatteryCapacity(100.0);
+//
+//            SimulationManager manager = new SimulationManager(settings);
+//            java.util.List<SimulationRecord> records = manager.simulateDay(localDate);
+//
+//            pl.szebi.symulacja.DataRepository repository = new pl.szebi.symulacja.DataRepository();
+//            boolean saved = repository.saveAll(records);
+//
+//            Map<String, Object> response = new java.util.HashMap<>();
+//            response.put("success", saved);
+//            response.put("message", saved ? "Simulation completed and saved to database" : "Simulation completed but failed to save");
+//            response.put("recordCount", records.size());
+//            response.put("date", localDate.toString());
+//
+//            return ResponseEntity.ok(response);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(new pl.szebi.dto.ErrorResponse("SIMULATION_ERROR", "Failed: " + e.getMessage()));
+//        }
+//    }
+@PostMapping("/simulation/run")
+public ResponseEntity<?> runSimulation(@RequestParam(required = false) String date) {
+    try {
+        java.time.LocalDate localDate;
+        if (date == null || date.isEmpty() || date.equals("undefined")) {
+            localDate = java.time.LocalDate.now();
+        } else {
+            localDate = java.time.LocalDate.parse(date);
         }
+
+        Settings settings = new Settings();
+        settings.setPanelPower(5.0);
+        settings.setBatteryCapacity(100.0);
+
+        SimulationManager manager = new SimulationManager(settings);
+        java.util.List<SimulationRecord> records = manager.simulateDay(localDate);
+
+        pl.szebi.symulacja.DataRepository repository = new pl.szebi.symulacja.DataRepository();
+        boolean saved = repository.saveAll(records);
+
+        if (saved) {
+            for (SimulationRecord record : records) {
+                repository.saveToEnergyStats(record);
+                repository.saveToMeasurements(record);
+            }
+        }
+
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("success", saved);
+        response.put("message", "Symulacja zakończona dla daty: " + localDate);
+        response.put("recordCount", records.size());
+        response.put("date", localDate.toString());
+
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new pl.szebi.dto.ErrorResponse("SIMULATION_ERROR", "Błąd: " + e.getMessage()));
     }
+}
 }
 

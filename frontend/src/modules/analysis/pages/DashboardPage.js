@@ -152,7 +152,7 @@ const DashboardPage = () => {
   return (
     <div>
       <div className="panel">
-        <h2>📈 Dashboard</h2>
+        <h2>Dashboard</h2>
         {stats && (
           <div className="stats-grid">
             <div className="stat-card">
@@ -185,7 +185,7 @@ const DashboardPage = () => {
       {/* Tabela danych symulacji */}
       <div className="panel">
         <div className="simulation-header">
-          <h2>⚡ Dane Symulacji (Odświeżanie co 3s)</h2>
+          <h2>Dane Symulacji (Odświeżanie co 3s)</h2>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {simulationLoading && <span className="loading-indicator">🔄 Ładowanie...</span>}
             <button 

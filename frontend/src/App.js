@@ -42,6 +42,10 @@ import SimulationSettingsPage from "./modules/simulation/pages/SimulationSetting
 
 import { requireAdmin, requireResident } from "./services/roleGuards";
 
+import AlertsLayout from './layouts/AlertsLayout';
+import AlertsPage from './modules/alerts/pages/AlertsPage';
+import DeviceGroupsPage from './modules/alerts/pages/DeviceGroupsPage';
+
 const ProtectedRoute = ({ children }) => {
     const token = sessionStorage.getItem("token");
 
@@ -199,7 +203,6 @@ function App() {
 
                     {/* niedokończone moduły */}
                     <Route path="optymalizacja" element={<Placeholder title="Moduł Optymalizacji"/>}/>
-
 
                     <Route path="*" element={<Navigate to="/" replace/>}/>
                 </Route>

@@ -92,7 +92,7 @@ const SimulationSettingsPage = () => {
       </form>
 
       {error && <div className="error">{error}</div>}
-      {saved && <div className="success">Ustawienia zostały zapisane!</div>}
+      {saved && <div className="success">✅ Ustawienia zostały zapisane!</div>}
 
       <div className="settings-summary">
         <h3>Podsumowanie konfiguracji</h3>

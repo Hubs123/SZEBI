@@ -49,7 +49,7 @@ const AnalysisPage = () => {
 
   return (
     <div className="panel">
-      <h2>📊 Analiza Zużycia Energii</h2>
+      <h2>Analiza Zużycia Energii</h2>
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
